@@ -214,6 +214,10 @@ th.off,td.off{opacity:.45}
 .wp-n{font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
 .wp-ok .wp-n{color:var(--low)} .wp-miss .wp-n{color:var(--high)} .wp-part .wp-n{color:var(--med)}
 .wp-extra{margin-top:10px;font-size:12px;color:var(--muted)}
+.wp-cat-t{font-size:12px;font-weight:600;color:#fff;background:var(--c);border-radius:999px;padding:2px 9px}
+.wp-empty{color:var(--muted);font-size:13px;padding:10px 12px;border:1px dashed var(--border);border-radius:10px}
+.wp-empty b{color:var(--text)}
+#wp-card h3 .sub{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .wp-extra b{color:var(--text)}
 /* filters */
 .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;padding:12px;background:var(--surface-2);border-radius:10px;margin-bottom:10px}
@@ -241,6 +245,8 @@ th.off,td.off{opacity:.45}
 .mlist li span.t{flex:1}
 .del{border:0;background:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:2px 6px;border-radius:6px}
 .del:hover{background:var(--high-bg);color:var(--high)}
+.edit{border:0;background:none;color:var(--muted);cursor:pointer;font-size:15px;line-height:1;padding:2px 6px;border-radius:6px}
+.edit:hover{background:var(--brand-soft);color:var(--brand)}
 .madd{display:flex;gap:6px;margin-top:10px}
 .madd input{flex:1;min-width:0}
 .lock{font-size:11px;color:var(--muted);font-weight:400}
@@ -411,7 +417,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   </div>
 
   <div class="card" style="margin-top:16px" id="wp-card">
-    <h3>Plan Program HSE Mingguan <span class="sub"><select id="wp-week" class="no-pdf"></select></span></h3>
+    <h3>Plan Program HSE Mingguan <span class="wp-cat-t" id="wp-cat-t"></span><span class="sub"><select id="wp-cat" class="no-pdf"></select> <select id="wp-week" class="no-pdf"></select></span></h3>
     <div class="wp-top"><div class="wp-sum" id="wp-sum"></div><div class="wp-bar"><i id="wp-bar"></i></div></div>
     <div class="wp-grid" id="wp-list"></div>
     <div class="wp-extra" id="wp-extra"></div>
@@ -686,6 +692,19 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <label>Lokasi<select name="location" id="af-loc"></select></label>
       <label>Foto<input type="file" accept="image/*" capture="environment" id="af-photo"></label>
       <label class="full">Catatan<textarea name="notes" rows="2" placeholder="Hadiah, hasil patrol, temuan, dll"></textarea></label>
+    </div>
+    <div class="dlg-f"><button class="btn" value="cancel" formnovalidate>Batal</button><button class="btn primary" value="ok">Simpan</button></div>
+  </form>
+</dialog>
+<dialog id="dlg-prog">
+  <form method="dialog" id="prog-form">
+    <div class="dlg-h">Edit Program HSE</div>
+    <div class="dlg-b">
+      <label>Kategori<select name="category" id="pe-cat" required></select></label>
+      <label>Frekuensi<select name="frequency" id="pe-freq" required></select></label>
+      <label class="full">Nama program<input name="name" required maxlength="80"></label>
+      <label class="full">PIC<input name="pic" maxlength="40"></label>
+      <div class="full fx-note" id="pe-info"></div>
     </div>
     <div class="dlg-f"><button class="btn" value="cancel" formnovalidate>Batal</button><button class="btn primary" value="ok">Simpan</button></div>
   </form>
@@ -1167,7 +1186,8 @@ function renderGuide(){
     <li>Klik sel matriks atau tombol <b>+ Catat Kegiatan</b> (juga di tombol cepat +) untuk mencatat training, induction, safety moment, patrol, dll. Isi jumlah peserta dan foto.</li>
     <li>Warna sel: <span class="pill st-closed">hijau</span> sesuai rencana, <span class="pill MEDIUM">kuning</span> sebagian / week berjalan, <span class="pill st-open">merah</span> tidak terlaksana, biru = kegiatan di luar rencana.</li>
     <li><b>Kepatuhan</b> = realisasi (maksimal sebanyak rencana) ÷ rencana, hanya untuk week yang sudah berjalan.</li>
-    <li>Admin dapat menambah / menghapus program di kartu <b>Daftar Program HSE</b>.</li></ul>`],
+    <li>Admin dapat menambah, <b>mengedit (✎)</b> dan menghapus (×) program di kartu <b>Daftar Program HSE</b>. Mengubah frekuensi langsung mengubah rencana di matriks.</li>
+    <li>Kartu <b>Plan Program HSE Mingguan</b> di Dashboard menampilkan kategori <b>Training</b> secara default; pilih kategori lain atau <i>Semua kategori</i> dari dropdown.</li></ul>`],
   ['Export PDF & filter',`<ol><li>Buka halaman yang ingin dicetak, atur filter (mis. periode, risk, area, status).</li>
     <li>Klik <b>Export PDF</b> di kanan atas. Dashboard & Master dicetak A4 portrait, tabel (Manpower, Cuaca, Observation, Incident) A4 landscape. Pergantian halaman otomatis menyesuaikan isi: baris tabel, kartu dan grafik tidak terpotong, dan setiap halaman diberi nomor.</li>
     <li>Keterangan filter yang aktif ikut tercetak di PDF, jadi pembaca tahu data apa yang ditampilkan.</li></ol>
@@ -1312,7 +1332,8 @@ function renderProgramList(){
   $('#pg-count').textContent=`${programs.length} program`;
   $('#pg-list').innerHTML=PG_CATS.flatMap(c=>programs.filter(p=>p.category===c)).map(p=>`<tr><td><span class="cat-pill" style="--c:${PG_COLOR[p.category]}">${esc(p.category)}</span></td>
     <td style="white-space:normal">${esc(p.name)}</td><td>${esc(p.frequency)}</td><td>${PG_FREQ[p.frequency]||''}</td><td>${esc(p.pic)||'–'}</td>
-    <td class="no-pdf">${admin?`<button class="del" data-id="${esc(p.id)}" title="Hapus program">×</button>`:''}</td></tr>`).join('');
+    <td class="no-pdf" style="white-space:nowrap">${admin?`<button class="edit" data-id="${esc(p.id)}" title="Edit program">✎</button><button class="del" data-id="${esc(p.id)}" title="Hapus program">×</button>`:''}</td></tr>`).join('');
+  $('#pg-list').querySelectorAll('.edit').forEach(b=>b.onclick=()=>openProg(pgById(b.dataset.id)));
   $('#pg-add').hidden=!admin;
   $('#pg-note').textContent=!PG_SERVER?'Daftar bawaan. Perbarui Apps Script (lihat DEPLOY.md) agar daftar program bisa diubah dan kegiatan tersimpan.':admin?'Program baru langsung muncul di matriks sesuai frekuensinya. Menghapus program tidak menghapus catatan kegiatannya.':'Hanya admin yang dapat menambah / menghapus program.';
   $('#pg-list').querySelectorAll('.del').forEach(b=>b.onclick=async()=>{
@@ -1320,6 +1341,21 @@ function renderProgramList(){
     try{await save('deleteRow',{sheet:'Program',id:p.id},'Program dihapus');}catch{return;}
     programs=programs.filter(x=>x!==p); renderProgram(); refreshSelects();});
 }
+let editingProg=null;
+function openProg(p){
+  editingProg=p; const f=$('#prog-form'); fillSelect($('#pe-cat'),PG_CATS); fillSelect($('#pe-freq'),Object.keys(PG_FREQ));
+  ['category','name','frequency','pic'].forEach(k=>f.elements.namedItem(k).value=p[k]||'');
+  $('#pe-info').textContent=`${activities.filter(a=>a.programId===p.id).length} kegiatan tercatat untuk program ini; riwayat tetap terhubung setelah diedit.`;
+  $('#dlg-prog').showModal();
+}
+$('#dlg-prog').addEventListener('close',async()=>{
+  const p=editingProg; if($('#dlg-prog').returnValue!=='ok'||!p)return;
+  const f=Object.fromEntries(new FormData($('#prog-form')));
+  const row={category:f.category,name:f.name.trim(),frequency:f.frequency,pic:f.pic.trim()};
+  if(!row.name){snack('Nama program wajib diisi',true);return;}
+  try{await save('updateProgram',{id:p.id,row},`Program "${row.name}" diperbarui`);}catch{return;}
+  Object.assign(p,row); renderProgram(); renderDashboard(); fillProgSelect();
+});
 $('#pg-add').onsubmit=async e=>{
   e.preventDefault(); const f=Object.fromEntries(new FormData(e.target)); const row={category:f.category,name:f.name.trim(),frequency:f.frequency,pic:f.pic.trim()};
   let r; try{r=await save('addProgram',{row},`Program "${row.name}" ditambahkan`);}catch{return;}
@@ -1382,8 +1418,13 @@ function renderWeekPlan(){
   const opts=[curWeek-1,curWeek,curWeek+1].filter(w=>w>=1&&w<=CFG.weeks);
   sel.innerHTML=opts.map(w=>`<option value="${w}">${w===curWeek?'Minggu ini':w<curWeek?'Minggu lalu':'Minggu depan'} · W${w} (${sh(wkStart(w))}–${sh(wkEnd(w))})</option>`).join('');
   const w=opts.includes(keep)?keep:curWeek; sel.value=w;
+  // filter kategori: default Training, pilihan diingat di perangkat ini
+  const cs=$('#wp-cat'), cat=cs.value||store.get('hse-wp-cat')||'Training';
+  cs.innerHTML=PG_CATS.map(c=>`<option>${c}</option>`).join('')+'<option value="all">Semua kategori</option>'; cs.value=cat;
+  const t=$('#wp-cat-t'); t.textContent=cat==='all'?'Semua':cat; t.style.setProperty('--c',PG_COLOR[cat]||'#0f7a57');
+  const progs=programs.filter(p=>cat==='all'||p.category===cat);
   const started=wkStart(w)<=CFG.today, ended=wkEnd(w)<CFG.today;
-  const planned=programs.map(p=>({p,pl:planFor(p,w),a:actualFor(p,w)})).filter(x=>x.pl>0)
+  const planned=progs.map(p=>({p,pl:planFor(p,w),a:actualFor(p,w)})).filter(x=>x.pl>0)
     .sort((x,y)=>PG_CATS.indexOf(x.p.category)-PG_CATS.indexOf(y.p.category));
   let P=0,A=0; planned.forEach(x=>{P+=x.pl;A+=Math.min(x.pl,x.a);});
   const pct=P?Math.round(A/P*100):0, done=planned.filter(x=>x.a>=x.pl).length;
@@ -1394,15 +1435,20 @@ function renderWeekPlan(){
     const ic={'wp-ok':'✓','wp-part':'◐','wp-miss':'✕','wp-todo':'','wp-plan':''}[st];
     return `<button class="wp-item ${st}" style="--c:${PG_COLOR[p.category]}" data-p="${esc(p.id)}" title="${esc(p.category)} · ${esc(p.frequency)}">
       <span class="wp-ic">${ic}</span><span class="wp-txt"><b>${esc(p.name)}</b><small>${esc(p.category)} · PIC ${esc(p.pic)||'–'}</small></span><span class="wp-n">${started?`${a}/${pl}`:`${pl}×`}</span></button>`;}).join('')
-    ||'<div style="color:var(--muted);font-size:13px">Tidak ada program terjadwal pada week ini.</div>';
+    ||(()=>{ // tidak ada jadwal: tampilkan jadwal berikutnya
+      let nx=null; for(let v=w+1;v<=CFG.weeks&&!nx;v++){const q=progs.find(p=>planFor(p,v));if(q)nx={v,q};}
+      return `<div class="wp-empty">Tidak ada ${cat==='all'?'program':esc(cat.toLowerCase())} terjadwal pada W${w}.${nx?` Jadwal berikutnya: <b>${esc(nx.q.name)}</b> di W${nx.v} (${sh(wkStart(nx.v))}–${sh(wkEnd(nx.v))}).`:''}</div>`;})();
   // kegiatan tanpa jadwal (sesuai kebutuhan) yang terlaksana
-  const extra=programs.filter(p=>!planFor(p,w)).map(p=>({p,a:actualFor(p,w)})).filter(x=>x.a);
-  $('#wp-extra').innerHTML=extra.length?`Kegiatan sesuai kebutuhan minggu ini: ${extra.map(x=>`<b>${esc(x.p.name)}</b> (${x.a}×)`).join(' · ')}`:'';
+  const extra=progs.filter(p=>!planFor(p,w)).map(p=>({p,a:actualFor(p,w)})).filter(x=>x.a);
+  const peserta=activities.filter(a=>weekOf(a.date)===w&&progs.some(p=>p.id===a.programId)).reduce((x,a)=>x+a.participants,0);
+  $('#wp-extra').innerHTML=[extra.length?`Sesuai kebutuhan yang terlaksana: ${extra.map(x=>`<b>${esc(x.p.name)}</b> (${x.a}×)`).join(' · ')}`:'',
+    peserta?`Total peserta W${w}: <b>${nf(peserta)}</b> orang`:''].filter(Boolean).join(' · ');
   $('#wp-list').querySelectorAll('.wp-item').forEach(b=>b.onclick=()=>{
     if(!started){snack('Week ini belum berjalan',true);return;}
     const ds=wkDates(w).filter(d=>d<=CFG.today); openAct(b.dataset.p,ds[ds.length-1]);});
 }
 $('#wp-week').onchange=renderWeekPlan;
+$('#wp-cat').onchange=()=>{store.set('hse-wp-cat',$('#wp-cat').value);renderWeekPlan();};
 
 /* ================= PAGE HEAD + EXPORT PDF ================= */
 const PAGES={dashboard:'Dashboard',manpower:'Daily Monitoring – Manhour',cuaca:'Monitoring Cuaca',obs:'Daily Observation',incident:'Incident Log',program:'HSE Program',master:'Master Data & Panduan'};

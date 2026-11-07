@@ -248,6 +248,13 @@ function write_(a, req, user, role) {
       append_('Program', id, { category: r.category, name: String(r.name).trim().slice(0, 80), frequency: r.frequency, pic: String(r.pic || '').slice(0, 40) });
       return { sheet: 'Program', ref: id, id };
     }
+    case 'updateProgram': {
+      adminOnly();
+      if (PG_CATS.indexOf(r.category) < 0 || PG_FREQ.indexOf(r.frequency) < 0 || !String(r.name || '').trim()) throw new Error('Program tidak valid');
+      if (!update_('Program', req.id, { category: r.category, name: String(r.name).trim().slice(0, 80), frequency: r.frequency, pic: String(r.pic || '').slice(0, 40) }))
+        throw new Error('Program tidak ditemukan');
+      return { sheet: 'Program', ref: req.id };
+    }
     case 'deleteRow': {
       adminOnly();
       if (['Observation', 'Incident', 'Activity', 'Program'].indexOf(req.sheet) < 0) throw new Error('Sheet tidak boleh dihapus');
