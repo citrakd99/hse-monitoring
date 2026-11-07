@@ -192,6 +192,29 @@ th.off,td.off{opacity:.45}
 .exporting .pgm td,.exporting .pgm th{position:static!important;box-shadow:none!important}
 .exporting .pgm td.cell{min-width:34px}
 @media (max-width:1024px){nav button{font-size:10px}}
+/* plan program mingguan (dashboard) */
+.wp-top{display:flex;align-items:center;gap:14px;margin-bottom:12px;flex-wrap:wrap}
+.wp-sum{font-size:13px;color:var(--muted)}
+.wp-sum b{color:var(--text);font-size:15px}
+.wp-bar{flex:1;min-width:160px;height:10px;border-radius:999px;background:var(--surface-2);overflow:hidden;border:1px solid var(--border)}
+.wp-bar i{display:block;height:100%;background:var(--low);border-radius:999px;transition:width .3s}
+.wp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media (max-width:700px){.wp-grid{grid-template-columns:1fr}}
+.exporting .wp-grid{grid-template-columns:repeat(2,1fr)}
+.wp-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--border);border-left:4px solid var(--c);border-radius:10px;background:var(--surface);cursor:pointer;text-align:left;font:inherit;color:var(--text)}
+.wp-item:hover{border-color:var(--brand)}
+.wp-ic{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;flex:none}
+.wp-ok .wp-ic{background:var(--low-bg);color:var(--low)}
+.wp-part .wp-ic{background:var(--med-bg);color:var(--med)}
+.wp-miss .wp-ic{background:var(--high-bg);color:var(--high)}
+.wp-todo .wp-ic,.wp-plan .wp-ic{background:var(--surface-2);color:var(--muted);border:1px dashed var(--border)}
+.wp-txt{flex:1;min-width:0}
+.wp-txt b{display:block;font-size:13px;font-weight:600}
+.wp-txt small{color:var(--muted);font-size:11px}
+.wp-n{font-weight:700;font-size:13px;font-variant-numeric:tabular-nums}
+.wp-ok .wp-n{color:var(--low)} .wp-miss .wp-n{color:var(--high)} .wp-part .wp-n{color:var(--med)}
+.wp-extra{margin-top:10px;font-size:12px;color:var(--muted)}
+.wp-extra b{color:var(--text)}
 /* filters */
 .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;padding:12px;background:var(--surface-2);border-radius:10px;margin-bottom:10px}
 .filters label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--muted);font-weight:500}
@@ -385,6 +408,13 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
         <tbody id="top5"></tbody>
       </table></div>
     </div>
+  </div>
+
+  <div class="card" style="margin-top:16px" id="wp-card">
+    <h3>Plan Program HSE Mingguan <span class="sub"><select id="wp-week" class="no-pdf"></select></span></h3>
+    <div class="wp-top"><div class="wp-sum" id="wp-sum"></div><div class="wp-bar"><i id="wp-bar"></i></div></div>
+    <div class="wp-grid" id="wp-list"></div>
+    <div class="wp-extra" id="wp-extra"></div>
   </div>
 
   <div class="card" style="margin-top:16px">
@@ -873,6 +903,7 @@ function renderDashboard(){
   renderPyramid(totalMH, filled.length);
   renderPerf();
   renderLeading();
+  renderWeekPlan();
 
   // charts
   const weeks=[...new Set(filled.map(r=>weekOf(r.date)))];
@@ -1345,6 +1376,34 @@ function demoProgram(rnd){
   activities.sort((a,b)=>a.date.localeCompare(b.date));
 }
 
+/* ================= PLAN PROGRAM MINGGUAN (DASHBOARD) ================= */
+function renderWeekPlan(){
+  const sel=$('#wp-week'), keep=+sel.value||curWeek, sh=d=>new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short'});
+  const opts=[curWeek-1,curWeek,curWeek+1].filter(w=>w>=1&&w<=CFG.weeks);
+  sel.innerHTML=opts.map(w=>`<option value="${w}">${w===curWeek?'Minggu ini':w<curWeek?'Minggu lalu':'Minggu depan'} · W${w} (${sh(wkStart(w))}–${sh(wkEnd(w))})</option>`).join('');
+  const w=opts.includes(keep)?keep:curWeek; sel.value=w;
+  const started=wkStart(w)<=CFG.today, ended=wkEnd(w)<CFG.today;
+  const planned=programs.map(p=>({p,pl:planFor(p,w),a:actualFor(p,w)})).filter(x=>x.pl>0)
+    .sort((x,y)=>PG_CATS.indexOf(x.p.category)-PG_CATS.indexOf(y.p.category));
+  let P=0,A=0; planned.forEach(x=>{P+=x.pl;A+=Math.min(x.pl,x.a);});
+  const pct=P?Math.round(A/P*100):0, done=planned.filter(x=>x.a>=x.pl).length;
+  $('#wp-sum').innerHTML=started?`<b>${done}/${planned.length}</b> program selesai · realisasi <b>${A}/${P}</b> kegiatan (<b>${pct}%</b>)`:`<b>${planned.length}</b> program direncanakan · ${P} kegiatan`;
+  $('#wp-bar').style.width=(started?pct:0)+'%';
+  $('#wp-list').innerHTML=planned.map(({p,pl,a})=>{
+    const st=!started?'wp-plan':a>=pl?'wp-ok':ended?(a?'wp-part':'wp-miss'):a?'wp-part':'wp-todo';
+    const ic={'wp-ok':'✓','wp-part':'◐','wp-miss':'✕','wp-todo':'','wp-plan':''}[st];
+    return `<button class="wp-item ${st}" style="--c:${PG_COLOR[p.category]}" data-p="${esc(p.id)}" title="${esc(p.category)} · ${esc(p.frequency)}">
+      <span class="wp-ic">${ic}</span><span class="wp-txt"><b>${esc(p.name)}</b><small>${esc(p.category)} · PIC ${esc(p.pic)||'–'}</small></span><span class="wp-n">${started?`${a}/${pl}`:`${pl}×`}</span></button>`;}).join('')
+    ||'<div style="color:var(--muted);font-size:13px">Tidak ada program terjadwal pada week ini.</div>';
+  // kegiatan tanpa jadwal (sesuai kebutuhan) yang terlaksana
+  const extra=programs.filter(p=>!planFor(p,w)).map(p=>({p,a:actualFor(p,w)})).filter(x=>x.a);
+  $('#wp-extra').innerHTML=extra.length?`Kegiatan sesuai kebutuhan minggu ini: ${extra.map(x=>`<b>${esc(x.p.name)}</b> (${x.a}×)`).join(' · ')}`:'';
+  $('#wp-list').querySelectorAll('.wp-item').forEach(b=>b.onclick=()=>{
+    if(!started){snack('Week ini belum berjalan',true);return;}
+    const ds=wkDates(w).filter(d=>d<=CFG.today); openAct(b.dataset.p,ds[ds.length-1]);});
+}
+$('#wp-week').onchange=renderWeekPlan;
+
 /* ================= PAGE HEAD + EXPORT PDF ================= */
 const PAGES={dashboard:'Dashboard',manpower:'Daily Monitoring – Manhour',cuaca:'Monitoring Cuaca',obs:'Daily Observation',incident:'Incident Log',program:'HSE Program',master:'Master Data & Panduan'};
 const SLUG={dashboard:'Dashboard',manpower:'Manhour',cuaca:'Cuaca',obs:'Observation',incident:'Incident',program:'Program',master:'Master'};
@@ -1354,7 +1413,7 @@ Object.entries(PAGES).forEach(([k,t])=>$('#v-'+k).insertAdjacentHTML('afterbegin
 /* Export PDF: halaman dipotong mengikuti isi (tidak memotong baris tabel / kartu / grafik) */
 const PDF_LAYOUT={dashboard:{o:'p',w:900},master:{o:'p',w:860},manpower:{o:'l',w:1180},cuaca:{o:'l',w:1060},obs:{o:'l',w:1240},incident:{o:'l',w:1180},program:{o:'l',w:1240}};
 // elemen yang tidak boleh terbelah di antara dua halaman
-const PDF_ATOMIC='tr, .kpi, .li, .ic-card, .pyr, .chart-box, .fx, .page-head, .note, .filter-info, .legend, .perf-foot, .mlist li, .guide summary, .guide .gb > *, h3, .set-grid > *, .set-calc, .set-f';
+const PDF_ATOMIC='tr, .wp-item, .wp-top, .wp-extra, .kpi, .li, .ic-card, .pyr, .chart-box, .fx, .page-head, .note, .filter-info, .legend, .perf-foot, .mlist li, .guide summary, .guide .gb > *, h3, .set-grid > *, .set-calc, .set-f';
 let pdfBusy=false;
 async function exportPDF(k){
   if(pdfBusy)return; pdfBusy=true;
