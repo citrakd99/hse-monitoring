@@ -220,8 +220,10 @@ th.off,td.off{opacity:.45}
 #wp-card h3 .sub{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .wp-extra b{color:var(--text)}
 /* permit to work: form */
-.dlg-wide{width:min(920px,calc(100vw - 24px));max-height:calc(100vh - 24px);display:flex;flex-direction:column}
+/* display hanya saat terbuka; dialog tertutup tetap disembunyikan browser */
+.dlg-wide{width:min(920px,calc(100vw - 24px));max-height:calc(100vh - 24px);flex-direction:column}
 .dlg-wide[open]{display:flex}
+dialog:not([open]){display:none!important}
 .ptw-body{overflow:auto;padding:4px 18px 12px;flex:1}
 .ptw-sec{border-bottom:1px solid var(--border);padding:12px 0}
 .ptw-lock{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:var(--med-bg);color:var(--text);font-size:13px;border:1px solid var(--med)}
