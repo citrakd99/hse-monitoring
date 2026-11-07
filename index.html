@@ -162,6 +162,36 @@ a.photo img{width:100%;height:100%;object-fit:cover;border-radius:5px}
 .set-note{font-size:12px;color:var(--muted);flex:1;min-width:200px}
 .setting input:disabled{opacity:.75}
 th.off,td.off{opacity:.45}
+/* HSE program */
+.tb-l{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.pgm th,.pgm td{padding:6px 6px}
+.pgm td.cell{text-align:center;min-width:46px;font-weight:600;font-size:12px;cursor:pointer;border-left:1px solid var(--border)}
+.pgm td.cell:hover{outline:2px solid var(--brand);outline-offset:-2px}
+.pgm th.wk{text-align:center;min-width:46px;font-size:11px;border-left:1px solid var(--border)}
+.pgm th.wk small{display:block;font-weight:400;font-size:10px}
+.pgm th.cur{background:var(--brand);color:#fff}
+.pgm tr.pg-catrow td{background:var(--surface-2);font-weight:700;font-size:12px;letter-spacing:.02em}
+.pgm tr.pg-catrow td i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+.pgm td.pname{white-space:normal;min-width:180px;max-width:240px}
+.pgm td.pname small{display:block;color:var(--muted);font-weight:400}
+.pgm tbody td:first-child,.pgm thead th:first-child{position:sticky;left:0;z-index:1;background:var(--surface);box-shadow:inset -1px 0 0 var(--border)}
+.pgm tbody tr.pg-catrow td:first-child{background:var(--surface-2)}
+.pg-ok{background:var(--low-bg);color:var(--low)}
+.pg-part{background:var(--med-bg);color:var(--med)}
+.pg-miss{background:var(--high-bg);color:var(--high)}
+.pg-extra{background:#e3eefb;color:#2f6fc0}
+.pg-plan{color:var(--muted)}
+.pg-sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-2px;border:1px solid var(--border)}
+.pg-legend{margin-top:10px}
+.pg-add{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.pg-add input[name=name]{flex:1;min-width:200px}
+.pg-add input[name=pic]{width:120px}
+.cat-pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;color:#fff;background:var(--c);white-space:nowrap}
+.qa-wide{grid-column:1/-1;flex-direction:row;align-items:center}
+.qa-wide b{display:block}
+.exporting .pgm td,.exporting .pgm th{position:static!important;box-shadow:none!important}
+.exporting .pgm td.cell{min-width:34px}
+@media (max-width:1024px){nav button{font-size:10px}}
 /* filters */
 .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;padding:12px;background:var(--surface-2);border-radius:10px;margin-bottom:10px}
 .filters label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--muted);font-weight:500}
@@ -186,8 +216,8 @@ th.off,td.off{opacity:.45}
 .mlist{list-style:none;padding:0!important;margin:0}
 .mlist li{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid var(--border);margin:0!important}
 .mlist li span.t{flex:1}
-.mlist .del{border:0;background:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:2px 6px;border-radius:6px}
-.mlist .del:hover{background:var(--high-bg);color:var(--high)}
+.del{border:0;background:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:2px 6px;border-radius:6px}
+.del:hover{background:var(--high-bg);color:var(--high)}
 .madd{display:flex;gap:6px;margin-top:10px}
 .madd input{flex:1;min-width:0}
 .lock{font-size:11px;color:var(--muted);font-weight:400}
@@ -239,6 +269,7 @@ section.view.active{display:block}
 .kpi .val{font-size:26px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
 .kpi .hint{font-size:12px;color:var(--muted)}
 .kpi.safe .val{color:var(--brand)}
+.kpi.bad .val{color:var(--high)}
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{border-bottom:1px solid var(--border);padding:7px 8px;text-align:left;white-space:nowrap}
@@ -302,6 +333,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <button data-v="cuaca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9z"/></svg>Cuaca</button>
     <button data-v="obs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Observation</button>
     <button data-v="incident"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>Incident</button>
+    <button data-v="program"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 12l2 2 4-4M9 17h6"/></svg>Program</button>
     <button data-v="master"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Master</button>
   </nav>
 </header>
@@ -442,6 +474,57 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   </div>
 </section>
 
+<!-- HSE PROGRAM -->
+<section class="view" id="v-program">
+  <div class="grid kpis" id="pg-kpi"></div>
+  <div class="card" style="margin-top:16px">
+    <div class="toolbar">
+      <b>Matriks Program HSE · Rencana vs Realisasi</b><span class="spacer"></span>
+      <label class="tb-l no-pdf">Kategori<select id="pg-cat"></select></label>
+      <label class="tb-l no-pdf">Periode<select id="pg-range"></select></label>
+    </div>
+    <div class="filter-info" id="pg-info"></div>
+    <div class="tbl-wrap" id="pg-wrap"><table class="pgm"><thead id="pg-head"></thead><tbody id="pg-body"></tbody></table></div>
+    <div class="legend pg-legend">
+      <span><i class="pg-sw pg-ok"></i>Terlaksana sesuai rencana</span><span><i class="pg-sw pg-part"></i>Sebagian / minggu berjalan</span>
+      <span><i class="pg-sw pg-miss"></i>Tidak terlaksana</span><span><i class="pg-sw pg-extra"></i>Di luar rencana</span><span><i class="pg-sw pg-plan"></i>Rencana (akan datang)</span>
+      <span class="no-pdf">Klik sel untuk mencatat kegiatan.</span>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="toolbar">
+      <b>Log Kegiatan</b><span class="spacer"></span>
+      <button class="btn primary no-pdf" id="add-act">+ Catat Kegiatan</button>
+    </div>
+    <div class="filters no-pdf">
+      <label>Dari<input type="date" id="a-from"></label>
+      <label>Sampai<input type="date" id="a-to"></label>
+      <label>Kategori<select id="a-cat"></select></label>
+      <div class="f-btns"><button class="btn" id="a-month">Bulan ini</button><button class="btn" id="a-reset">Reset</button></div>
+    </div>
+    <div class="filter-info" id="act-info"></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>No</th><th>Date</th><th>Kategori</th><th>Program</th><th>Topik / Materi</th><th class="num">Peserta</th><th>PIC</th><th>Lokasi</th><th class="c">Foto</th><th class="no-pdf"></th></tr></thead>
+      <tbody id="act-body"></tbody>
+    </table></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Daftar Program HSE <span class="sub" id="pg-count"></span></h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Kategori</th><th>Program</th><th>Frekuensi</th><th>Rencana</th><th>PIC</th><th class="no-pdf"></th></tr></thead>
+      <tbody id="pg-list"></tbody>
+    </table></div>
+    <form class="pg-add no-pdf" id="pg-add">
+      <select name="category" id="pa-cat" required></select>
+      <input name="name" placeholder="Nama program, mis. Training Hot Work" required maxlength="80">
+      <select name="frequency" id="pa-freq" required></select>
+      <input name="pic" placeholder="PIC" maxlength="40">
+      <button class="btn primary">+ Tambah</button>
+    </form>
+    <p class="fx-note" id="pg-note"></p>
+  </div>
+</section>
+
 <!-- MASTER -->
 <section class="view" id="v-master">
   <div class="seg no-pdf" id="m-seg"><button data-m="data" class="active">Data Master</button><button data-m="setting">Pengaturan Proyek</button><button data-m="guide">Panduan</button></div>
@@ -542,6 +625,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <button class="qa-b" data-q="wx"><span class="ic" style="--c:#2f7fd8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9z"/></svg></span><b>Cuaca hari ini</b><small>Pilih kondisi per jam</small></button>
     <button class="qa-b" data-q="obs"><span class="ic" style="--c:#d98b0b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3M11 8v6M8 11h6"/></svg></span><b>Observasi baru</b><small>Temuan unsafe act / condition</small></button>
     <button class="qa-b" data-q="inc"><span class="ic" style="--c:#d13b3b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span><b>Lapor insiden</b><small>Near miss s/d fatality</small></button>
+    <button class="qa-b qa-wide" data-q="act"><span class="ic" style="--c:#7a4fd1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 12l2 2 4-4M9 17h6"/></svg></span><b>Kegiatan HSE</b><small>Training, induction, safety moment, patrol</small></button>
   </div>
 </dialog>
 <dialog id="dlg-mp">
@@ -556,6 +640,22 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <label>Normal<input type="number" name="pn" min="0" inputmode="numeric" required></label>
       <label>Lembur<input type="number" name="pl" min="0" inputmode="numeric" value="0" required></label>
       <div class="full set-calc" id="mp-calc"></div>
+    </div>
+    <div class="dlg-f"><button class="btn" value="cancel" formnovalidate>Batal</button><button class="btn primary" value="ok">Simpan</button></div>
+  </form>
+</dialog>
+<dialog id="dlg-act">
+  <form method="dialog" id="act-form">
+    <div class="dlg-h">Catat Kegiatan HSE</div>
+    <div class="dlg-b">
+      <label>Tanggal<input type="date" name="date" required></label>
+      <label>Program<select name="programId" id="af-prog" required></select></label>
+      <label class="full">Topik / materi<input name="topic" required maxlength="120" placeholder="mis. Bekerja di ketinggian, Rewarding Safety Champion Oktober"></label>
+      <label>Jumlah peserta<input type="number" name="participants" min="0" inputmode="numeric" value="0"></label>
+      <label>PIC / pemateri<input name="pic" maxlength="60"></label>
+      <label>Lokasi<select name="location" id="af-loc"></select></label>
+      <label>Foto<input type="file" accept="image/*" capture="environment" id="af-photo"></label>
+      <label class="full">Catatan<textarea name="notes" rows="2" placeholder="Hadiah, hasil patrol, temuan, dll"></textarea></label>
     </div>
     <div class="dlg-f"><button class="btn" value="cancel" formnovalidate>Batal</button><button class="btn primary" value="ok">Simpan</button></div>
   </form>
@@ -643,6 +743,11 @@ function applyData(d){
   incidents=(d.incident||[]).map(r=>({id:r.id,date:r.date,time:r.time,cls:r.cls,area:r.area,desc:r.desc,involved:r.involved,action:r.action,lostDays:+r.lost_days||0,reporter:r.reporter,photo:r.photo_url||''}))
     .sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
   const m=d.master||{}; ['category','type','area','finding'].forEach(k=>{if(m[k]&&m[k].length)MASTER[k]=m[k];});
+  // HSE Program: jika server lama belum punya sheet Program, pakai daftar bawaan (hanya tampil)
+  PG_SERVER=Array.isArray(d.program);
+  programs=(PG_SERVER&&d.program.length?d.program:DEFAULT_PROGRAMS).map(r=>({id:String(r.id),category:r.category,name:r.name,frequency:r.frequency||'Sesuai kebutuhan',pic:r.pic||''}));
+  activities=(d.activity||[]).map(r=>({id:r.id,date:r.date,programId:String(r.program_id),topic:r.topic,participants:+r.participants||0,pic:r.pic||'',location:r.location||'',notes:r.notes||'',photo:r.photo_url||''}))
+    .sort((a,b)=>a.date.localeCompare(b.date));
 }
 
 /* --- data contoh (mode demo) --- */
@@ -690,6 +795,7 @@ function loadDemo(){
     {id:'D4',date:'2026-10-29',time:'16:20',cls:'Near Miss',area:'Genset Room',desc:'Kabel terkelupas ditemukan saat inspeksi',involved:'-',action:'Isolasi & ganti kabel',lostDays:0,reporter:'Dewi'},
     {id:'D5',date:'2026-11-05',time:'08:30',cls:'Near Miss',area:'Gate Perimeter',desc:'Truk mundur tanpa flagman',involved:'Sopir truk material',action:'Wajib flagman untuk manuver mundur',lostDays:0,reporter:'Eko'},
   ];
+  demoProgram(rnd);
 }
 
 /* ================= API (Google Apps Script) ================= */
@@ -1025,6 +1131,12 @@ function renderGuide(){
     <tr><td><b>HIGH masih Open</b></td><td>Temuan risiko tinggi yang belum ditutup. Harus 0.</td></tr>
     <tr><td><b>Laporan Near Miss</b></td><td>Makin banyak near miss dilaporkan menandakan budaya lapor yang baik, bukan kondisi yang buruk.</td></tr></tbody></table>
     <p>Target dapat disesuaikan dengan kesepakatan proyek/klien.</p>`],
+  ['HSE Program',`<p>Halaman <b>Program</b> berisi matriks kegiatan HSE: <i>rencana</i> dihitung otomatis dari frekuensi tiap program, <i>realisasi</i> dari kegiatan yang dicatat.</p>
+    <ul><li><b>Frekuensi:</b> Harian = Senin–Sabtu, Mingguan = 1× tiap week, 2 Mingguan = week ganjil, Bulanan = week yang memuat awal bulan, Sesuai kebutuhan = tanpa target (mis. induction pekerja baru).</li>
+    <li>Klik sel matriks atau tombol <b>+ Catat Kegiatan</b> (juga di tombol cepat +) untuk mencatat training, induction, safety moment, patrol, dll. Isi jumlah peserta dan foto.</li>
+    <li>Warna sel: <span class="pill st-closed">hijau</span> sesuai rencana, <span class="pill MEDIUM">kuning</span> sebagian / week berjalan, <span class="pill st-open">merah</span> tidak terlaksana, biru = kegiatan di luar rencana.</li>
+    <li><b>Kepatuhan</b> = realisasi (maksimal sebanyak rencana) ÷ rencana, hanya untuk week yang sudah berjalan.</li>
+    <li>Admin dapat menambah / menghapus program di kartu <b>Daftar Program HSE</b>.</li></ul>`],
   ['Export PDF & filter',`<ol><li>Buka halaman yang ingin dicetak, atur filter (mis. periode, risk, area, status).</li>
     <li>Klik <b>Export PDF</b> di kanan atas. Dashboard & Master dicetak A4 portrait, tabel (Manpower, Cuaca, Observation, Incident) A4 landscape. Pergantian halaman otomatis menyesuaikan isi: baris tabel, kartu dan grafik tidak terpotong, dan setiap halaman diberi nomor.</li>
     <li>Keterangan filter yang aktif ikut tercetak di PDF, jadi pembaca tahu data apa yang ditampilkan.</li></ol>
@@ -1041,14 +1153,206 @@ function renderGuide(){
   $('#m-guide').innerHTML=`<div class="guide">${S.map(([t,b],i)=>`<details${i===0?' open':''}><summary><span class="n">${i+1}</span>${t}</summary><div class="gb">${b}</div></details>`).join('')}</div>`;
 }
 
+/* ================= HSE PROGRAM ================= */
+const PG_CATS=['Training','Induction','Safety Moment','Gemba / Safety Patrol','Inspeksi','Lainnya'];
+const PG_COLOR={'Training':'#2f7fd8','Induction':'#7a4fd1','Safety Moment':'#d98b0b','Gemba / Safety Patrol':'#0f7a57','Inspeksi':'#c2410c','Lainnya':'#64748b'};
+const PG_FREQ={'Harian':'Senin–Sabtu','Mingguan':'1× / minggu','2 Mingguan':'1× / 2 minggu','Bulanan':'1× / bulan','Sesuai kebutuhan':'tanpa target'};
+const DEFAULT_PROGRAMS=[
+  {id:'P01',category:'Training',name:'Training K3 umum (APD, kerja di ketinggian, listrik)',frequency:'Bulanan',pic:'HSE'},
+  {id:'P02',category:'Training',name:'Training khusus (hot work, lifting, confined space)',frequency:'Sesuai kebutuhan',pic:'HSE'},
+  {id:'P03',category:'Training',name:'Training P3K & tanggap darurat',frequency:'Sesuai kebutuhan',pic:'HSE'},
+  {id:'P04',category:'Induction',name:'Safety induction pekerja / tamu baru',frequency:'Sesuai kebutuhan',pic:'HSE'},
+  {id:'P05',category:'Induction',name:'Refresh induction seluruh pekerja',frequency:'Bulanan',pic:'HSE'},
+  {id:'P06',category:'Safety Moment',name:'Toolbox meeting / safety talk pagi',frequency:'Harian',pic:'Supervisor'},
+  {id:'P07',category:'Safety Moment',name:'Senam sehat bersama',frequency:'Mingguan',pic:'HSE'},
+  {id:'P08',category:'Safety Moment',name:'Safety meeting mingguan (P2K3 / kontraktor)',frequency:'Mingguan',pic:'PM & HSE'},
+  {id:'P09',category:'Safety Moment',name:'Rewarding & bagi hadiah Safety Champion',frequency:'Bulanan',pic:'PM & HSE'},
+  {id:'P10',category:'Safety Moment',name:'Kampanye K3 (poster, banner, safety sign)',frequency:'Bulanan',pic:'HSE'},
+  {id:'P11',category:'Gemba / Safety Patrol',name:'Safety patrol harian HSE',frequency:'Harian',pic:'HSE'},
+  {id:'P12',category:'Gemba / Safety Patrol',name:'Safety patrol gabungan (owner & kontraktor)',frequency:'Mingguan',pic:'HSE'},
+  {id:'P13',category:'Gemba / Safety Patrol',name:'Gemba walk manajemen',frequency:'2 Mingguan',pic:'Project Manager'},
+  {id:'P14',category:'Inspeksi',name:'Inspeksi APAR, P3K & rambu',frequency:'Bulanan',pic:'HSE'},
+  {id:'P15',category:'Inspeksi',name:'Inspeksi alat kerja & scaffolding',frequency:'Mingguan',pic:'HSE'},
+  {id:'P16',category:'Inspeksi',name:'Inspeksi alat berat & lifting gear',frequency:'Mingguan',pic:'HSE'},
+  {id:'P17',category:'Inspeksi',name:'Inspeksi listrik & panel sementara',frequency:'Bulanan',pic:'HSE'},
+  {id:'P18',category:'Inspeksi',name:'Inspeksi APD pekerja',frequency:'Mingguan',pic:'HSE'},
+  {id:'P19',category:'Lainnya',name:'Housekeeping 5R / gotong royong',frequency:'Mingguan',pic:'Supervisor'},
+  {id:'P20',category:'Lainnya',name:'Cek kesehatan pekerja (tensi, dll)',frequency:'Bulanan',pic:'HSE'},
+  {id:'P21',category:'Lainnya',name:'Emergency drill (kebakaran / evakuasi)',frequency:'Sesuai kebutuhan',pic:'HSE'},
+  {id:'P22',category:'Lainnya',name:'Laporan HSE bulanan ke owner',frequency:'Bulanan',pic:'HSE'},
+];
+let programs=DEFAULT_PROGRAMS.map(x=>({...x})), activities=[], PG_SERVER=!LIVE;
+const pgById=id=>programs.find(p=>p.id===String(id));
+const wkStart=w=>fmt(addDays(CFG.projectStart,(w-1)*7));
+const wkEnd=w=>{const e=fmt(addDays(CFG.projectStart,w*7-1));return e<CFG.projectEnd?e:CFG.projectEnd;};
+const wkDates=w=>{const out=[];for(let i=0;i<7;i++){const d=fmt(addDays(CFG.projectStart,(w-1)*7+i));if(d<=CFG.projectEnd)out.push(d);}return out;};
+// rencana (jumlah kegiatan) sebuah program pada week w
+function planFor(p,w){
+  const ds=wkDates(w);
+  switch(p.frequency){
+    case 'Harian': return ds.filter(d=>new Date(d+'T00:00:00').getDay()!==0).length;
+    case 'Mingguan': return ds.length?1:0;
+    case '2 Mingguan': return w%2===1&&ds.length?1:0;
+    case 'Bulanan': return ds.some(d=>d===firstDayInPeriod(d.slice(0,7)))?1:0;
+    default: return 0;
+  }
+}
+const firstDayInPeriod=m=>{const f=m+'-01';return f<CFG.projectStart?CFG.projectStart:f;};
+const actualFor=(p,w)=>activities.filter(a=>a.programId===p.id&&weekOf(a.date)===w).length;
+function pgWeeksFor(range){
+  const all=Array.from({length:CFG.weeks},(_,i)=>i+1);
+  if(!range||range==='all')return all;
+  return all.filter(w=>wkDates(w).some(d=>d.slice(0,7)===range));
+}
+function pgStatus(p,a,w){
+  const end=wkEnd(w), start=wkStart(w);
+  if(!p) return a?['pg-extra',String(a)]:['',''];
+  if(start>CFG.today) return ['pg-plan',p>1?`${p}`:'P'];
+  if(a>=p) return ['pg-ok',`${a}/${p}`];
+  if(end>=CFG.today) return ['pg-part',`${a}/${p}`];
+  return [a?'pg-part':'pg-miss',`${a}/${p}`];
+}
+// kepatuhan = realisasi (maks. sebanyak rencana) ÷ rencana, hanya week yang sudah berjalan
+function pgCompliance(weeks,list){
+  let P=0,A=0; weeks.filter(w=>wkStart(w)<=CFG.today).forEach(w=>list.forEach(p=>{const pl=planFor(p,w);P+=pl;A+=Math.min(pl,actualFor(p,w));}));
+  return P?Math.round(A/P*100):null;
+}
+function renderProgram(){
+  // pilihan filter
+  const catSel=$('#pg-cat'), rSel=$('#pg-range'), keepC=catSel.value, keepR=rSel.value;
+  catSel.innerHTML='<option value="">Semua</option>'+PG_CATS.map(c=>`<option>${c}</option>`).join('');
+  const months=[]; for(let d=new Date(CFG.projectStart.slice(0,7)+'-01T00:00:00');fmt(d).slice(0,7)<=CFG.projectEnd.slice(0,7);d.setMonth(d.getMonth()+1))months.push(fmt(d).slice(0,7));
+  rSel.innerHTML=months.map(m=>`<option value="${m}">${new Date(m+'-01T00:00:00').toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</option>`).join('')+'<option value="all">Semua week (PTD)</option>';
+  catSel.value=keepC; rSel.value=keepR||(months.includes(CFG.today.slice(0,7))?CFG.today.slice(0,7):months[0]);
+  const cat=catSel.value, range=rSel.value, weeks=pgWeeksFor(range), list=programs.filter(p=>!cat||p.category===cat);
+
+  // KPI
+  const monthWeeks=pgWeeksFor(CFG.today.slice(0,7)), comp=pgCompliance(monthWeeks,programs), compAll=pgCompliance(pgWeeksFor('all'),programs);
+  const sumP=c=>activities.filter(a=>c.includes(pgById(a.programId)?.category)).reduce((x,a)=>x+a.participants,0);
+  const cls=v=>v==null?'':v>=90?'safe':v>=70?'':'bad';
+  $('#pg-kpi').innerHTML=
+    `<div class="card kpi ${cls(comp)}"><div class="lbl">Kepatuhan program bulan ini</div><div class="val">${comp==null?'–':comp+'%'}</div><div class="hint">PTD ${compAll==null?'–':compAll+'%'} · realisasi ÷ rencana</div></div>`+
+    `<div class="card kpi"><div class="lbl">Kegiatan terlaksana (PTD)</div><div class="val">${nf(activities.length)}</div><div class="hint">${activities.filter(a=>a.date.slice(0,7)===CFG.today.slice(0,7)).length} kegiatan bulan ini</div></div>`+
+    `<div class="card kpi"><div class="lbl">Peserta training (PTD)</div><div class="val">${nf(sumP(['Training']))}</div><div class="hint">${activities.filter(a=>pgById(a.programId)?.category==='Training').length} sesi training</div></div>`+
+    `<div class="card kpi"><div class="lbl">Pekerja ter-induksi (PTD)</div><div class="val">${nf(sumP(['Induction']))}</div><div class="hint">${activities.filter(a=>pgById(a.programId)?.category==='Induction').length} sesi induction</div></div>`;
+
+  // matriks
+  const sh=d=>new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short'});
+  $('#pg-head').innerHTML=`<tr><th>Program</th><th>PIC</th>${weeks.map(w=>`<th class="wk${w===curWeek&&wkStart(w)<=CFG.today?' cur':''}">W${w}<small>${sh(wkStart(w))}</small></th>`).join('')}<th class="num">Realisasi</th><th class="num">%</th></tr>`;
+  let body='';
+  PG_CATS.filter(c=>list.some(p=>p.category===c)).forEach(c=>{
+    body+=`<tr class="pg-catrow"><td style="--c:${PG_COLOR[c]}"><i></i>${c}</td><td colspan="${weeks.length+3}"></td></tr>`;
+    list.filter(p=>p.category===c).forEach(p=>{
+      let P=0,A=0;
+      const cells=weeks.map(w=>{const pl=planFor(p,w), a=actualFor(p,w); if(wkStart(w)<=CFG.today){P+=pl;A+=Math.min(pl,a)||(!pl?0:0);} const [k,t]=pgStatus(pl,a,w);
+        return `<td class="cell ${k}" data-p="${p.id}" data-w="${w}" title="${esc(p.name)} · W${w}: rencana ${pl}, realisasi ${a}">${t}</td>`;}).join('');
+      const tot=weeks.reduce((x,w)=>x+actualFor(p,w),0);
+      body+=`<tr><td class="pname">${esc(p.name)}<small>${esc(p.frequency)} · ${PG_FREQ[p.frequency]||''}</small></td><td>${esc(p.pic)||'–'}</td>${cells}<td class="num"><b>${tot}</b></td><td class="num">${P?Math.round(A/P*100)+'%':'–'}</td></tr>`;
+    });
+  });
+  $('#pg-body').innerHTML=body||`<tr><td colspan="${weeks.length+4}" style="text-align:center;color:var(--muted);padding:20px">Belum ada program</td></tr>`;
+  const rc=pgCompliance(weeks,list);
+  $('#pg-info').innerHTML=`Periode <b>${range==='all'?'semua week':rSel.selectedOptions[0].textContent}</b> (W${weeks[0]}–W${weeks[weeks.length-1]})${cat?` · Kategori <b>${esc(cat)}</b>`:''} · Kepatuhan <b>${rc==null?'–':rc+'%'}</b> · Angka sel = realisasi/rencana`;
+  $('#pg-body').querySelectorAll('td.cell').forEach(td=>td.onclick=()=>{
+    const w=+td.dataset.w; if(wkStart(w)>CFG.today){snack('Week ini belum berjalan',true);return;}
+    const ds=wkDates(w).filter(d=>d<=CFG.today); openAct(td.dataset.p, ds[ds.length-1]);});
+  // scroll ke week berjalan
+  const cur=$('#pg-head th.cur'); if(cur){const wrap=$('#pg-wrap'); wrap.scrollLeft=Math.max(0,cur.offsetLeft-wrap.clientWidth/2);}
+
+  renderActivities(); renderProgramList();
+}
+function renderActivities(){
+  const F={from:$('#a-from').value,to:$('#a-to').value,cat:$('#a-cat').value};
+  const list=activities.map((a,i)=>({...a,no:i+1,p:pgById(a.programId)})).filter(a=>(!F.from||a.date>=F.from)&&(!F.to||a.date<=F.to)&&(!F.cat||a.p?.category===F.cat)).reverse();
+  $('#act-info').innerHTML=summarize(activities.length,list.length,'kegiatan',[['Periode',periodTxt(F.from,F.to)],['Kategori',F.cat]])+` · Total peserta <b>${nf(list.reduce((x,a)=>x+a.participants,0))}</b>`;
+  $('#act-body').innerHTML=list.map(a=>`<tr><td>${a.no}</td><td>${fmtID(new Date(a.date))}</td>
+    <td>${a.p?`<span class="cat-pill" style="--c:${PG_COLOR[a.p.category]||'#64748b'}">${esc(a.p.category)}</span>`:'–'}</td><td style="white-space:normal;min-width:180px">${a.p?esc(a.p.name):'<i>(program dihapus)</i>'}</td>
+    <td style="white-space:normal;min-width:200px">${esc(a.topic)}${a.notes?`<br><small style="color:var(--muted)">${esc(a.notes)}</small>`:''}</td>
+    <td class="num">${a.participants||'–'}</td><td>${esc(a.pic)||'–'}</td><td>${esc(a.location)||'–'}</td><td class="c">${photoCell(a.photo)}</td>
+    <td class="no-pdf">${ROLE==='admin'?`<button class="del" data-id="${esc(a.id)}" title="Hapus">×</button>`:''}</td></tr>`).join('')
+    ||'<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">Belum ada kegiatan pada filter ini</td></tr>';
+  $('#act-body').querySelectorAll('.del').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Hapus catatan kegiatan ini?'))return;
+    try{await save('deleteRow',{sheet:'Activity',id:b.dataset.id},'Kegiatan dihapus');}catch{return;}
+    activities=activities.filter(a=>String(a.id)!==b.dataset.id); renderProgram(); renderDashboard();});
+}
+function renderProgramList(){
+  const admin=ROLE==='admin'&&PG_SERVER;
+  $('#pg-count').textContent=`${programs.length} program`;
+  $('#pg-list').innerHTML=PG_CATS.flatMap(c=>programs.filter(p=>p.category===c)).map(p=>`<tr><td><span class="cat-pill" style="--c:${PG_COLOR[p.category]}">${esc(p.category)}</span></td>
+    <td style="white-space:normal">${esc(p.name)}</td><td>${esc(p.frequency)}</td><td>${PG_FREQ[p.frequency]||''}</td><td>${esc(p.pic)||'–'}</td>
+    <td class="no-pdf">${admin?`<button class="del" data-id="${esc(p.id)}" title="Hapus program">×</button>`:''}</td></tr>`).join('');
+  $('#pg-add').hidden=!admin;
+  $('#pg-note').textContent=!PG_SERVER?'Daftar bawaan. Perbarui Apps Script (lihat DEPLOY.md) agar daftar program bisa diubah dan kegiatan tersimpan.':admin?'Program baru langsung muncul di matriks sesuai frekuensinya. Menghapus program tidak menghapus catatan kegiatannya.':'Hanya admin yang dapat menambah / menghapus program.';
+  $('#pg-list').querySelectorAll('.del').forEach(b=>b.onclick=async()=>{
+    const p=pgById(b.dataset.id); if(!confirm(`Hapus program "${p.name}"?\nCatatan kegiatan yang sudah ada tetap tersimpan.`))return;
+    try{await save('deleteRow',{sheet:'Program',id:p.id},'Program dihapus');}catch{return;}
+    programs=programs.filter(x=>x!==p); renderProgram(); refreshSelects();});
+}
+$('#pg-add').onsubmit=async e=>{
+  e.preventDefault(); const f=Object.fromEntries(new FormData(e.target)); const row={category:f.category,name:f.name.trim(),frequency:f.frequency,pic:f.pic.trim()};
+  let r; try{r=await save('addProgram',{row},`Program "${row.name}" ditambahkan`);}catch{return;}
+  programs.push({...row,id:String(r.id||('L'+Date.now()))}); e.target.reset(); renderProgram(); refreshSelects();
+};
+['#pg-cat','#pg-range'].forEach(x=>$(x).onchange=renderProgram);
+['#a-from','#a-to','#a-cat'].forEach(x=>$(x).onchange=renderActivities);
+$('#a-month').onclick=()=>{const m=CFG.today.slice(0,7);$('#a-from').value=m+'-01';$('#a-to').value=CFG.today;renderActivities();};
+$('#a-reset').onclick=()=>{['#a-from','#a-to','#a-cat'].forEach(x=>$(x).value='');renderActivities();};
+function fillProgSelect(){
+  $('#af-prog').innerHTML=PG_CATS.filter(c=>programs.some(p=>p.category===c)).map(c=>`<optgroup label="${c}">${programs.filter(p=>p.category===c).map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('')}</optgroup>`).join('');
+  fillSelect($('#a-cat'),PG_CATS,'<option value="">Semua</option>'); fillSelect($('#pa-cat'),PG_CATS); fillSelect($('#pa-freq'),Object.keys(PG_FREQ));
+  fillSelect($('#af-loc'),['',...MASTER.area]);
+}
+function openAct(progId,date){
+  const f=$('#act-form'); f.reset(); fillProgSelect();
+  f.elements.namedItem('date').value=date||CFG.today; f.elements.namedItem('date').max=CFG.today;
+  if(progId)f.elements.namedItem('programId').value=progId;
+  const p=pgById(f.elements.namedItem('programId').value); f.elements.namedItem('pic').value=SESSION?.user||p?.pic||'';
+  $('#dlg-act').showModal();
+}
+$('#add-act').onclick=()=>openAct(null,CFG.today);
+$('#dlg-act').addEventListener('close',async()=>{
+  if($('#dlg-act').returnValue!=='ok')return; const f=Object.fromEntries(new FormData($('#act-form')));
+  if(f.date>CFG.today){snack('Tanggal tidak boleh di masa depan',true);return;}
+  const row={date:f.date,programId:f.programId,topic:f.topic.trim(),participants:Math.max(0,Math.round(+f.participants||0)),pic:f.pic.trim(),location:f.location,notes:f.notes.trim()};
+  let photo; try{photo=await readPhoto($('#af-photo'));}catch{}
+  let r; try{r=await save('addActivity',{row,photo:photo?{name:photo.name,mime:photo.mime,data:photo.data}:undefined},'Kegiatan tersimpan');}catch{return;}
+  activities.push({...row,id:r.id||('L'+Date.now()),photo:r.photo_url||photo?.preview||''}); activities.sort((a,b)=>a.date.localeCompare(b.date));
+  renderProgram(); renderDashboard();
+});
+/* data contoh program */
+function demoProgram(rnd){
+  programs=DEFAULT_PROGRAMS.map(x=>({...x})); activities=[];
+  const T={P01:['APD & kerja di ketinggian','Bahaya listrik & LOTO','Manual handling'],P02:['Hot work & fire watch','Lifting & rigging','Confined space'],P03:['P3K dasar & penggunaan APAR'],
+    P04:['Induction pekerja baru subkon','Induction tamu & vendor'],P05:['Refresh induction & aturan site'],P06:['Toolbox: housekeeping','Toolbox: APD','Toolbox: bekerja di ketinggian','Toolbox: alat potong'],
+    P07:['Senam sehat Jumat'],P08:['Safety meeting kontraktor'],P09:['Rewarding Safety Champion'],P10:['Pemasangan banner & safety sign'],
+    P11:['Patrol harian area kerja'],P12:['Patrol gabungan Building 2 & 4','Patrol gabungan siteplan & gate'],P13:['Gemba walk PM & site manager'],
+    P14:['Inspeksi APAR & kotak P3K'],P15:['Inspeksi scaffolding & tangga','Inspeksi gerinda & kabel'],P16:['Inspeksi crane & sling'],P17:['Inspeksi panel & kabel sementara'],
+    P18:['Inspeksi APD pekerja'],P19:['Gotong royong housekeeping'],P20:['Cek tensi pekerja'],P21:['Simulasi evakuasi kebakaran'],P22:['Laporan HSE bulanan']};
+  const N={Training:[12,25],Induction:[2,9],'Safety Moment':[35,90],'Gemba / Safety Patrol':[2,6],Inspeksi:[1,3],Lainnya:[60,90]};
+  const pick=a=>a[Math.floor(rnd()*a.length)], num=([a,b])=>a+Math.floor(rnd()*(b-a+1));
+  const add=(p,d)=>activities.push({id:'DA'+activities.length,date:d,programId:p.id,topic:pick(T[p.id]),participants:num(N[p.category]),pic:p.pic,location:pick(DEFAULT_MASTER.area),notes:p.id==='P09'?'Hadiah: voucher & safety shoes':'',photo:''});
+  for(let w=1;w<=curWeek;w++){
+    const ds=wkDates(w).filter(d=>d<=CFG.today); if(!ds.length)continue;
+    programs.forEach(p=>{
+      if(p.frequency==='Harian'){ds.filter(d=>new Date(d+'T00:00:00').getDay()!==0).forEach(d=>{if(rnd()<0.9)add(p,d);});return;}
+      const pl=planFor(p,w);
+      if(pl&&rnd()<0.85)add(p,pick(ds));
+      if(!pl&&p.id==='P04'&&rnd()<0.8)add(p,pick(ds));
+      if(!pl&&(p.id==='P02'||p.id==='P03')&&rnd()<0.25)add(p,pick(ds));
+    });
+  }
+  activities.sort((a,b)=>a.date.localeCompare(b.date));
+}
+
 /* ================= PAGE HEAD + EXPORT PDF ================= */
-const PAGES={dashboard:'Dashboard',manpower:'Daily Monitoring – Manhour',cuaca:'Monitoring Cuaca',obs:'Daily Observation',incident:'Incident Log',master:'Master Data & Panduan'};
-const SLUG={dashboard:'Dashboard',manpower:'Manhour',cuaca:'Cuaca',obs:'Observation',incident:'Incident',master:'Master'};
+const PAGES={dashboard:'Dashboard',manpower:'Daily Monitoring – Manhour',cuaca:'Monitoring Cuaca',obs:'Daily Observation',incident:'Incident Log',program:'HSE Program',master:'Master Data & Panduan'};
+const SLUG={dashboard:'Dashboard',manpower:'Manhour',cuaca:'Cuaca',obs:'Observation',incident:'Incident',program:'Program',master:'Master'};
 Object.entries(PAGES).forEach(([k,t])=>$('#v-'+k).insertAdjacentHTML('afterbegin',
   `<div class="page-head"><div><h2>${t}</h2><small>HSE Monitoring · <span class="ph-proj"></span> · per <span class="ph-date"></span></small></div>
    <button class="btn primary no-pdf" data-export="${k}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v3h16v-3"/></svg>Export PDF</button></div>`));
 /* Export PDF: halaman dipotong mengikuti isi (tidak memotong baris tabel / kartu / grafik) */
-const PDF_LAYOUT={dashboard:{o:'p',w:900},master:{o:'p',w:860},manpower:{o:'l',w:1180},cuaca:{o:'l',w:1060},obs:{o:'l',w:1240},incident:{o:'l',w:1180}};
+const PDF_LAYOUT={dashboard:{o:'p',w:900},master:{o:'p',w:860},manpower:{o:'l',w:1180},cuaca:{o:'l',w:1060},obs:{o:'l',w:1240},incident:{o:'l',w:1180},program:{o:'l',w:1240}};
 // elemen yang tidak boleh terbelah di antara dua halaman
 const PDF_ATOMIC='tr, .kpi, .li, .ic-card, .pyr, .chart-box, .fx, .page-head, .note, .filter-info, .legend, .perf-foot, .mlist li, .guide summary, .guide .gb > *, h3, .set-grid > *, .set-calc, .set-f';
 let pdfBusy=false;
@@ -1235,6 +1539,7 @@ $('#qa').querySelectorAll('.qa-b').forEach(b=>b.onclick=()=>{
   if(q==='wx'){goTab('cuaca');$('#wx-week').value=curWeek;renderCuaca();setTimeout(()=>document.querySelector(`#wx-body td[data-d="${CFG.today}"]`)?.scrollIntoView({block:'center',inline:'center'}),50);}
   if(q==='obs'){goTab('obs');openObs(null);}
   if(q==='inc'){goTab('incident');$('#add-inc').click();}
+  if(q==='act'){goTab('program');openAct(null,CFG.today);}
 });
 function openMp(date){
   const f=$('#mp-form'), r=manpower.find(x=>x.date===date)||{};
@@ -1268,7 +1573,7 @@ function renderAll(){
   $('#m-note-mode').textContent=LIVE?(ROLE==='admin'?'Anda login sebagai admin: perubahan langsung tersimpan ke Google Sheet.':'Hanya admin yang dapat mengubah daftar ini.'):'Mode demo: perubahan disimpan di browser ini saja.';
   $('#m-reset').hidden=LIVE;
   refreshSelects(); perfMonths();
-  renderDashboard(); renderManpower(); renderCuaca(); renderObs(); renderIncident(); renderMaster(); renderGuide(); renderSetting();
+  renderDashboard(); renderManpower(); renderCuaca(); renderObs(); renderIncident(); renderMaster(); renderGuide(); renderSetting(); renderProgram(); fillProgSelect();
   showMasterTab($('#m-seg button.active')?.dataset.m||'data');
 }
 

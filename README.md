@@ -22,6 +22,7 @@ Langkah pemasangan: lihat **[DEPLOY.md](DEPLOY.md)**.
 | Daily Monitoring | Daily Monitoring | Man power normal/lembur per hari, kumulatif, man hour, kumulatif man hour (30 minggu) |
 | Monitoring Cuaca | Monitoring Cuaca | Kondisi cuaca per jam 07:00–22:00 per hari |
 | Daily Observation | Daily Observation | Daftar temuan + form tambah observasi, filter periode/risk/area/category/status |
+| HSE Program | (baru) | Matriks rencana vs realisasi per week, log kegiatan (training, induction, safety moment, patrol, inspeksi), daftar program |
 | Incident | (baru) | Ringkasan per klasifikasi, incident log + form Lapor Insiden, filter. Sumber Safety Pyramid |
 | Master Data | Kolom O–R di Daily Observation | Sub-tab **Data Master** (tambah/hapus Category, Type, Area, Contoh Finding; Risk & Incident Classification dikunci) dan **Panduan** penggunaan |
 
@@ -32,6 +33,8 @@ Dibuat otomatis oleh fungsi `setup()`. Satu baris per input:
 - **Cuaca**: `date | h07 … h21 (kode C/B/M/HR/HL/P) | updated_by`
 - **Observation**: `id | date | observer | area | finding | type | category | risk | photo_url | action | action_date | action_photo_url | status`
 - **Incident**: `id | date | klasifikasi (Fatality/LWC/RWC/MTC/First Aid Case/Near Miss) | area | deskripsi | input_by` → sumber Safety Pyramid
+- **Program**: `id | category | name | frequency | pic` (22 program HSE standar dibuat otomatis oleh setup)
+- **Activity**: `id | date | program_id | topic | participants | pic | location | notes | photo_url | created_by | created_at`
 - **Master**: `list | value | keterangan`
 - **Config**: `project_name, project_start, weeks, jam_normal, jam_lembur, target_*, pin, admin_pin, photo_folder_id`
 - **Log**: `timestamp | user | role | action | sheet | ref`

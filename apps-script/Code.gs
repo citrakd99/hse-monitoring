@@ -18,6 +18,8 @@ const SCHEMA = {
   Observation: ['id', 'date', 'observer', 'area', 'finding', 'type', 'category', 'risk', 'photo_url', 'action', 'action_date', 'action_photo_url', 'status', 'created_by', 'created_at', 'updated_by', 'updated_at'],
   Incident: ['id', 'date', 'time', 'cls', 'area', 'desc', 'involved', 'action', 'lost_days', 'reporter', 'photo_url', 'created_by', 'created_at'],
   Master: ['list', 'value'],
+  Program: ['id', 'category', 'name', 'frequency', 'pic'],
+  Activity: ['id', 'date', 'program_id', 'topic', 'participants', 'pic', 'location', 'notes', 'photo_url', 'created_by', 'created_at'],
   Log: ['timestamp', 'user', 'role', 'action', 'sheet', 'ref']
 };
 
@@ -43,6 +45,32 @@ const DEFAULT_MASTER = {
   finding: ['Melanggar prosedur', 'Tidak menggunakan PPE', 'Area kerja', 'Alat tidak proper', 'dll']
 };
 
+const DEFAULT_PROGRAMS = [
+  ['P01', 'Training', 'Training K3 umum (APD, kerja di ketinggian, listrik)', 'Bulanan', 'HSE'],
+  ['P02', 'Training', 'Training khusus (hot work, lifting, confined space)', 'Sesuai kebutuhan', 'HSE'],
+  ['P03', 'Training', 'Training P3K & tanggap darurat', 'Sesuai kebutuhan', 'HSE'],
+  ['P04', 'Induction', 'Safety induction pekerja / tamu baru', 'Sesuai kebutuhan', 'HSE'],
+  ['P05', 'Induction', 'Refresh induction seluruh pekerja', 'Bulanan', 'HSE'],
+  ['P06', 'Safety Moment', 'Toolbox meeting / safety talk pagi', 'Harian', 'Supervisor'],
+  ['P07', 'Safety Moment', 'Senam sehat bersama', 'Mingguan', 'HSE'],
+  ['P08', 'Safety Moment', 'Safety meeting mingguan (P2K3 / kontraktor)', 'Mingguan', 'PM & HSE'],
+  ['P09', 'Safety Moment', 'Rewarding & bagi hadiah Safety Champion', 'Bulanan', 'PM & HSE'],
+  ['P10', 'Safety Moment', 'Kampanye K3 (poster, banner, safety sign)', 'Bulanan', 'HSE'],
+  ['P11', 'Gemba / Safety Patrol', 'Safety patrol harian HSE', 'Harian', 'HSE'],
+  ['P12', 'Gemba / Safety Patrol', 'Safety patrol gabungan (owner & kontraktor)', 'Mingguan', 'HSE'],
+  ['P13', 'Gemba / Safety Patrol', 'Gemba walk manajemen', '2 Mingguan', 'Project Manager'],
+  ['P14', 'Inspeksi', 'Inspeksi APAR, P3K & rambu', 'Bulanan', 'HSE'],
+  ['P15', 'Inspeksi', 'Inspeksi alat kerja & scaffolding', 'Mingguan', 'HSE'],
+  ['P16', 'Inspeksi', 'Inspeksi alat berat & lifting gear', 'Mingguan', 'HSE'],
+  ['P17', 'Inspeksi', 'Inspeksi listrik & panel sementara', 'Bulanan', 'HSE'],
+  ['P18', 'Inspeksi', 'Inspeksi APD pekerja', 'Mingguan', 'HSE'],
+  ['P19', 'Lainnya', 'Housekeeping 5R / gotong royong', 'Mingguan', 'Supervisor'],
+  ['P20', 'Lainnya', 'Cek kesehatan pekerja (tensi, dll)', 'Bulanan', 'HSE'],
+  ['P21', 'Lainnya', 'Emergency drill (kebakaran / evakuasi)', 'Sesuai kebutuhan', 'HSE'],
+  ['P22', 'Lainnya', 'Laporan HSE bulanan ke owner', 'Bulanan', 'HSE']
+];
+const PG_CATS = ['Training', 'Induction', 'Safety Moment', 'Gemba / Safety Patrol', 'Inspeksi', 'Lainnya'];
+const PG_FREQ = ['Harian', 'Mingguan', '2 Mingguan', 'Bulanan', 'Sesuai kebutuhan'];
 const RISKS = ['LOW', 'MEDIUM', 'HIGH'];
 const INCIDENT_CLASS = ['Fatality', 'LWC', 'RWC/MTC', 'First Aid Case', 'Near Miss'];
 const MASTER_LISTS = Object.keys(DEFAULT_MASTER);
@@ -75,6 +103,9 @@ function setup() {
     MASTER_LISTS.forEach(l => DEFAULT_MASTER[l].forEach(v => rows.push([l, v])));
     ms.getRange(2, 1, rows.length, 2).setValues(rows);
   }
+
+  const pg = ss.getSheetByName('Program');
+  if (pg.getLastRow() < 2) pg.getRange(2, 1, DEFAULT_PROGRAMS.length, 5).setValues(DEFAULT_PROGRAMS);
 
   // dropdown untuk yang mengisi langsung di Sheet
   const obs = ss.getSheetByName('Observation');
@@ -198,9 +229,28 @@ function write_(a, req, user, role) {
       });
       return { sheet: 'Config', ref: Object.keys(c).join(',') };
     }
+    case 'addActivity': {
+      checkDate_(r.date);
+      if (!findRow_('Program', r.programId)) throw new Error('Program tidak ditemukan');
+      const id = newId_('ACT');
+      const v = {
+        date: r.date, program_id: r.programId, topic: String(r.topic || '').slice(0, 120), participants: num_(r.participants),
+        pic: String(r.pic || '').slice(0, 60), location: r.location || '', notes: String(r.notes || '').slice(0, 300), created_by: user, created_at: now
+      };
+      if (req.photo) v.photo_url = savePhoto_(req.photo, 'ACT');
+      append_('Activity', id, v);
+      return { sheet: 'Activity', ref: id, id, photo_url: v.photo_url };
+    }
+    case 'addProgram': {
+      adminOnly();
+      if (PG_CATS.indexOf(r.category) < 0 || PG_FREQ.indexOf(r.frequency) < 0 || !String(r.name || '').trim()) throw new Error('Program tidak valid');
+      const id = newId_('PRG');
+      append_('Program', id, { category: r.category, name: String(r.name).trim().slice(0, 80), frequency: r.frequency, pic: String(r.pic || '').slice(0, 40) });
+      return { sheet: 'Program', ref: id, id };
+    }
     case 'deleteRow': {
       adminOnly();
-      if (['Observation', 'Incident'].indexOf(req.sheet) < 0) throw new Error('Sheet tidak boleh dihapus');
+      if (['Observation', 'Incident', 'Activity', 'Program'].indexOf(req.sheet) < 0) throw new Error('Sheet tidak boleh dihapus');
       if (!deleteById_(req.sheet, req.id)) throw new Error('Data tidak ditemukan');
       return { sheet: req.sheet, ref: req.id };
     }
@@ -238,6 +288,8 @@ function readAll_(cfg) {
     cuaca: rows_('Cuaca'),
     observation: rows_('Observation'),
     incident: rows_('Incident'),
+    program: rows_('Program'),
+    activity: rows_('Activity'),
     master
   };
 }
