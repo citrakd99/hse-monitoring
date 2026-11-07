@@ -15,7 +15,7 @@ Tiga langkah: **Google Sheet** (database) → **Apps Script** (API) → **GitHub
      (Peringatan ini normal untuk script buatan sendiri. Izin yang diminta: Sheets dan Drive untuk menyimpan foto.)
 6. Kembali ke Sheet. Sudah ada sheet: `Config`, `Manpower`, `Cuaca`, `Observation`, `Incident`, `Master`, `Log`, dan folder Drive **HSE Monitoring – Foto**.
 7. Di sheet **Config**, isi:
-   - `project_start` – tanggal mulai proyek (yyyy-mm-dd, sebaiknya hari Minggu).
+   - `project_start` & `project_end` – periode proyek (yyyy-mm-dd). Jumlah week dihitung otomatis. Bisa juga diubah admin dari aplikasi: **Master → Pengaturan Proyek**.
    - `pin` – PIN untuk petugas input.
    - `admin_pin` – PIN admin (beda dengan `pin`).
    - Target leading indicator bila perlu.
@@ -34,7 +34,10 @@ Tiga langkah: **Google Sheet** (database) → **Apps Script** (API) → **GitHub
 
 > *Anyone* diperlukan agar aplikasi di HP bisa memanggil API tanpa login Google. Data tetap dilindungi PIN: tanpa PIN yang benar API tidak mengembalikan data apa pun.
 
-**Saat Code.gs diubah di kemudian hari:** Deploy → *Manage deployments* → ✏ edit → Version: **New version** → Deploy. URL tetap sama.
+**Saat Code.gs diubah di kemudian hari** (misalnya update v1.1):
+1. Tempel ulang seluruh isi `apps-script/Code.gs` → Save.
+2. Jalankan **`setup`** sekali lagi. Aman: data tidak dihapus, hanya menambah key Config yang baru (mis. `project_end`).
+3. Deploy → *Manage deployments* → ✏ edit → Version: **New version** → Deploy. URL tetap sama, `config.js` tidak perlu diubah.
 
 ## 3. Sambungkan aplikasi
 
