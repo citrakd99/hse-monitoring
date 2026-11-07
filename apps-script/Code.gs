@@ -23,7 +23,8 @@ const SCHEMA = {
 const DEFAULT_CONFIG = [
   ['project_name', 'Batik Project', 'Nama proyek di header & PDF'],
   ['project_start', '2026-10-04', 'Tanggal mulai (yyyy-mm-dd), sebaiknya hari Minggu = awal Week 1'],
-  ['weeks', 30, 'Jumlah minggu monitoring'],
+  ['project_end', '2027-05-01', 'Tanggal selesai (yyyy-mm-dd). Jumlah week dihitung otomatis dari mulai s/d selesai'],
+  ['weeks', 30, 'Cadangan: dipakai hanya jika project_end kosong'],
   ['jam_normal', 8, 'Jam kerja normal per orang per hari'],
   ['jam_lembur', 4, 'Jam lembur per orang per hari'],
   ['target_obs_week', 20, 'Target observasi per minggu'],
@@ -62,7 +63,9 @@ function setup() {
   });
 
   const cfg = ss.getSheetByName('Config');
-  if (cfg.getLastRow() < 2) cfg.getRange(2, 1, DEFAULT_CONFIG.length, 3).setValues(DEFAULT_CONFIG);
+  // tambahkan key yang belum ada (aman dijalankan ulang setelah update script)
+  const haveKeys = cfg.getLastRow() > 1 ? cfg.getRange(2, 1, cfg.getLastRow() - 1, 1).getValues().map(r => r[0]) : [];
+  DEFAULT_CONFIG.filter(r => haveKeys.indexOf(r[0]) < 0).forEach(r => cfg.appendRow(r));
   cfg.getRange('B:B').setNumberFormat('@');
 
   const ms = ss.getSheetByName('Master');
@@ -171,6 +174,21 @@ function write_(a, req, user, role) {
       if (req.photo) v.photo_url = savePhoto_(req.photo, 'INC');
       append_('Incident', id, v);
       return { sheet: 'Incident', ref: id, id, photo_url: v.photo_url };
+    }
+    case 'updateConfig': {
+      adminOnly();
+      const allowed = ['project_name', 'project_start', 'project_end', 'jam_normal', 'jam_lembur', 'target_obs_week', 'target_close_rate', 'target_close_days'];
+      const c = req.config || {};
+      if (c.project_start !== undefined) checkDate_(c.project_start);
+      if (c.project_end !== undefined) checkDate_(c.project_end);
+      if (c.project_start && c.project_end && c.project_end < c.project_start) throw new Error('Tanggal selesai sebelum tanggal mulai');
+      const sh = sheet_('Config'), vals = sh.getDataRange().getValues();
+      allowed.filter(k => c[k] !== undefined).forEach(k => {
+        const v = typeof c[k] === 'number' ? (isFinite(c[k]) && c[k] >= 0 ? c[k] : 0) : String(c[k]).slice(0, 80);
+        const i = vals.findIndex(r => r[0] === k);
+        if (i > 0) sh.getRange(i + 1, 2).setValue(txt_(v)); else sh.appendRow([k, txt_(v), '']);
+      });
+      return { sheet: 'Config', ref: Object.keys(c).join(',') };
     }
     case 'deleteRow': {
       adminOnly();

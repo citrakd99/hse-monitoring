@@ -12,7 +12,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="HSE Monitor">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -56,14 +57,44 @@ main{max-width:1280px;margin:0 auto;padding:20px 16px 48px}
 .page-head h2{margin:0;font-size:20px}
 .page-head small{color:var(--muted)}
 .page-head .btn{margin-left:auto;display:flex;align-items:center;gap:6px}
-@media (max-width:700px){
-  nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);justify-content:space-around;padding:4px 4px calc(4px + env(safe-area-inset-bottom));gap:0;z-index:20}
-  nav button{flex-direction:column;gap:2px;font-size:10px;padding:6px 4px;color:var(--muted);border-bottom:0;flex:1}
-  nav button svg{width:21px;height:21px}
+/* tampilan aplikasi: navigasi bawah ber-ikon untuk HP/tablet & saat di-install (standalone) */
+@media (max-width:1024px){
+  nav{position:fixed;bottom:0;left:0;right:0;max-width:none;background:var(--surface);border-top:1px solid var(--border);box-shadow:0 -4px 16px rgba(0,0,0,.06);justify-content:space-around;padding:6px 6px calc(6px + env(safe-area-inset-bottom));gap:2px;z-index:20}
+  nav button{flex-direction:column;gap:3px;font-size:10.5px;font-weight:600;padding:5px 2px;color:var(--muted);border-bottom:0;flex:1;max-width:120px;border-radius:12px}
+  nav button svg{width:22px;height:22px;padding:3px 12px;box-sizing:content-box;border-radius:999px;transition:background .15s}
   nav button.active{color:var(--brand)}
-  main{padding-bottom:90px}
-  .sync{display:none}
+  nav button.active svg{background:var(--brand-soft)}
+  main{padding-bottom:110px}
+  .fab{bottom:calc(84px + env(safe-area-inset-bottom))}
 }
+@media (display-mode: standalone){
+  nav{position:fixed;bottom:0;left:0;right:0;max-width:none;background:var(--surface);border-top:1px solid var(--border);justify-content:space-around;padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:20}
+  nav button{flex-direction:column;gap:3px;font-size:10.5px;font-weight:600;padding:5px 2px;color:var(--muted);border-bottom:0;flex:1;max-width:120px}
+  nav button svg{width:22px;height:22px;padding:3px 12px;box-sizing:content-box;border-radius:999px}
+  nav button.active{color:var(--brand)} nav button.active svg{background:var(--brand-soft)}
+  main{padding-bottom:110px} .fab{bottom:calc(84px + env(safe-area-inset-bottom))}
+  #install{display:none!important}
+}
+@media (max-width:700px){ .sync{display:none} .page-head h2{font-size:18px} }
+/* tombol cepat (FAB) + lembar aksi */
+.fab{position:fixed;right:18px;bottom:24px;width:58px;height:58px;border-radius:18px;border:0;background:var(--brand);color:#fff;box-shadow:0 6px 18px rgba(11,90,65,.38);display:grid;place-items:center;cursor:pointer;z-index:25;transition:transform .15s}
+.fab svg{width:28px;height:28px;transition:transform .2s}
+.fab:active{transform:scale(.94)}
+.fab.open svg{transform:rotate(45deg)}
+@media (max-width:1024px){.fab{bottom:calc(86px + env(safe-area-inset-bottom))}}
+@media (display-mode: standalone){.fab{bottom:calc(86px + env(safe-area-inset-bottom))}}
+#qa{border:0;padding:0;margin:auto auto 0;width:100%;max-width:560px;border-radius:20px 20px 0 0;background:var(--surface);color:var(--text)}
+#qa::backdrop{background:rgba(0,0,0,.4)}
+.qa-h{padding:14px 18px 4px;font-weight:700;display:flex;align-items:center}
+.qa-h::before{content:'';position:absolute;left:50%;top:7px;width:38px;height:4px;border-radius:4px;background:var(--border);transform:translateX(-50%)}
+.qa-g{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px 16px calc(18px + env(safe-area-inset-bottom))}
+.qa-b{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px;border-radius:14px;border:1px solid var(--border);background:var(--surface-2);font:inherit;color:var(--text);cursor:pointer;text-align:left}
+.qa-b:hover{border-color:var(--brand)}
+.qa-b .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:#fff;background:var(--c)}
+.qa-b .ic svg{width:22px;height:22px}
+.qa-b b{font-size:14px}
+.qa-b small{color:var(--muted);font-size:12px}
+.exporting .fab{display:none}
 /* safety pyramid */
 .pyr svg{width:100%;max-width:560px;height:auto;display:block;margin:0 auto}
 .pyr-stats{display:flex;gap:10px;margin-top:10px}
@@ -110,7 +141,7 @@ main{max-width:1280px;margin:0 auto;padding:20px 16px 48px}
 #snack{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#1b2530;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:calc(100vw - 32px)}
 #snack.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #snack.err{background:#b42318}
-@media (max-width:700px){#snack{bottom:84px}}
+@media (max-width:1024px){#snack{bottom:100px}}
 a.photo{text-decoration:none;color:var(--brand);border-style:solid}
 a.photo img{width:100%;height:100%;object-fit:cover;border-radius:5px}
 .dlg-b a{font-size:12px;color:var(--brand)}
@@ -119,6 +150,18 @@ a.photo img{width:100%;height:100%;object-fit:cover;border-radius:5px}
 .ro .madd,.ro .del{display:none}
 .exporting a.photo img{display:none}
 .exporting a.photo::after{content:'📷'}
+/* pengaturan */
+.setting{max-width:760px}
+.set-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.set-grid label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);font-weight:500}
+.set-grid .full{grid-column:1/-1}
+@media (max-width:560px){.set-grid{grid-template-columns:1fr}}
+.set-calc{background:var(--brand-soft);color:var(--brand);border-radius:10px;padding:10px 12px;font-size:13px}
+.set-calc b{color:var(--text)}
+.set-f{display:flex;gap:12px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.set-note{font-size:12px;color:var(--muted);flex:1;min-width:200px}
+.setting input:disabled{opacity:.75}
+th.off,td.off{opacity:.45}
 /* filters */
 .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;padding:12px;background:var(--surface-2);border-radius:10px;margin-bottom:10px}
 .filters label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--muted);font-weight:500}
@@ -165,7 +208,9 @@ a.photo img{width:100%;height:100%;object-fit:cover;border-radius:5px}
 .guide td{white-space:normal}
 /* export */
 .exporting .no-pdf{display:none!important}
-.exporting section.view.active{background:#fff;padding:4px}
+.exporting section.view.active{background:#fff;padding:4px;max-width:none}
+.exporting .ic-sum{grid-template-columns:repeat(5,1fr)}
+.exporting .set-grid{grid-template-columns:1fr 1fr}
 .exporting .tbl-wrap{overflow:visible}
 .exporting td{white-space:normal}
 .exporting table{font-size:11px}
@@ -315,10 +360,10 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 
 <!-- DAILY MONITORING -->
 <section class="view" id="v-manpower">
-  <div class="note">Isi <b>man power normal</b> & <b>lembur</b> per hari. Man hour dihitung otomatis: normal × <b id="jn"></b> jam, lembur × <b id="jl"></b> jam. Kumulatif berjalan dari Week 1 (target 30 minggu).</div>
+  <div class="note">Isi <b>man power normal</b> & <b>lembur</b> per hari. Man hour dihitung otomatis: normal × <b id="jn"></b> jam, lembur × <b id="jl"></b> jam. Kumulatif berjalan dari Week 1 (periode <span class="wk-total"></span> week). Di HP lebih mudah lewat tombol <b>+</b> → <i>Manpower hari ini</i>.</div>
   <div class="card">
     <div class="toolbar">
-      <b>Manhour Monitoring (30 week)</b><span class="spacer"></span>
+      <b>Manhour Monitoring (<span class="wk-total"></span> week)</b><span class="spacer"></span>
       <button class="btn" id="mp-prev">‹</button><select id="mp-week"></select><button class="btn" id="mp-next">›</button>
     </div>
     <div class="tbl-wrap"><table class="mp">
@@ -332,7 +377,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   <div class="note">Klik sel untuk mengganti kondisi cuaca per jam (07:00–22:00). Di Dashboard, cuaca diringkas per shift memakai kondisi <b>terburuk</b> dalam rentang jam tersebut.</div>
   <div class="card">
     <div class="toolbar">
-      <b>Monitoring Cuaca (30 week)</b><span class="spacer"></span>
+      <b>Monitoring Cuaca (<span class="wk-total"></span> week)</b><span class="spacer"></span>
       <button class="btn" id="wx-prev">‹</button><select id="wx-week"></select><button class="btn" id="wx-next">›</button>
     </div>
     <div class="tbl-wrap"><table class="wx">
@@ -391,11 +436,28 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 
 <!-- MASTER -->
 <section class="view" id="v-master">
-  <div class="seg no-pdf" id="m-seg"><button data-m="data" class="active">Data Master</button><button data-m="guide">Panduan</button></div>
+  <div class="seg no-pdf" id="m-seg"><button data-m="data" class="active">Data Master</button><button data-m="setting">Pengaturan Proyek</button><button data-m="guide">Panduan</button></div>
   <div id="m-data">
     <div class="note">Daftar ini menjadi sheet <b>Master</b> di Google Sheet dan dipakai sebagai pilihan dropdown di form. <span id="m-note-mode"></span>
       <button class="btn no-pdf" id="m-reset" style="margin-left:8px;padding:3px 10px">Reset ke default</button></div>
     <div class="grid master" id="master"></div>
+  </div>
+  <div id="m-setting" hidden>
+    <form class="card setting" id="set-form">
+      <h3>Pengaturan Proyek <span class="sub" id="set-ro"></span></h3>
+      <div class="set-grid">
+        <label class="full">Nama proyek<input name="projectName" required maxlength="80"></label>
+        <label>Tanggal mulai (Week 1 hari ke-1)<input type="date" name="projectStart" required></label>
+        <label>Tanggal selesai<input type="date" name="projectEnd" required></label>
+        <div class="full set-calc" id="set-calc"></div>
+        <label>Jam kerja normal / orang / hari<input type="number" name="jamNormal" min="1" max="24" step="0.5" required></label>
+        <label>Jam lembur / orang / hari<input type="number" name="jamLembur" min="0" max="24" step="0.5" required></label>
+        <label>Target observasi / minggu<input type="number" name="obsPerWeek" min="1" required></label>
+        <label>Target close-out rate (%)<input type="number" name="closeRate" min="1" max="100" required></label>
+        <label>Target rata-rata hari penyelesaian<input type="number" name="closeDays" min="0" step="0.5" required></label>
+      </div>
+      <div class="set-f"><span class="set-note">Data yang sudah diinput tidak terhapus saat periode diubah; data di luar periode hanya tidak ditampilkan.</span><button class="btn primary" id="set-save">Simpan pengaturan</button></div>
+    </form>
   </div>
   <div id="m-guide" hidden></div>
 </section>
@@ -464,6 +526,28 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <div class="dlg-f"><button class="btn primary" id="login-btn">Masuk</button></div>
   </form>
 </dialog>
+<button class="fab no-pdf" id="fab" aria-label="Tombol cepat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+<dialog id="qa">
+  <div class="qa-h">Input cepat <button class="x" id="qa-x" aria-label="Tutup">×</button></div>
+  <div class="qa-g">
+    <button class="qa-b" data-q="mp"><span class="ic" style="--c:#0f7a57"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2"/><path d="M19 8v6M16 11h6"/></svg></span><b>Manpower hari ini</b><small>Jumlah orang normal & lembur</small></button>
+    <button class="qa-b" data-q="wx"><span class="ic" style="--c:#2f7fd8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9z"/></svg></span><b>Cuaca hari ini</b><small>Pilih kondisi per jam</small></button>
+    <button class="qa-b" data-q="obs"><span class="ic" style="--c:#d98b0b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3M11 8v6M8 11h6"/></svg></span><b>Observasi baru</b><small>Temuan unsafe act / condition</small></button>
+    <button class="qa-b" data-q="inc"><span class="ic" style="--c:#d13b3b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span><b>Lapor insiden</b><small>Near miss s/d fatality</small></button>
+  </div>
+</dialog>
+<dialog id="dlg-mp">
+  <form method="dialog" id="mp-form">
+    <div class="dlg-h">Input Manpower</div>
+    <div class="dlg-b">
+      <label class="full">Tanggal<input type="date" name="date" required></label>
+      <label>Man power normal<input type="number" name="normal" min="0" inputmode="numeric" required></label>
+      <label>Man power lembur<input type="number" name="lembur" min="0" inputmode="numeric" value="0" required></label>
+      <div class="full set-calc" id="mp-calc"></div>
+    </div>
+    <div class="dlg-f"><button class="btn" value="cancel" formnovalidate>Batal</button><button class="btn primary" value="ok">Simpan</button></div>
+  </form>
+</dialog>
 <div id="toast">Membuat PDF…</div>
 <div id="snack"></div>
 
@@ -472,7 +556,9 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 /* ================= CONFIG ================= */
 const API=((window.HSE_CONFIG&&window.HSE_CONFIG.apiUrl)||'').trim();
 const LIVE=!!API;
-let CFG = { projectName:'Batik Project', projectStart:'2026-10-04', weeks:30, today:'', jamNormal:8, jamLembur:4 };
+let CFG = { projectName:'Batik Project', projectStart:'2026-10-04', projectEnd:'', weeks:30, days:210, today:'', jamNormal:8, jamLembur:4 };
+const isDate=v=>/^\d{4}-\d{2}-\d{2}$/.test(v||'');
+const dayName=d=>new Date(d+'T00:00:00').toLocaleDateString('en-US',{weekday:'long'});
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const DEFAULT_MASTER = {
@@ -505,6 +591,10 @@ let dayIndex=0, curWeek=1;
 let manpower=[], weather={}, observations=[], incidents=[];
 function recalc(){
   CFG.today=fmt(new Date());
+  // periode proyek: jumlah week dihitung dari tanggal mulai s/d selesai
+  if(!isDate(CFG.projectEnd)||CFG.projectEnd<CFG.projectStart)CFG.projectEnd=fmt(addDays(CFG.projectStart,CFG.weeks*7-1));
+  CFG.days=Math.round((new Date(CFG.projectEnd)-new Date(CFG.projectStart))/864e5)+1;
+  CFG.weeks=Math.max(1,Math.ceil(CFG.days/7));
   dayIndex=Math.max(0,Math.round((new Date(CFG.today)-new Date(CFG.projectStart))/864e5));
   curWeek=Math.min(CFG.weeks,Math.floor(dayIndex/7)+1);
 }
@@ -518,8 +608,8 @@ function buildManpower(map){
 function applyData(d){
   const c=d.config||{}, n=(v,def)=>{const x=Number(v);return isFinite(x)&&x>0?x:def;};
   CFG.projectName=c.project_name||CFG.projectName;
-  if(/^\d{4}-\d{2}-\d{2}$/.test(c.project_start||''))CFG.projectStart=c.project_start;
-  CFG.weeks=n(c.weeks,CFG.weeks); CFG.jamNormal=n(c.jam_normal,CFG.jamNormal); CFG.jamLembur=n(c.jam_lembur,CFG.jamLembur);
+  if(isDate(c.project_start))CFG.projectStart=c.project_start;
+  CFG.weeks=n(c.weeks,CFG.weeks); CFG.projectEnd=isDate(c.project_end)?c.project_end:''; CFG.jamNormal=n(c.jam_normal,CFG.jamNormal); CFG.jamLembur=n(c.jam_lembur,CFG.jamLembur);
   LI_TARGET.obsPerWeek=n(c.target_obs_week,LI_TARGET.obsPerWeek); LI_TARGET.closeRate=n(c.target_close_rate,LI_TARGET.closeRate); LI_TARGET.closeDays=n(c.target_close_days,LI_TARGET.closeDays);
   recalc();
   const mp={}; (d.manpower||[]).forEach(r=>{if(r.date)mp[r.date]={normal:+r.normal||0,lembur:+r.lembur||0};}); buildManpower(mp);
@@ -533,6 +623,7 @@ function applyData(d){
 
 /* --- data contoh (mode demo) --- */
 function loadDemo(){
+  const st=store.get('hse-settings'); if(st){Object.assign(CFG,st.cfg||{}); Object.assign(LI_TARGET,st.li||{});}
   recalc();
   let seed=7; const rnd=()=>((seed=(seed*16807)%2147483647)/2147483647);
   const mp={};
@@ -622,7 +713,9 @@ const weekOf=date=>Math.floor((new Date(date)-new Date(CFG.projectStart))/864e5/
 const wxBy=k=>WX.find(w=>w.k===k);
 const worst=arr=>{const v=arr.filter(Boolean);if(!v.length)return null;return v.reduce((a,b)=>WX.findIndex(w=>w.k===b)>WX.findIndex(w=>w.k===a)?b:a);};
 const riskRank={HIGH:3,MEDIUM:2,LOW:1};
-function weekOptions(sel,val){sel.innerHTML=Array.from({length:CFG.weeks},(_,i)=>`<option value="${i+1}">Week ${i+1}</option>`).join('');sel.value=val;}
+function weekOptions(sel,val){const sh=d=>d.toLocaleDateString('id-ID',{day:'2-digit',month:'short'});
+  sel.innerHTML=Array.from({length:CFG.weeks},(_,i)=>{const a=addDays(CFG.projectStart,i*7), b=new Date(Math.min(addDays(CFG.projectStart,i*7+6),new Date(CFG.projectEnd+'T00:00:00')));
+    return `<option value="${i+1}">Week ${i+1} · ${sh(a)}–${sh(b)}</option>`;}).join('');sel.value=val;}
 function legend(el){el.innerHTML=WX.map(w=>`<span>${w.i} ${w.n}</span>`).join('');}
 
 /* ================= DASHBOARD ================= */
@@ -732,9 +825,9 @@ function perfMonths(){
 }
 function renderWxDash(){
   const w=+$('#wx-dash-week').value; const slots=[[7,12],[12,17],[17,22]];
-  $('#wx-dash').innerHTML=DAYS.map((d,i)=>{
+  $('#wx-dash').innerHTML=DAYS.map((_,i)=>{
     const date=fmt(addDays(CFG.projectStart,(w-1)*7+i)); const arr=weather[date];
-    return `<tr><td>${d}<br><small style="color:var(--muted)">${fmtID(new Date(date))}</small></td>`+slots.map(([a,b])=>{
+    return `<tr><td>${dayName(date)}<br><small style="color:var(--muted)">${fmtID(new Date(date))}</small></td>`+slots.map(([a,b])=>{
       const k=arr?worst(arr.slice(a-7,b-7)):null; const x=k&&wxBy(k);
       return `<td class="c" title="${x?x.n:'-'}" style="font-size:18px">${x?x.i:'<span style="color:var(--muted);font-size:13px">–</span>'}</td>`;}).join('')+'</tr>';
   }).join('');
@@ -745,9 +838,9 @@ function renderManpower(){
   const w=+$('#mp-week').value; const days=manpower.slice((w-1)*7,w*7); const off=(w-1)*7;
   const cum=(key,fn)=>days.map((_,i)=>{let s=0;for(let j=0;j<=off+i;j++){const r=manpower[j];if(r.normal!=null)s+=fn(r);}return manpower[off+i].normal==null?null:s;});
   $('#mp-head').innerHTML=`<tr><th colspan="2"></th><th colspan="7" class="c">W${w}</th><th class="num">Total W${w}</th></tr><tr><th></th><th></th>`+
-    days.map((r,i)=>`<th class="c">${DAYS[i]}<br><small>${fmtID(new Date(r.date))}</small></th>`).join('')+'<th></th></tr>';
+    days.map((r,i)=>`<th class="c${r.date>CFG.projectEnd?' off':''}">${dayName(r.date)}<br><small>${fmtID(new Date(r.date))}</small></th>`).join('')+'<th></th></tr>';
   const sum=a=>a.reduce((x,y)=>x+(y||0),0);
-  const row=(grp,lbl,vals,editKey,cls='',showSum=true)=>`<tr class="${cls}"><td>${grp}</td><td>${lbl}</td>`+vals.map((v,i)=>editKey&&days[i].date<=CFG.today?
+  const row=(grp,lbl,vals,editKey,cls='',showSum=true)=>`<tr class="${cls}"><td>${grp}</td><td>${lbl}</td>`+vals.map((v,i)=>editKey&&days[i].date<=CFG.today&&days[i].date<=CFG.projectEnd?
     `<td class="num"><input type="number" min="0" inputmode="numeric" value="${v??''}" placeholder="–" data-i="${off+i}" data-k="${editKey}"></td>`:`<td class="num">${nf(v)}</td>`).join('')+`<td class="num"><b>${showSum?nf(sum(vals)):''}</b></td></tr>`;
   const n=days.map(r=>r.normal), l=days.map(r=>r.lembur);
   const mN=days.map(r=>r.normal==null?null:r.normal*CFG.jamNormal), mL=days.map(r=>r.lembur==null?null:r.lembur*CFG.jamLembur);
@@ -766,11 +859,12 @@ function renderManpower(){
 /* ================= CUACA ================= */
 function renderCuaca(){
   const w=+$('#wx-week').value; const dates=DAYS.map((_,i)=>fmt(addDays(CFG.projectStart,(w-1)*7+i)));
-  $('#wx-head').innerHTML=`<tr><th>Jam</th>`+dates.map((d,i)=>`<th class="day">${DAYS[i]}<br><small>${fmtID(new Date(d))}</small></th>`).join('')+'</tr>';
+  $('#wx-head').innerHTML=`<tr><th>Jam</th>`+dates.map((d,i)=>`<th class="day${d>CFG.projectEnd?' off':''}">${dayName(d)}<br><small>${fmtID(new Date(d))}</small></th>`).join('')+'</tr>';
   $('#wx-body').innerHTML=HOURS.map((h,hi)=>`<tr><td>${String(h).padStart(2,'0')}:00 – ${String(h+1).padStart(2,'0')}:00</td>`+
     dates.map(d=>{const k=weather[d]?.[hi];const x=k&&wxBy(k);return `<td class="cell" data-d="${d}" data-h="${hi}" title="${x?x.n:'Klik untuk isi'}">${x?x.i:'<span style="color:var(--muted)">·</span>'}</td>`;}).join('')+'</tr>').join('');
   $('#wx-body').querySelectorAll('td.cell').forEach(td=>td.onclick=()=>{
     const d=td.dataset.d,h=+td.dataset.h; if(d>CFG.today){snack('Belum bisa mengisi cuaca untuk hari yang akan datang',true);return;}
+    if(d>CFG.projectEnd||d<CFG.projectStart){snack('Tanggal di luar periode proyek',true);return;}
     weather[d]??=HOURS.map(()=>null);
     const cur=WX.findIndex(w=>w.k===weather[d][h]); weather[d][h]=WX[(cur+1)%WX.length].k; renderCuaca(); renderWxDash();
     // klik beruntun digabung: simpan 1,5 detik setelah klik terakhir pada tanggal itu
@@ -906,7 +1000,7 @@ function renderGuide(){
     <tr><td><b>Laporan Near Miss</b></td><td>Makin banyak near miss dilaporkan menandakan budaya lapor yang baik, bukan kondisi yang buruk.</td></tr></tbody></table>
     <p>Target dapat disesuaikan dengan kesepakatan proyek/klien.</p>`],
   ['Export PDF & filter',`<ol><li>Buka halaman yang ingin dicetak, atur filter (mis. periode, risk, area, status).</li>
-    <li>Klik <b>Export PDF</b> di kanan atas. File A4 landscape akan terunduh.</li>
+    <li>Klik <b>Export PDF</b> di kanan atas. Dashboard & Master dicetak A4 portrait, tabel (Manpower, Cuaca, Observation, Incident) A4 landscape. Pergantian halaman otomatis menyesuaikan isi: baris tabel, kartu dan grafik tidak terpotong, dan setiap halaman diberi nomor.</li>
     <li>Keterangan filter yang aktif ikut tercetak di PDF, jadi pembaca tahu data apa yang ditampilkan.</li></ol>
     <p>Tips: tombol <b>Minggu ini</b> di Observation langsung mengisi periode minggu berjalan untuk laporan mingguan.</p>`],
   ['Master Data',`<p>Tab <b>Data Master</b> berisi pilihan dropdown. Ketik item baru lalu klik <b>+</b>, atau klik <b>×</b> untuk menghapus.</p>
@@ -927,27 +1021,67 @@ const SLUG={dashboard:'Dashboard',manpower:'Manhour',cuaca:'Cuaca',obs:'Observat
 Object.entries(PAGES).forEach(([k,t])=>$('#v-'+k).insertAdjacentHTML('afterbegin',
   `<div class="page-head"><div><h2>${t}</h2><small>HSE Monitoring · <span class="ph-proj"></span> · per <span class="ph-date"></span></small></div>
    <button class="btn primary no-pdf" data-export="${k}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v3h16v-3"/></svg>Export PDF</button></div>`));
+/* Export PDF: halaman dipotong mengikuti isi (tidak memotong baris tabel / kartu / grafik) */
+const PDF_LAYOUT={dashboard:{o:'p',w:900},master:{o:'p',w:860},manpower:{o:'l',w:1180},cuaca:{o:'l',w:1060},obs:{o:'l',w:1240},incident:{o:'l',w:1180}};
+// elemen yang tidak boleh terbelah di antara dua halaman
+const PDF_ATOMIC='tr, .kpi, .li, .ic-card, .pyr, .chart-box, .fx, .page-head, .note, .filter-info, .legend, .perf-foot, .mlist li, .guide summary, .guide .gb > *, h3, .set-grid > *, .set-calc, .set-f';
+let pdfBusy=false;
 async function exportPDF(k){
-  const sec=$('#v-'+k), root=document.documentElement, prevTheme=root.dataset.theme;
+  if(pdfBusy)return; pdfBusy=true;
+  const sec=$('#v-'+k), root=document.documentElement, prevTheme=root.dataset.theme, L=PDF_LAYOUT[k];
   $('#toast').classList.add('show');
-  root.dataset.theme='light'; document.body.classList.add('exporting');
+  root.dataset.theme='light'; document.body.classList.add('exporting'); sec.style.width=L.w+'px';
   const prevAnim=Chart.defaults.animation;
   if(k==='dashboard'){Chart.defaults.animation=false;renderDashboard();}
   const closed=k==='master'?[...sec.querySelectorAll('details:not([open])')]:[];
   closed.forEach(d=>d.open=true);
-  await new Promise(r=>setTimeout(r,150));
+  await new Promise(r=>setTimeout(r,300));
   const filtered=k==='obs'?['#f-from','#f-to','#f-risk','#f-area','#f-cat','#f-status'].some(s=>$(s).value):k==='incident'?['#i-from','#i-to','#i-cls','#i-area'].some(s=>$(s).value):false;
-  const extra=k==='manpower'?`-W${$('#mp-week').value}`:k==='cuaca'?`-W${$('#wx-week').value}`:k==='master'&&!$('#m-guide').hidden?'-Panduan':filtered?'-filtered':'';
+  const sub=k==='master'?($('#m-seg button.active')?.dataset.m||'data'):'';
+  const extra=k==='manpower'?`-W${$('#mp-week').value}`:k==='cuaca'?`-W${$('#wx-week').value}`:sub==='guide'?'-Panduan':sub==='setting'?'-Pengaturan':filtered?'-filtered':'';
   try{
-    await html2pdf().set({margin:8,filename:`HSE-${SLUG[k]}${extra}-${CFG.today}.pdf`,
-      image:{type:'jpeg',quality:0.95},html2canvas:{scale:2,backgroundColor:'#ffffff',scrollX:0,scrollY:0},
-      jsPDF:{unit:'mm',format:'a4',orientation:'landscape'},pagebreak:{mode:['css','legacy'],avoid:['tr','.kpi','.chart-box','.pyr']}}).from(sec).save();
-  }finally{
+    const base=sec.getBoundingClientRect(), W=Math.ceil(sec.scrollWidth), H=Math.ceil(sec.scrollHeight);
+    // 1) cari titik potong yang aman
+    const vis=el=>el.offsetParent&&!el.closest('.no-pdf,[hidden]');
+    const iv=[]; sec.querySelectorAll(PDF_ATOMIC).forEach(el=>{if(!vis(el))return;const r=el.getBoundingClientRect();iv.push([r.top-base.top,r.bottom-base.top]);});
+    const cand=new Set([H]); iv.forEach(([a,b])=>{cand.add(a);cand.add(b);}); // batas tepat antar baris (baris tabel saling menempel)
+    sec.querySelectorAll('.card, .grid, .tbl-wrap').forEach(el=>{if(!vis(el))return;const r=el.getBoundingClientRect();cand.add(Math.round(r.top-base.top)-4);cand.add(Math.round(r.bottom-base.top)+4);});
+    const safe=y=>!iv.some(([a,b])=>a<y-1&&b>y+1);
+    const cuts=[...cand].filter(y=>y>0&&y<=H&&safe(y)).sort((a,b)=>a-b);
+    // 2) ukuran halaman
+    const {jsPDF}=window.jspdf; const pdf=new jsPDF({orientation:L.o==='p'?'portrait':'landscape',unit:'mm',format:'a4'});
+    const PW=pdf.internal.pageSize.getWidth(), PH=pdf.internal.pageSize.getHeight(), M=10, FOOT=8;
+    const mmPerPx=(PW-2*M)/W, pageCss=(PH-2*M-FOOT)/mmPerPx;
+    const slices=[]; let start=0;
+    while(start<H-2){
+      let end=start+pageCss;
+      if(end>=H)end=H;
+      else{const ok=cuts.filter(y=>y>start+pageCss*0.25&&y<=end); end=ok.length?ok[ok.length-1]:end;}
+      slices.push([start,end]); start=end;
+    }
+    // 3) render sekali, lalu potong per halaman
+    const scale=Math.max(0.8,Math.min(2,Math.sqrt(14e6/(W*H))));
+    const canvas=await html2canvas(sec,{scale,backgroundColor:'#ffffff',logging:false,useCORS:true,width:W,height:H,scrollX:-window.scrollX,scrollY:-window.scrollY});
+    const sx=canvas.width/W, title=`HSE Monitoring · ${CFG.projectName} · ${PAGES[k]}`, printed=`Dicetak ${new Date().toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}`;
+    slices.forEach(([a,b],i)=>{
+      const hPx=Math.max(1,Math.round((b-a)*sx)), c=document.createElement('canvas'); c.width=canvas.width; c.height=hPx;
+      const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(canvas,0,Math.round(a*sx),canvas.width,hPx,0,0,canvas.width,hPx);
+      if(i)pdf.addPage();
+      pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',M,M,PW-2*M,(b-a)*mmPerPx);
+      pdf.setFontSize(8); pdf.setTextColor(120);
+      pdf.text(title,M,PH-M+2); pdf.text(`${printed} · Hal. ${i+1}/${slices.length}`,PW-M,PH-M+2,{align:'right'});
+      pdf.setDrawColor(220); pdf.line(M,PH-M-2,PW-M,PH-M-2);
+    });
+    pdf.save(`HSE-${SLUG[k]}${extra}-${CFG.today}.pdf`);
+    exportPDF.last={pages:slices.length,W,H,slices};
+  }catch(e){snack('Gagal membuat PDF: '+e.message,true);}
+  finally{
     closed.forEach(d=>d.open=false);
+    sec.style.width='';
     if(prevTheme)root.dataset.theme=prevTheme; else delete root.dataset.theme;
     document.body.classList.remove('exporting');
     if(k==='dashboard'){Chart.defaults.animation=prevAnim;renderDashboard();}
-    $('#toast').classList.remove('show');
+    $('#toast').classList.remove('show'); pdfBusy=false;
   }
 }
 document.querySelectorAll('[data-export]').forEach(b=>b.onclick=()=>exportPDF(b.dataset.export));
@@ -1020,8 +1154,77 @@ $('#pyramid').onclick=()=>$('#tabs button[data-v="incident"]').click();
 // master: sub-tab & reset
 $('#m-seg').querySelectorAll('button').forEach(b=>b.onclick=()=>{
   $('#m-seg').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));
-  $('#m-data').hidden=b.dataset.m!=='data'; $('#m-guide').hidden=b.dataset.m!=='guide';
-  $('#v-master .page-head h2').textContent=b.dataset.m==='data'?'Master Data':'Panduan Penggunaan';});
+  showMasterTab(b.dataset.m);});
+const M_TITLE={data:'Master Data',setting:'Pengaturan Proyek',guide:'Panduan Penggunaan'};
+function showMasterTab(m){
+  $('#m-seg').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x.dataset.m===m));
+  ['data','setting','guide'].forEach(k=>$('#m-'+k).hidden=k!==m);
+  $('#v-master .page-head h2').textContent=M_TITLE[m];
+}
+
+/* ================= PENGATURAN PROYEK ================= */
+function weeksInfo(a,b){
+  if(!isDate(a)||!isDate(b))return 'Isi tanggal mulai dan selesai.';
+  if(b<a)return '⚠ Tanggal selesai harus setelah tanggal mulai.';
+  const d=Math.round((new Date(b)-new Date(a))/864e5)+1, w=Math.ceil(d/7), sisa=d%7;
+  return `Durasi <b>${d} hari</b> = <b>${w} week</b>${sisa?` (week terakhir ${sisa} hari)`:''} · Week 1 mulai hari <b>${new Date(a+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long'})}</b> ${fmtID(new Date(a))}, berakhir ${fmtID(new Date(b))}.`;
+}
+function renderSetting(){
+  const f=$('#set-form'), el=k=>f.elements.namedItem(k), canEdit=ROLE==='admin';
+  const v={projectName:CFG.projectName,projectStart:CFG.projectStart,projectEnd:CFG.projectEnd,jamNormal:CFG.jamNormal,jamLembur:CFG.jamLembur,
+    obsPerWeek:LI_TARGET.obsPerWeek,closeRate:LI_TARGET.closeRate,closeDays:LI_TARGET.closeDays};
+  Object.entries(v).forEach(([k,x])=>{el(k).value=x;el(k).disabled=!canEdit;});
+  $('#set-save').hidden=!canEdit; $('#set-ro').textContent=canEdit?'':'🔒 hanya admin yang dapat mengubah';
+  $('#set-calc').innerHTML=weeksInfo(v.projectStart,v.projectEnd);
+}
+['projectStart','projectEnd'].forEach(k=>$('#set-form').elements.namedItem(k).addEventListener('input',()=>{
+  const f=$('#set-form'); $('#set-calc').innerHTML=weeksInfo(f.projectStart.value,f.projectEnd.value);}));
+$('#set-form').onsubmit=async e=>{
+  e.preventDefault(); const f=Object.fromEntries(new FormData(e.target));
+  if(f.projectEnd<f.projectStart){snack('Tanggal selesai harus setelah tanggal mulai',true);return;}
+  const cfg={project_name:f.projectName.trim(),project_start:f.projectStart,project_end:f.projectEnd,jam_normal:+f.jamNormal,jam_lembur:+f.jamLembur,
+    target_obs_week:+f.obsPerWeek,target_close_rate:+f.closeRate,target_close_days:+f.closeDays};
+  const btn=$('#set-save'); btn.disabled=true;
+  try{await save('updateConfig',{config:cfg},'Pengaturan proyek tersimpan');}catch{btn.disabled=false;return;}
+  btn.disabled=false;
+  Object.assign(CFG,{projectName:cfg.project_name,projectStart:cfg.project_start,projectEnd:cfg.project_end,jamNormal:cfg.jam_normal,jamLembur:cfg.jam_lembur});
+  Object.assign(LI_TARGET,{obsPerWeek:cfg.target_obs_week,closeRate:cfg.target_close_rate,closeDays:cfg.target_close_days});
+  if(!LIVE){store.set('hse-settings',{cfg:{projectName:CFG.projectName,projectStart:CFG.projectStart,projectEnd:CFG.projectEnd,jamNormal:CFG.jamNormal,jamLembur:CFG.jamLembur},li:{...LI_TARGET}});}
+  // susun ulang tabel harian sesuai periode baru, data yang sudah ada tetap dipakai
+  const keepMp={}; manpower.forEach(r=>{if(r.normal!=null)keepMp[r.date]={normal:r.normal,lembur:r.lembur};});
+  recalc(); buildManpower(keepMp);
+  ['#mp-week','#wx-week','#wx-dash-week'].forEach(x=>$(x).value='');
+  renderAll(); showMasterTab('setting');
+};
+
+/* ================= TOMBOL CEPAT ================= */
+$('#fab').onclick=()=>{$('#qa').showModal();$('#fab').classList.add('open');};
+$('#qa').addEventListener('close',()=>$('#fab').classList.remove('open'));
+$('#qa-x').onclick=()=>$('#qa').close();
+$('#qa').onclick=e=>{if(e.target===$('#qa'))$('#qa').close();};
+const goTab=v=>$(`#tabs button[data-v="${v}"]`).click();
+$('#qa').querySelectorAll('.qa-b').forEach(b=>b.onclick=()=>{
+  $('#qa').close(); const q=b.dataset.q;
+  if(q==='mp')openMp(CFG.today);
+  if(q==='wx'){goTab('cuaca');$('#wx-week').value=curWeek;renderCuaca();setTimeout(()=>document.querySelector(`#wx-body td[data-d="${CFG.today}"]`)?.scrollIntoView({block:'center',inline:'center'}),50);}
+  if(q==='obs'){goTab('obs');openObs(null);}
+  if(q==='inc'){goTab('incident');$('#add-inc').click();}
+});
+function openMp(date){
+  const f=$('#mp-form'), r=manpower.find(x=>x.date===date)||{};
+  f.date.value=date; f.date.min=CFG.projectStart; f.date.max=CFG.today<CFG.projectEnd?CFG.today:CFG.projectEnd;
+  f.normal.value=r.normal??''; f.lembur.value=r.lembur??0; mpCalc(); $('#dlg-mp').showModal(); setTimeout(()=>f.normal.focus(),50);
+}
+function mpCalc(){const f=$('#mp-form'), n=+f.normal.value||0, l=+f.lembur.value||0;
+  $('#mp-calc').innerHTML=`Man hour: ${n} × ${CFG.jamNormal} + ${l} × ${CFG.jamLembur} = <b>${nf(n*CFG.jamNormal+l*CFG.jamLembur)} jam</b>`;}
+['normal','lembur'].forEach(k=>$('#mp-form').elements.namedItem(k).addEventListener('input',mpCalc));
+$('#mp-form').elements.namedItem('date').addEventListener('change',e=>{const r=manpower.find(x=>x.date===e.target.value)||{};const f=$('#mp-form');f.normal.value=r.normal??'';f.lembur.value=r.lembur??0;mpCalc();});
+$('#dlg-mp').addEventListener('close',async()=>{
+  if($('#dlg-mp').returnValue!=='ok')return; const f=Object.fromEntries(new FormData($('#mp-form')));
+  const r=manpower.find(x=>x.date===f.date); if(!r){snack('Tanggal di luar periode proyek',true);return;}
+  r.normal=Math.max(0,Math.round(+f.normal||0)); r.lembur=Math.max(0,Math.round(+f.lembur||0));
+  renderManpower(); renderDashboard();
+  save('upsertManpower',{date:r.date,normal:r.normal,lembur:r.lembur},`Manpower ${fmtID(new Date(r.date))} tersimpan`).catch(()=>{});});
 $('#m-reset').onclick=()=>{if(!confirm('Kembalikan semua daftar master ke isi awal?'))return;store.del('hse-master');MASTER=structuredClone(DEFAULT_MASTER);masterChanged('category');};
 
 /* ================= RENDER SEMUA ================= */
@@ -1030,14 +1233,15 @@ function renderAll(){
   const mw=keep('#mp-week'), ww=keep('#wx-week'), dw=keep('#wx-dash-week');
   weekOptions($('#mp-week'),Math.min(mw,CFG.weeks)); weekOptions($('#wx-week'),Math.min(ww,CFG.weeks)); weekOptions($('#wx-dash-week'),Math.min(dw,CFG.weeks));
   $('#jn').textContent=CFG.jamNormal; $('#jl').textContent=CFG.jamLembur;
+  document.querySelectorAll('.wk-total').forEach(e=>e.textContent=CFG.weeks);
   $('#proj-name').textContent=`${CFG.projectName} · ${LIVE?'Online':'Demo'}`;
   document.querySelectorAll('.ph-proj').forEach(e=>e.textContent=CFG.projectName);
   document.querySelectorAll('.ph-date').forEach(e=>e.textContent=fmtID(new Date(CFG.today)));
   $('#m-note-mode').textContent=LIVE?(ROLE==='admin'?'Anda login sebagai admin: perubahan langsung tersimpan ke Google Sheet.':'Hanya admin yang dapat mengubah daftar ini.'):'Mode demo: perubahan disimpan di browser ini saja.';
   $('#m-reset').hidden=LIVE;
   refreshSelects(); perfMonths();
-  renderDashboard(); renderManpower(); renderCuaca(); renderObs(); renderIncident(); renderMaster(); renderGuide();
-  if($('#m-guide').hidden)$('#v-master .page-head h2').textContent='Master Data';
+  renderDashboard(); renderManpower(); renderCuaca(); renderObs(); renderIncident(); renderMaster(); renderGuide(); renderSetting();
+  showMasterTab($('#m-seg button.active')?.dataset.m||'data');
 }
 
 /* ================= LOGIN & SINKRON ================= */
