@@ -1,0 +1,6 @@
+# referensi internal, tidak dipublikasikan
+*.xlsx
+~$*
+*.pdf
+.claude/
+__pycache__/
