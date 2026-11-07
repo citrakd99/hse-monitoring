@@ -1,11 +1,15 @@
 // Service worker: cache app shell agar bisa dibuka offline.
 // Naikkan VERSION setiap kali index.html berubah supaya user dapat versi baru.
-const VERSION = 'hse-v1.5';
+const VERSION = 'hse-v1.6';
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './config.js',
+  './ptw.js',
+  './pekerja.js',
+  './assets/logo-safran-cw.jpg',
+  './assets/logo-ckd.jpg',
   './icons/icon-192.png',
   './icons/icon-512.png',
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js',

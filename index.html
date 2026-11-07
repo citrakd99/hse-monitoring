@@ -219,6 +219,107 @@ th.off,td.off{opacity:.45}
 .wp-empty b{color:var(--text)}
 #wp-card h3 .sub{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .wp-extra b{color:var(--text)}
+/* permit to work: form */
+.dlg-wide{width:min(920px,calc(100vw - 24px));max-height:calc(100vh - 24px);display:flex;flex-direction:column}
+.dlg-wide[open]{display:flex}
+.ptw-body{overflow:auto;padding:4px 18px 12px;flex:1}
+.ptw-sec{border-bottom:1px solid var(--border);padding:12px 0}
+.ptw-lock{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:var(--med-bg);color:var(--text);font-size:13px;border:1px solid var(--med)}
+.ptw-body input:disabled,.ptw-body select:disabled,.ptw-body textarea:disabled{opacity:.7;cursor:not-allowed}
+.ptw-sec h4{margin:0 0 8px;font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ptw-sec h4 small{font-weight:400;color:var(--muted);font-style:italic}
+.ptw-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ptw-grid label,.pf-oth{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.ptw-grid .full{grid-column:1/-1}
+@media (max-width:620px){.ptw-grid{grid-template-columns:1fr}}
+.pf-opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:4px 12px}
+.pf-checks{display:flex;flex-direction:column;gap:6px}
+label.ck{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--text);cursor:pointer;line-height:1.35}
+label.ck input{margin-top:2px;width:17px;height:17px;flex:none;accent-color:var(--brand)}
+.pf-all{margin-left:auto;font:inherit;font-size:11px;border:1px solid var(--border);background:var(--surface);color:var(--brand);border-radius:6px;padding:2px 8px;cursor:pointer}
+.pf-oth{margin-top:8px}
+.pf-applied{display:flex;flex-direction:column;gap:6px}
+.pf-ap{display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:center}
+.pf-ap input[type=date]{padding:4px 6px}
+@media (max-width:620px){.pf-ap{grid-template-columns:1fr 1fr auto 1fr}.pf-ap label{grid-column:1/-1}}
+.pt-st{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700}
+.pt-draft{background:var(--surface-2);color:var(--muted);border:1px solid var(--border)}
+.pt-sub{background:#e3eefb;color:#2f6fc0}.pt-act{background:var(--low-bg);color:var(--low)}.pt-done{background:#ece9fb;color:#5b43c4}
+.pt-cancel{background:var(--surface-2);color:var(--muted);text-decoration:line-through}.pt-exp{background:var(--high-bg);color:var(--high)}
+.ptc-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px 16px 18px}
+.ptc-b{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;font:inherit;padding:10px 12px;border:1px solid var(--border);border-left:4px solid var(--c);border-radius:10px;background:var(--surface);color:var(--text);cursor:pointer}
+.ptc-b:hover{border-color:var(--brand)}
+.ptc-b small{color:var(--muted);font-size:11px}
+.ptc-b.req{background:var(--med-bg)}
+.ptc-b.req small{color:var(--med);font-weight:600}
+#pt-body tr{cursor:pointer}
+#pt-body tr:hover td{background:var(--surface-2)}
+@media (max-width:440px){nav button svg{padding:3px 6px}nav button{font-size:9px}}
+/* permit to work: halaman cetak (Legal 8.5x14 in) */
+.pp-host{position:fixed;left:-12000px;top:0;width:816px;background:#fff}
+.pp{width:816px;padding:14px;background:#fff;color:#111;font:9px/1.3 Arial,Helvetica,sans-serif;box-sizing:border-box}
+.pp *{box-sizing:border-box}
+.pp i{color:#2e86c9}
+.pp-hd{display:flex;align-items:center;justify-content:space-between;border:1px solid #333;border-bottom:0;padding:6px 10px}
+.pp-hd img{height:34px}
+.pp-hd img:last-child{height:38px}
+.pp-t{text-align:center;font-weight:800;font-size:13px;letter-spacing:.02em}
+.pp-info{border:1px solid #333;border-bottom:0;padding:6px 10px}
+.pp-info>div{display:flex;gap:6px;padding:2px 0;border-bottom:1px solid #ddd;align-items:baseline}
+.pp-info>div>span:first-child{width:180px;flex:none;font-variant:small-caps}
+.pp-info .pp-wp{background:#fcd5b4;margin:3px -10px -6px;padding:3px 10px;border:0}
+.pp-r{margin-left:auto;font-variant:normal!important;width:auto!important}
+.pp-v{font-weight:700;color:#000}
+.pp-two{display:grid;grid-template-columns:1fr 1fr;border:1px solid #333;border-bottom:0}
+.pp-two>div:first-child{border-right:1px solid #333}
+.pp-daily{width:100%;border-collapse:collapse}
+.pp-daily th,.pp-daily td{border:1px solid #888;padding:2px 3px;text-align:center;font-size:8.5px;height:17px;font-weight:700}
+.pp-daily th{background:#e7e7e7}
+.pp-blk{border-bottom:1px solid #333;padding:3px 8px 4px}
+.pp-split>div>.pp-blk:last-child,.pp-two .pp-blk:last-child{border-bottom:0}
+.pp-bh{font-weight:800;text-align:center;background:#d9d9d9;margin:-3px -8px 4px;padding:2px 6px;font-size:9px}
+.pp-opts{display:grid;gap:1px 10px}
+.pp-ck{padding:1.5px 0}
+.pp-id{font-variant:small-caps}
+.pp-en{display:block;color:#2e86c9;font-style:italic;font-size:8px;padding-left:22px}
+.pp-bx{display:inline-block;width:9px;text-align:center;font-weight:900;color:#000}
+.pp-note{background:#fcd5b4;margin:4px -8px -4px;padding:2px 8px;font-size:8.5px}
+.pp-split{display:grid;grid-template-columns:2.2fr 1fr;border:1px solid #333;border-bottom:0;border-top:0}
+.pp-split.eq{grid-template-columns:1fr 1fr}
+.pp-split>div:first-child{border-right:1px solid #333}
+.pp>.pp-blk{border:1px solid #333;border-top:0}
+.pp-row{padding:2px 0}
+.pp-ap{display:flex;gap:6px;align-items:baseline;padding:1px 0}
+.pp-ap>span:last-child{margin-left:auto;white-space:nowrap}
+.pp-ap .pp-en{display:inline;padding-left:4px}
+.pp-gas{width:100%;border-collapse:collapse;table-layout:fixed}
+.pp-gas th,.pp-gas td{border:1px solid #888;padding:0 1px;text-align:center;height:14px;font-size:6.5px;line-height:1.1;white-space:normal;font-weight:600;color:#111;background:#fff}
+.pp-gas tr:first-child th{font-size:8px}
+.pp-gas th:first-child,.pp-gas td:first-child{width:62px;font-size:7.5px}
+.pp table th,.pp table td{white-space:normal;color:#111}
+.pp-band{border:1px solid #333;border-top:0;padding:4px 8px;font-size:8.5px}
+.pp-band.pre{background:#ffff00}.pp-band.post{background:#92d050}
+.pp-sig{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #333;border-top:0}
+.pp-sig>div{border-right:1px solid #333;padding:3px 6px;min-height:78px}
+.pp-sig>div:last-child{border-right:0}
+.pp-sh{text-align:center;font-variant:small-caps;border-bottom:1px solid #aaa;margin:-3px -6px 4px;padding:2px}
+.pp-ss{height:26px;padding-top:4px}
+.pp-eng{border:1px solid #333;border-top:0;padding:3px 8px;font-size:8.5px}
+.pp-ft{display:flex;justify-content:space-between;gap:10px;border:1px solid #333;border-top:0;padding:3px 8px;font-size:8px}
+.pp-lamp{text-align:right;white-space:nowrap}
+/* daftar pekerja */
+.wk-sum{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.wk-sum{grid-template-columns:1fr}}
+.exporting .wk-sum{grid-template-columns:1fr 1fr}
+.wk-sl{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.wk-chip{display:inline-block;margin:0 4px 4px 0;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+.wk-chip b{margin-left:3px}
+.wk-chip.tr{background:#e3eefb;color:#2f6fc0}
+.wk-chip.ct{background:#ece9fb;color:#5b43c4}
+.wk-cell{white-space:normal!important;min-width:150px;max-width:260px}
+.pt-warn{background:var(--med-bg);color:var(--med)}
+#wk-body tr{cursor:pointer}
+#wk-body tr:hover td{background:var(--surface-2)}
 /* filters */
 .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;padding:12px;background:var(--surface-2);border-radius:10px;margin-bottom:10px}
 .filters label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--muted);font-weight:500}
@@ -363,6 +464,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <button data-v="obs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Observation</button>
     <button data-v="incident"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>Incident</button>
     <button data-v="program"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 12l2 2 4-4M9 17h6"/></svg>Program</button>
+    <button data-v="permit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>Permit</button>
     <button data-v="master"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Master</button>
   </nav>
 </header>
@@ -436,6 +538,8 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 
 <!-- DAILY MONITORING -->
 <section class="view" id="v-manpower">
+  <div class="seg no-pdf" id="mp-seg"><button data-m="mh" class="active">Manhour Harian</button><button data-m="wk">Daftar Pekerja</button></div>
+  <div id="mp-mh">
   <div class="note">Isi jumlah <b>Staff</b> dan <b>Pekerja</b> (normal &amp; lembur) per hari; baris <b>Total Man Power</b> dijumlahkan otomatis. Man hour dihitung otomatis: normal × <b id="jn"></b> jam, lembur × <b id="jl"></b> jam. Kumulatif berjalan dari Week 1 (periode <span class="wk-total"></span> week). Di HP lebih mudah lewat tombol <b>+</b> → <i>Manpower hari ini</i>.</div>
   <div class="card">
     <div class="toolbar">
@@ -445,6 +549,27 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <div class="tbl-wrap"><table class="mp">
       <thead id="mp-head"></thead><tbody id="mp-body"></tbody>
     </table></div>
+  </div>
+  </div>
+  <div id="mp-wk" hidden>
+    <div class="grid kpis" id="wk-kpi"></div>
+    <div class="card wk-sum" id="wk-sum" style="margin-top:16px"></div>
+    <div class="card" style="margin-top:16px">
+      <div class="toolbar"><b>Daftar Pekerja Proyek</b><span class="spacer"></span><button class="btn primary no-pdf" id="add-wk">+ Tambah Pekerja</button></div>
+      <div class="filters no-pdf">
+        <label style="flex:1;min-width:160px">Cari<input id="wk-q" placeholder="Nama, perusahaan, 4 digit KTP"></label>
+        <label>Status bekerja<select id="wk-st"></select></label>
+        <label>Induction<select id="wk-ind"></select></label>
+        <label>Pelanggaran<select id="wk-v"></select></label>
+        <label>Training / sertifikasi<select id="wk-tr"></select></label>
+      </div>
+      <div class="filter-info" id="wk-info"></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>No</th><th>Nama</th><th>No KTP</th><th>JK</th><th>Induction</th><th>Pelanggaran</th><th>Status</th><th>Training</th><th>Sertifikasi</th></tr></thead>
+        <tbody id="wk-body"></tbody>
+      </table></div>
+      <p class="fx-note">No KTP disembunyikan (hanya 4 digit terakhir) di tabel dan PDF; nomor lengkap hanya terlihat di form edit. Klik baris untuk edit. <span id="wk-note"></span></p>
+    </div>
   </div>
 </section>
 
@@ -561,6 +686,28 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   </div>
 </section>
 
+<!-- PERMIT TO WORK -->
+<section class="view" id="v-permit">
+  <div class="grid kpis" id="pt-kpi"></div>
+  <div class="card" style="margin-top:16px">
+    <div class="toolbar">
+      <b>Register Permit to Work</b><span class="spacer"></span>
+      <button class="btn primary no-pdf" id="add-ptw">+ Buat Permit</button>
+    </div>
+    <div class="filters no-pdf">
+      <label>Status<select id="pt-st"></select></label>
+      <label>Jenis<select id="pt-ty"></select></label>
+      <label style="flex:1;min-width:180px">Cari<input id="pt-q" placeholder="No, pekerjaan, lokasi, pemohon"></label>
+    </div>
+    <div class="filter-info" id="pt-info"></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>No Permit</th><th>Jenis</th><th>Pekerjaan</th><th>Lokasi</th><th>Pemohon</th><th>Masa berlaku</th><th>Status</th><th class="no-pdf"></th></tr></thead>
+      <tbody id="pt-body"></tbody>
+    </table></div>
+    <p class="fx-note">🖨 cetak PDF format asli (kertas Legal) untuk ditandatangani basah · ✎ buka / ubah status · ＋ buat permit turunan dari General WP (Hot Work, WAH, dll). <span id="pt-note"></span></p>
+  </div>
+</section>
+
 <!-- MASTER -->
 <section class="view" id="v-master">
   <div class="seg no-pdf" id="m-seg"><button data-m="data" class="active">Data Master</button><button data-m="setting">Pengaturan Proyek</button><button data-m="guide">Panduan</button></div>
@@ -662,6 +809,8 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <button class="qa-b" data-q="obs"><span class="ic" style="--c:#d98b0b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3M11 8v6M8 11h6"/></svg></span><b>Observasi baru</b><small>Temuan unsafe act / condition</small></button>
     <button class="qa-b" data-q="inc"><span class="ic" style="--c:#d13b3b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span><b>Lapor insiden</b><small>Near miss s/d fatality</small></button>
     <button class="qa-b qa-wide" data-q="act"><span class="ic" style="--c:#7a4fd1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v2h6V3M9 12l2 2 4-4M9 17h6"/></svg></span><b>Kegiatan HSE</b><small>Training, induction, safety moment, patrol</small></button>
+    <button class="qa-b qa-wide" data-q="ptw"><span class="ic" style="--c:#2f6fb7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></span><b>Buat Permit to Work</b><small>General, hot work, WAH, confined space, dll</small></button>
+    <button class="qa-b qa-wide" data-q="wk"><span class="ic" style="--c:#0f7a57"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2"/><path d="M19 8v6M16 11h6"/></svg></span><b>Tambah pekerja baru</b><small>Nama, KTP, induction, training, sertifikasi</small></button>
   </div>
 </dialog>
 <dialog id="dlg-mp">
@@ -709,10 +858,44 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <div class="dlg-f"><button class="btn" value="cancel" formnovalidate>Batal</button><button class="btn primary" value="ok">Simpan</button></div>
   </form>
 </dialog>
+<dialog id="dlg-ptw" class="dlg-wide">
+  <div class="dlg-h" id="ptw-title">Permit to Work</div>
+  <div class="ptw-body" id="ptw-body"></div>
+  <div class="dlg-f"><button class="btn danger" id="ptw-del" type="button" hidden>Hapus</button><button class="btn" id="ptw-print" type="button" hidden>🖨 Cetak</button><span class="spacer"></span>
+    <button class="btn" id="ptw-cancel" type="button">Batal</button><button class="btn" id="ptw-save" type="button">Simpan</button><button class="btn primary" id="ptw-saveprint" type="button">Simpan &amp; Cetak</button></div>
+</dialog>
+<dialog id="dlg-ptc">
+  <div class="dlg-h" style="display:flex;align-items:center"><span id="ptc-title">Permit turunan</span><button class="x" id="ptc-x" type="button" aria-label="Tutup">×</button></div>
+  <div class="ptc-list" id="ptc-list"></div>
+</dialog>
+<dialog id="dlg-wk" class="dlg-wide">
+  <div class="dlg-h" id="wk-title">Tambah Pekerja</div>
+  <form id="wk-form" class="ptw-body" onsubmit="return false">
+    <div class="ptw-sec"><div class="ptw-grid">
+      <label class="full">Nama lengkap<input name="name" required maxlength="80" autocomplete="off"></label>
+      <label>No KTP (NIK, 16 digit)<input name="ktp" inputmode="numeric" maxlength="20" autocomplete="off" placeholder="3201xxxxxxxxxxxx"></label>
+      <label>Jenis kelamin<select name="gender"></select></label>
+      <label>Kategori<select name="category"></select></label>
+      <label>Perusahaan / subkon<input name="company" list="wk-companies" maxlength="80"><datalist id="wk-companies"></datalist></label>
+      <label>Status induction<select name="induction"></select></label>
+      <label>Tanggal induction<input name="inductionDate" type="date"></label>
+      <label>Status pelanggaran<select name="violation"></select></label>
+      <label>Status bekerja<select name="status"></select></label>
+      <div class="full ptw-lock" id="wk-rule" hidden style="margin:0"></div>
+      <div class="full set-calc" id="wk-hint" hidden></div>
+    </div></div>
+    <div class="ptw-sec"><h4>Training yang diikuti <small>pilih beberapa · daftar diatur di Master</small></h4><div class="pf-opts" id="wk-trbox"></div></div>
+    <div class="ptw-sec"><h4>Sertifikasi pekerja <small>pilih beberapa · daftar diatur di Master</small></h4><div class="pf-opts" id="wk-ctbox"></div></div>
+    <div class="ptw-sec"><div class="ptw-grid"><label class="full">Catatan<textarea name="notes" rows="2" maxlength="300" placeholder="mis. keterangan pelanggaran, masa berlaku sertifikat"></textarea></label></div></div>
+  </form>
+  <div class="dlg-f"><button class="btn danger" id="wk-del" type="button" hidden>Hapus</button><span class="spacer"></span><button class="btn" id="wk-cancel" type="button">Batal</button><button class="btn primary" id="wk-save" type="button">Simpan</button></div>
+</dialog>
 <div id="toast">Membuat PDF…</div>
 <div id="snack"></div>
 
 <script src="config.js"></script>
+<script src="ptw.js"></script>
+<script src="pekerja.js"></script>
 <script>
 /* ================= CONFIG ================= */
 const API=((window.HSE_CONFIG&&window.HSE_CONFIG.apiUrl)||'').trim();
@@ -727,12 +910,14 @@ const DEFAULT_MASTER = {
   category:['Procedure','Tools & Equipment','PPE','Housekeeping'],
   type:['Unsafe Action','Unsafe Condition'],
   area:['Building 4','Building 2','Hazardous','Toilet Building 2','Mosque','Compressor Room','Genset Room','Trafo Room','Chemical Room','Siteplan','Gate Perimeter','Other'],
-  finding:['Melanggar prosedur','Tidak menggunakan PPE','Area kerja','Alat tidak proper','dll']
+  finding:['Melanggar prosedur','Tidak menggunakan PPE','Area kerja','Alat tidak proper','dll'],
+  training:[...WK_DEFAULT_TRAINING],
+  sertifikasi:[...WK_DEFAULT_CERT]
 };
 // Mode demo: master disimpan di localStorage. Mode online: dari sheet "Master".
 const store={get(k){try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}},del(k){try{localStorage.removeItem(k);}catch{}}};
 let MASTER=Object.assign(structuredClone(DEFAULT_MASTER),LIVE?{}:(store.get('hse-master')||{}));
-const saveMaster=()=>{if(!LIVE)store.set('hse-master',{category:MASTER.category,type:MASTER.type,area:MASTER.area,finding:MASTER.finding});};
+const saveMaster=()=>{if(!LIVE)store.set('hse-master',{category:MASTER.category,type:MASTER.type,area:MASTER.area,finding:MASTER.finding,training:MASTER.training,sertifikasi:MASTER.sertifikasi});};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const WX = [ // urutan = tingkat keparahan
   {k:'C', n:'Cerah', i:'☀️'},{k:'B', n:'Berawan', i:'⛅'},{k:'M', n:'Mendung', i:'☁️'},
@@ -791,7 +976,11 @@ function applyData(d){
     photo:r.photo_url||'',action:r.action||'',actionDate:r.action_date||'',actionPhoto:r.action_photo_url||'',status:r.action_date?'Closed':'Open'})).sort((a,b)=>a.date.localeCompare(b.date));
   incidents=(d.incident||[]).map(r=>({id:r.id,date:r.date,time:r.time,cls:r.cls,area:r.area,desc:r.desc,involved:r.involved,action:r.action,lostDays:+r.lost_days||0,reporter:r.reporter,photo:r.photo_url||''}))
     .sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
-  const m=d.master||{}; ['category','type','area','finding'].forEach(k=>{if(m[k]&&m[k].length)MASTER[k]=m[k];});
+  const m=d.master||{}; ['category','type','area','finding','training','sertifikasi'].forEach(k=>{if(m[k]&&m[k].length)MASTER[k]=m[k];});
+  // Daftar pekerja
+  WK_SERVER=Array.isArray(d.worker); workers=(d.worker||[]).map(wkFromRow);
+  // Permit to Work
+  PTW_SERVER=Array.isArray(d.permit); permits=(d.permit||[]).map(ptwFromRow); CFG.permitPrefix=c.permit_prefix||'BTK';
   // HSE Program: jika server lama belum punya sheet Program, pakai daftar bawaan (hanya tampil)
   PG_SERVER=Array.isArray(d.program);
   programs=(PG_SERVER&&d.program.length?d.program:DEFAULT_PROGRAMS).map(r=>({id:String(r.id),category:r.category,name:r.name,frequency:r.frequency||'Sesuai kebutuhan',pic:r.pic||''}));
@@ -845,6 +1034,8 @@ function loadDemo(){
     {id:'D5',date:'2026-11-05',time:'08:30',cls:'Near Miss',area:'Gate Perimeter',desc:'Truk mundur tanpa flagman',involved:'Sopir truk material',action:'Wajib flagman untuk manuver mundur',lostDays:0,reporter:'Eko'},
   ];
   demoProgram(rnd);
+  PTW_SERVER=true; ptwDemo();
+  WK_SERVER=true; wkDemo(rnd);
 }
 
 /* ================= API (Google Apps Script) ================= */
@@ -1110,7 +1301,7 @@ function renderIncident(){
 }
 
 /* ================= MASTER (editable) ================= */
-const EDITABLE=[['category','Finding Category'],['type','Finding Type'],['area','Area'],['finding','Contoh Finding']];
+const EDITABLE=[['category','Finding Category'],['type','Finding Type'],['area','Area'],['finding','Contoh Finding'],['training','Training Pekerja'],['sertifikasi','Sertifikasi Pekerja']];
 function renderMaster(){
   const locked=(t,items,why)=>`<div class="card"><h3>${t} <span class="lock">🔒 ${why}</span></h3><ul class="mlist">${items.map(i=>`<li><span class="t">${i}</span></li>`).join('')}</ul></div>`;
   $('#master').innerHTML=
@@ -1188,6 +1379,21 @@ function renderGuide(){
     <li><b>Kepatuhan</b> = realisasi (maksimal sebanyak rencana) ÷ rencana, hanya untuk week yang sudah berjalan.</li>
     <li>Admin dapat menambah, <b>mengedit (✎)</b> dan menghapus (×) program di kartu <b>Daftar Program HSE</b>. Mengubah frekuensi langsung mengubah rencana di matriks.</li>
     <li>Kartu <b>Plan Program HSE Mingguan</b> di Dashboard menampilkan kategori <b>Training</b> secara default; pilih kategori lain atau <i>Semua kategori</i> dari dropdown.</li></ul>`],
+  ['Daftar Pekerja',`<p>Menu <b>Manpower → Daftar Pekerja</b> berisi data setiap pekerja proyek beserta kartu statistik.</p>
+    <ul><li>Klik <b>+ Tambah Pekerja</b> (atau tombol cepat +): isi nama, No KTP 16 digit, jenis kelamin (default Pria), kategori Staff/Pekerja, perusahaan, status induction, pelanggaran (P1/P2/P3), status bekerja (Aktif, P3, Non Aktif), training yang diikuti dan sertifikasi (bisa pilih beberapa).</li>
+    <li><b>P3 = terminasi</b> dari proyek: status bekerja otomatis P3 dan setelah disimpan tidak dapat diubah menjadi Aktif lagi.</li>
+    <li><b>P2</b>: status induction otomatis kembali <b>Belum</b>; pekerja wajib induction ulang dengan tanggal induction sama atau setelah tanggal pelanggaran.</li>
+    <li>Pekerja aktif yang belum induction ditandai.</li>
+    <li>Daftar training dan sertifikasi dapat ditambah admin di <b>Master → Data Master</b>.</li>
+    <li>No KTP adalah data pribadi: tabel dan PDF hanya menampilkan 4 digit terakhir. Jangan bagikan Google Sheet ke pihak yang tidak berkepentingan.</li></ul>`],
+  ['Permit to Work (PTW)',`<p>Menu <b>Permit</b> berisi 9 form sesuai <i>PTW Batik Project</i>: General Work Permit (Lamp. 1), Confined Space, Hot Work, Electrical, Working at Height, Excavation, Isolation/LOTOTO, Lifting dan Overtime/Holiday (Lamp. 2–9).</p>
+    <ol><li>Buat <b>General Work Permit</b> lebih dulu, centang jenis ijin yang diajukan beserta tanggalnya.</li>
+    <li>Dari register, klik <b>＋</b> pada General WP untuk membuat permit khusus; data pekerjaan, lokasi, pekerja dan tanggal terisi otomatis dan terhubung ke No WP General.</li>
+    <li>Isi checklist & APD sesuai kondisi lapangan, lalu <b>Simpan &amp; Cetak</b>. PDF berukuran Legal, 1 permit per halaman, format sama dengan form asli. Tombol 🖨 pada General WP mencetak satu paket bersama semua permit turunannya.</li>
+    <li>Tanda tangan Pra/Pasca Pekerjaan, pemeriksa harian dan pengukuran gas (confined space) diisi <b>basah</b> di form cetak.</li>
+    <li>Ubah <b>status</b> di aplikasi: Draft → Diajukan → Aktif → Selesai (atau Batal). Permit Aktif/Diajukan yang lewat masa berlaku otomatis tampil <b>Kadaluarsa</b>.</li>
+    <li>Permit <b>Aktif</b> dan <b>Selesai</b> terkunci (🔒): isinya tidak dapat diubah. Permit Aktif hanya dapat ditutup menjadi Selesai atau Batal; permit Selesai hanya dapat dilihat dan dicetak.</li></ol>
+    <ul><li>Masa berlaku maksimal 5 hari kerja (08:00–18:00); Overtime/Holiday 1 hari.</li><li>Nomor permit otomatis: <code>GWP-BTK-001</code>, <code>HW-BTK-001</code>, dst.</li></ul>`],
   ['Export PDF & filter',`<ol><li>Buka halaman yang ingin dicetak, atur filter (mis. periode, risk, area, status).</li>
     <li>Klik <b>Export PDF</b> di kanan atas. Dashboard & Master dicetak A4 portrait, tabel (Manpower, Cuaca, Observation, Incident) A4 landscape. Pergantian halaman otomatis menyesuaikan isi: baris tabel, kartu dan grafik tidak terpotong, dan setiap halaman diberi nomor.</li>
     <li>Keterangan filter yang aktif ikut tercetak di PDF, jadi pembaca tahu data apa yang ditampilkan.</li></ol>
@@ -1451,13 +1657,13 @@ $('#wp-week').onchange=renderWeekPlan;
 $('#wp-cat').onchange=()=>{store.set('hse-wp-cat',$('#wp-cat').value);renderWeekPlan();};
 
 /* ================= PAGE HEAD + EXPORT PDF ================= */
-const PAGES={dashboard:'Dashboard',manpower:'Daily Monitoring – Manhour',cuaca:'Monitoring Cuaca',obs:'Daily Observation',incident:'Incident Log',program:'HSE Program',master:'Master Data & Panduan'};
-const SLUG={dashboard:'Dashboard',manpower:'Manhour',cuaca:'Cuaca',obs:'Observation',incident:'Incident',program:'Program',master:'Master'};
+const PAGES={dashboard:'Dashboard',manpower:'Daily Monitoring – Manhour',cuaca:'Monitoring Cuaca',obs:'Daily Observation',incident:'Incident Log',program:'HSE Program',permit:'Permit to Work',master:'Master Data & Panduan'};
+const SLUG={dashboard:'Dashboard',manpower:'Manhour',cuaca:'Cuaca',obs:'Observation',incident:'Incident',program:'Program',permit:'Permit',master:'Master'};
 Object.entries(PAGES).forEach(([k,t])=>$('#v-'+k).insertAdjacentHTML('afterbegin',
   `<div class="page-head"><div><h2>${t}</h2><small>HSE Monitoring · <span class="ph-proj"></span> · per <span class="ph-date"></span></small></div>
    <button class="btn primary no-pdf" data-export="${k}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v3h16v-3"/></svg>Export PDF</button></div>`));
 /* Export PDF: halaman dipotong mengikuti isi (tidak memotong baris tabel / kartu / grafik) */
-const PDF_LAYOUT={dashboard:{o:'p',w:900},master:{o:'p',w:860},manpower:{o:'l',w:1180},cuaca:{o:'l',w:1060},obs:{o:'l',w:1240},incident:{o:'l',w:1180},program:{o:'l',w:1240}};
+const PDF_LAYOUT={dashboard:{o:'p',w:900},master:{o:'p',w:860},manpower:{o:'l',w:1180},cuaca:{o:'l',w:1060},obs:{o:'l',w:1240},incident:{o:'l',w:1180},program:{o:'l',w:1240},permit:{o:'l',w:1180}};
 // elemen yang tidak boleh terbelah di antara dua halaman
 const PDF_ATOMIC='tr, .wp-item, .wp-top, .wp-extra, .kpi, .li, .ic-card, .pyr, .chart-box, .fx, .page-head, .note, .filter-info, .legend, .perf-foot, .mlist li, .guide summary, .guide .gb > *, h3, .set-grid > *, .set-calc, .set-f';
 let pdfBusy=false;
@@ -1473,7 +1679,7 @@ async function exportPDF(k){
   await new Promise(r=>setTimeout(r,300));
   const filtered=k==='obs'?['#f-from','#f-to','#f-risk','#f-area','#f-cat','#f-status'].some(s=>$(s).value):k==='incident'?['#i-from','#i-to','#i-cls','#i-area'].some(s=>$(s).value):false;
   const sub=k==='master'?($('#m-seg button.active')?.dataset.m||'data'):'';
-  const extra=k==='manpower'?`-W${$('#mp-week').value}`:k==='cuaca'?`-W${$('#wx-week').value}`:sub==='guide'?'-Panduan':sub==='setting'?'-Pengaturan':filtered?'-filtered':'';
+  const extra=k==='manpower'?(!$('#mp-wk').hidden?'-Pekerja':`-W${$('#mp-week').value}`):k==='cuaca'?`-W${$('#wx-week').value}`:sub==='guide'?'-Panduan':sub==='setting'?'-Pengaturan':filtered?'-filtered':'';
   try{
     const base=sec.getBoundingClientRect(), W=Math.ceil(sec.scrollWidth), H=Math.ceil(sec.scrollHeight);
     // 1) cari titik potong yang aman
@@ -1645,6 +1851,8 @@ $('#qa').querySelectorAll('.qa-b').forEach(b=>b.onclick=()=>{
   if(q==='obs'){goTab('obs');openObs(null);}
   if(q==='inc'){goTab('incident');$('#add-inc').click();}
   if(q==='act'){goTab('program');openAct(null,CFG.today);}
+  if(q==='ptw'){goTab('permit');openPermit(null);}
+  if(q==='wk'){goTab('manpower');wkTab('wk');openWorker(null);}
 });
 function openMp(date){
   const f=$('#mp-form'), r=manpower.find(x=>x.date===date)||{};
@@ -1665,6 +1873,8 @@ $('#dlg-mp').addEventListener('close',async()=>{
   save('upsertManpower',mpPayload(r),`Manpower ${fmtID(new Date(r.date))} tersimpan`).catch(()=>{});});
 $('#m-reset').onclick=()=>{if(!confirm('Kembalikan semua daftar master ke isi awal?'))return;store.del('hse-master');MASTER=structuredClone(DEFAULT_MASTER);masterChanged('category');};
 
+ptwInit(); wkInit();
+
 /* ================= RENDER SEMUA ================= */
 function renderAll(){
   const keep=s=>+$(s).value||curWeek;
@@ -1678,7 +1888,7 @@ function renderAll(){
   $('#m-note-mode').textContent=LIVE?(ROLE==='admin'?'Anda login sebagai admin: perubahan langsung tersimpan ke Google Sheet.':'Hanya admin yang dapat mengubah daftar ini.'):'Mode demo: perubahan disimpan di browser ini saja.';
   $('#m-reset').hidden=LIVE;
   refreshSelects(); perfMonths();
-  renderDashboard(); renderManpower(); renderCuaca(); renderObs(); renderIncident(); renderMaster(); renderGuide(); renderSetting(); renderProgram(); fillProgSelect();
+  renderDashboard(); renderManpower(); renderCuaca(); renderObs(); renderIncident(); renderMaster(); renderGuide(); renderSetting(); renderProgram(); fillProgSelect(); renderPermit(); renderWorkers();
   showMasterTab($('#m-seg button.active')?.dataset.m||'data');
 }
 

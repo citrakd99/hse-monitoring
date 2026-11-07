@@ -18,6 +18,8 @@ const SCHEMA = {
   Observation: ['id', 'date', 'observer', 'area', 'finding', 'type', 'category', 'risk', 'photo_url', 'action', 'action_date', 'action_photo_url', 'status', 'created_by', 'created_at', 'updated_by', 'updated_at'],
   Incident: ['id', 'date', 'time', 'cls', 'area', 'desc', 'involved', 'action', 'lost_days', 'reporter', 'photo_url', 'created_by', 'created_at'],
   Master: ['list', 'value'],
+  Worker: ['id', 'name', 'ktp', 'gender', 'category', 'company', 'induction', 'induction_date', 'violation', 'work_status', 'trainings', 'certifications', 'notes', 'created_by', 'created_at', 'updated_by', 'updated_at', 'violation_date'],
+  Permit: ['id', 'no', 'type', 'parent_no', 'status', 'description', 'location', 'date_from', 'date_to', 'applicant', 'data', 'created_by', 'created_at', 'updated_by', 'updated_at'],
   Program: ['id', 'category', 'name', 'frequency', 'pic'],
   Activity: ['id', 'date', 'program_id', 'topic', 'participants', 'pic', 'location', 'notes', 'photo_url', 'created_by', 'created_at'],
   Log: ['timestamp', 'user', 'role', 'action', 'sheet', 'ref']
@@ -35,6 +37,7 @@ const DEFAULT_CONFIG = [
   ['target_close_days', 3, 'Target rata-rata hari penyelesaian'],
   ['pin', 'ganti-pin-user', 'PIN untuk petugas input (WAJIB diganti)'],
   ['admin_pin', 'ganti-pin-admin', 'PIN admin: boleh ubah Master & hapus data (WAJIB diganti)'],
+  ['permit_prefix', 'BTK', 'Kode proyek pada nomor permit, mis. HW-BTK-001'],
   ['photo_folder_id', '', 'Diisi otomatis: folder Google Drive untuk foto']
 ];
 
@@ -42,7 +45,10 @@ const DEFAULT_MASTER = {
   category: ['Procedure', 'Tools & Equipment', 'PPE', 'Housekeeping'],
   type: ['Unsafe Action', 'Unsafe Condition'],
   area: ['Building 4', 'Building 2', 'Hazardous', 'Toilet Building 2', 'Mosque', 'Compressor Room', 'Genset Room', 'Trafo Room', 'Chemical Room', 'Siteplan', 'Gate Perimeter', 'Other'],
-  finding: ['Melanggar prosedur', 'Tidak menggunakan PPE', 'Area kerja', 'Alat tidak proper', 'dll']
+  finding: ['Melanggar prosedur', 'Tidak menggunakan PPE', 'Area kerja', 'Alat tidak proper', 'dll'],
+  training: ['K3 Umum', 'Hot Work (HW)', 'Working at Height (WAH)', 'Listrik', 'Confined Space', 'Lifting & Rigging', 'Scaffolding', 'Excavation', 'LOTOTO', 'P3K / First Aid', 'Fire Fighting / APAR', 'Kesiapsiagaan Darurat'],
+  sertifikasi: ['Ahli K3 Umum (AK3U)', 'Ahli K3 Listrik', 'Teknisi K3 Listrik', 'Juru Las / Welder', 'Juru Ikat / Rigger', 'Teknisi Scaffolding', 'TKBT 1 (Bekerja di Ketinggian)', 'TKBT 2 (Bekerja di Ketinggian)',
+    'Petugas K3 Ruang Terbatas', 'Operator Crane (SIO)', 'Operator Forklift (SIO)', 'Operator Excavator (SIO)', 'Petugas P3K', 'Petugas Peran Kebakaran', 'Supervisor / Pengawas K3']
 };
 
 const DEFAULT_PROGRAMS = [
@@ -72,6 +78,8 @@ const DEFAULT_PROGRAMS = [
 const PG_CATS = ['Training', 'Induction', 'Safety Moment', 'Gemba / Safety Patrol', 'Inspeksi', 'Lainnya'];
 const PG_FREQ = ['Harian', 'Mingguan', '2 Mingguan', 'Bulanan', 'Sesuai kebutuhan'];
 const RISKS = ['LOW', 'MEDIUM', 'HIGH'];
+const PTW_TYPES = ['GWP', 'CS', 'HW', 'EL', 'WAH', 'EX', 'ISO', 'LFT', 'OT'];
+const PTW_STATUS = ['Draft', 'Diajukan', 'Aktif', 'Selesai', 'Batal'];
 const INCIDENT_CLASS = ['Fatality', 'LWC', 'RWC/MTC', 'First Aid Case', 'Near Miss'];
 const MASTER_LISTS = Object.keys(DEFAULT_MASTER);
 
@@ -98,11 +106,11 @@ function setup() {
   cfg.getRange('B:B').setNumberFormat('@');
 
   const ms = ss.getSheetByName('Master');
-  if (ms.getLastRow() < 2) {
-    const rows = [];
-    MASTER_LISTS.forEach(l => DEFAULT_MASTER[l].forEach(v => rows.push([l, v])));
-    ms.getRange(2, 1, rows.length, 2).setValues(rows);
-  }
+  // isi daftar master yang belum ada (aman dijalankan ulang; daftar yang sudah ada tidak diubah)
+  const haveLists = ms.getLastRow() > 1 ? ms.getRange(2, 1, ms.getLastRow() - 1, 1).getValues().map(r => r[0]) : [];
+  const rows = [];
+  MASTER_LISTS.filter(l => haveLists.indexOf(l) < 0).forEach(l => DEFAULT_MASTER[l].forEach(v => rows.push([l, v])));
+  if (rows.length) ms.getRange(ms.getLastRow() + 1, 1, rows.length, 2).setValues(rows);
 
   const pg = ss.getSheetByName('Program');
   if (pg.getLastRow() < 2) pg.getRange(2, 1, DEFAULT_PROGRAMS.length, 5).setValues(DEFAULT_PROGRAMS);
@@ -248,6 +256,69 @@ function write_(a, req, user, role) {
       append_('Program', id, { category: r.category, name: String(r.name).trim().slice(0, 80), frequency: r.frequency, pic: String(r.pic || '').slice(0, 40) });
       return { sheet: 'Program', ref: id, id };
     }
+    case 'saveWorker': {
+      const name = String(r.name || '').trim().slice(0, 80), ktp = String(r.ktp || '').replace(/\D/g, '');
+      if (!name) throw new Error('Nama wajib diisi');
+      if (ktp && ktp.length !== 16) throw new Error('No KTP harus 16 digit');
+      if (ktp && rows_('Worker').some(x => String(x.ktp) === ktp && String(x.id) !== String(req.id || ''))) throw new Error('No KTP sudah terdaftar');
+      const one = (v, list, def) => list.indexOf(v) >= 0 ? v : def;
+      const v = {
+        name, ktp: ktp ? "'" + ktp : '', gender: one(r.gender, ['Pria', 'Wanita'], 'Pria'), category: one(r.category, ['Pekerja', 'Staff'], 'Pekerja'),
+        company: String(r.company || '').slice(0, 80), induction: one(r.induction, ['Sudah', 'Belum'], 'Belum'), induction_date: r.induction_date || '',
+        violation: one(r.violation, ['-', 'P1', 'P2', 'P3'], '-'), work_status: one(r.work_status, ['Aktif', 'P3', 'Non Aktif'], 'Aktif'),
+        trainings: String(r.trainings || '').slice(0, 1000), certifications: String(r.certifications || '').slice(0, 1000), notes: String(r.notes || '').slice(0, 300),
+        updated_by: user, updated_at: now
+      };
+      // ketentuan pelanggaran: P3 = terminasi permanen, P2 = wajib induction ulang
+      const cur = req.id ? rows_('Worker').find(x => String(x.id) === String(req.id)) : null;
+      if (req.id && !cur) throw new Error('Pekerja tidak ditemukan');
+      const prevV = cur ? String(cur.violation || '-') : '-';
+      if (prevV === 'P3') { v.violation = 'P3'; v.work_status = 'P3'; }
+      if (v.violation === 'P3') v.work_status = 'P3';
+      if (v.violation !== 'P3' && v.work_status === 'P3') v.work_status = 'Aktif';
+      const tz = SpreadsheetApp.getActive().getSpreadsheetTimeZone(), today = Utilities.formatDate(now, tz, 'yyyy-MM-dd');
+      v.violation_date = v.violation !== prevV ? (v.violation === '-' ? '' : today) : (cur ? String(cur.violation_date || '') : '');
+      if (v.violation === 'P2' && prevV !== 'P2') v.induction = 'Belum';
+      if (v.violation === 'P2' && v.induction === 'Sudah' && (!v.induction_date || (v.violation_date && v.induction_date < v.violation_date)))
+        throw new Error('P2: tanggal induction ulang harus sama atau setelah tanggal pelanggaran');
+      if (req.id) {
+        if (!update_('Worker', req.id, v)) throw new Error('Pekerja tidak ditemukan');
+        return { sheet: 'Worker', ref: name, id: req.id };
+      }
+      const id = newId_('WRK');
+      Object.assign(v, { created_by: user, created_at: now });
+      append_('Worker', id, v);
+      return { sheet: 'Worker', ref: name, id };
+    }
+    case 'savePermit': {
+      if (PTW_TYPES.indexOf(r.type) < 0) throw new Error('Jenis permit tidak valid');
+      checkDate_(r.date_from); if (r.date_to) checkDate_(r.date_to);
+      const v = {
+        type: r.type, parent_no: String(r.parent_no || ''), status: PTW_STATUS.indexOf(r.status) >= 0 ? r.status : 'Draft',
+        description: String(r.description || '').slice(0, 300), location: String(r.location || '').slice(0, 80), date_from: r.date_from, date_to: r.date_to || r.date_from,
+        applicant: String(r.applicant || '').slice(0, 80), data: String(r.data || '{}').slice(0, 45000), updated_by: user, updated_at: now
+      };
+      if (req.id) {
+        const cur = rows_('Permit').find(x => String(x.id) === String(req.id));
+        if (!cur) throw new Error('Permit tidak ditemukan');
+        // Aktif & Selesai terkunci: Selesai tidak bisa diubah, Aktif hanya boleh ditutup (Selesai / Batal)
+        if (cur.status === 'Selesai') throw new Error('Permit ' + cur.no + ' sudah Selesai dan terkunci');
+        if (cur.status === 'Aktif') {
+          if (['Aktif', 'Selesai', 'Batal'].indexOf(v.status) < 0) throw new Error('Permit Aktif hanya dapat diubah ke Selesai / Batal');
+          update_('Permit', req.id, { status: v.status, updated_by: user, updated_at: now });
+          return { sheet: 'Permit', ref: cur.no + ':' + v.status, id: req.id };
+        }
+        update_('Permit', req.id, v);
+        return { sheet: 'Permit', ref: req.id, id: req.id };
+      }
+      // nomor permit berurutan per jenis: HW-BTK-001
+      const prefix = String(readConfig_().permit_prefix || 'BTK'), re = new RegExp('^' + r.type + '-' + prefix + '-(\\d+)$');
+      const max = rows_('Permit').reduce((m, x) => { const k = re.exec(String(x.no || '')); return k ? Math.max(m, +k[1]) : m; }, 0);
+      const no = r.type + '-' + prefix + '-' + String(max + 1).padStart(3, '0'), id = newId_('PTW');
+      Object.assign(v, { no, created_by: user, created_at: now });
+      append_('Permit', id, v);
+      return { sheet: 'Permit', ref: no, id, no };
+    }
     case 'updateProgram': {
       adminOnly();
       if (PG_CATS.indexOf(r.category) < 0 || PG_FREQ.indexOf(r.frequency) < 0 || !String(r.name || '').trim()) throw new Error('Program tidak valid');
@@ -257,7 +328,8 @@ function write_(a, req, user, role) {
     }
     case 'deleteRow': {
       adminOnly();
-      if (['Observation', 'Incident', 'Activity', 'Program'].indexOf(req.sheet) < 0) throw new Error('Sheet tidak boleh dihapus');
+      if (['Observation', 'Incident', 'Activity', 'Program', 'Permit', 'Worker'].indexOf(req.sheet) < 0) throw new Error('Sheet tidak boleh dihapus');
+      if (req.sheet === 'Permit') { const pr = rows_('Permit').find(x => String(x.id) === String(req.id)); if (pr && ['Aktif', 'Selesai'].indexOf(pr.status) >= 0) throw new Error('Permit ' + pr.status + ' terkunci, tidak dapat dihapus'); }
       if (!deleteById_(req.sheet, req.id)) throw new Error('Data tidak ditemukan');
       return { sheet: req.sheet, ref: req.id };
     }
@@ -297,6 +369,8 @@ function readAll_(cfg) {
     incident: rows_('Incident'),
     program: rows_('Program'),
     activity: rows_('Activity'),
+    permit: rows_('Permit'),
+    worker: rows_('Worker'),
     master
   };
 }

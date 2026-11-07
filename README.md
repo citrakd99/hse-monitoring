@@ -12,6 +12,9 @@ Langkah pemasangan: lihat **[DEPLOY.md](DEPLOY.md)**.
 |---|---|
 | `index.html` | Seluruh aplikasi (UI, perhitungan, export PDF) |
 | `config.js` | URL API Google Apps Script |
+| `ptw.js` | Modul Permit to Work (definisi 9 form, register, cetak) |
+| `pekerja.js` | Modul Daftar Pekerja |
+| `assets/` | Logo untuk form permit |
 | `apps-script/Code.gs` | Backend: setup sheet otomatis, API baca/tulis, upload foto ke Drive, log |
 | `sw.js`, `manifest.webmanifest`, `icons/` | PWA (install & offline) |
 
@@ -23,6 +26,8 @@ Langkah pemasangan: lihat **[DEPLOY.md](DEPLOY.md)**.
 | Monitoring Cuaca | Monitoring Cuaca | Kondisi cuaca per jam 07:00–22:00 per hari |
 | Daily Observation | Daily Observation | Daftar temuan + form tambah observasi, filter periode/risk/area/category/status |
 | HSE Program | (baru) | Matriks rencana vs realisasi per week, log kegiatan (training, induction, safety moment, patrol, inspeksi), daftar program |
+| Permit | PTW Batik Project.pdf | Register Permit to Work 9 jenis (General, Confined Space, Hot Work, Electrical, WAH, Excavation, Isolation, Lifting, Overtime), form isian, cetak PDF format asli (Legal), status Draft→Diajukan→Aktif→Selesai; Aktif & Selesai terkunci |
+| Manpower → Daftar Pekerja | (baru) | Data pekerja (KTP tersamar), induction, pelanggaran P1–P3 (P2 = induction ulang, P3 = terminasi), training & sertifikasi, kartu statistik |
 | Incident | (baru) | Ringkasan per klasifikasi, incident log + form Lapor Insiden, filter. Sumber Safety Pyramid |
 | Master Data | Kolom O–R di Daily Observation | Sub-tab **Data Master** (tambah/hapus Category, Type, Area, Contoh Finding; Risk & Incident Classification dikunci) dan **Panduan** penggunaan |
 
@@ -35,7 +40,9 @@ Dibuat otomatis oleh fungsi `setup()`. Satu baris per input:
 - **Incident**: `id | date | klasifikasi (Fatality/LWC/RWC/MTC/First Aid Case/Near Miss) | area | deskripsi | input_by` → sumber Safety Pyramid
 - **Program**: `id | category | name | frequency | pic` (22 program HSE standar dibuat otomatis oleh setup)
 - **Activity**: `id | date | program_id | topic | participants | pic | location | notes | photo_url | created_by | created_at`
-- **Master**: `list | value | keterangan`
+- **Permit**: `id | no | type | parent_no | status | description | location | date_from | date_to | applicant | data (JSON checklist) | …` (Permit to Work, 9 form)
+- **Worker**: `id | name | ktp | gender | category | company | induction | induction_date | violation | work_status | trainings | certifications | notes | … | violation_date`
+- **Master**: `list | value | keterangan` (termasuk daftar `training` & `sertifikasi`)
 - **Config**: `project_name, project_start, weeks, jam_normal, jam_lembur, target_*, pin, admin_pin, photo_folder_id`
 - **Log**: `timestamp | user | role | action | sheet | ref`
 
