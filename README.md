@@ -28,7 +28,7 @@ Langkah pemasangan: lihat **[DEPLOY.md](DEPLOY.md)**.
 ## Struktur Google Sheet
 Dibuat otomatis oleh fungsi `setup()`. Satu baris per input:
 
-- **Manpower**: `date | normal | lembur | input_by`
+- **Manpower**: `date | normal | lembur | updated_by | updated_at | staff_normal | staff_lembur | pekerja_normal | pekerja_lembur` (normal/lembur = total Staff + Pekerja)
 - **Cuaca**: `date | h07 … h21 (kode C/B/M/HR/HL/P) | updated_by`
 - **Observation**: `id | date | observer | area | finding | type | category | risk | photo_url | action | action_date | action_photo_url | status`
 - **Incident**: `id | date | klasifikasi (Fatality/LWC/RWC/MTC/First Aid Case/Near Miss) | area | deskripsi | input_by` → sumber Safety Pyramid
