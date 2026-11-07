@@ -12,7 +12,8 @@
 
 const SCHEMA = {
   Config: ['key', 'value', 'keterangan'],
-  Manpower: ['date', 'normal', 'lembur', 'updated_by', 'updated_at'],
+  // kolom rincian ditambahkan di akhir supaya data lama tetap terbaca
+  Manpower: ['date', 'normal', 'lembur', 'updated_by', 'updated_at', 'staff_normal', 'staff_lembur', 'pekerja_normal', 'pekerja_lembur'],
   Cuaca: ['date', 'h07', 'h08', 'h09', 'h10', 'h11', 'h12', 'h13', 'h14', 'h15', 'h16', 'h17', 'h18', 'h19', 'h20', 'h21', 'updated_by', 'updated_at'],
   Observation: ['id', 'date', 'observer', 'area', 'finding', 'type', 'category', 'risk', 'photo_url', 'action', 'action_date', 'action_photo_url', 'status', 'created_by', 'created_at', 'updated_by', 'updated_at'],
   Incident: ['id', 'date', 'time', 'cls', 'area', 'desc', 'involved', 'action', 'lost_days', 'reporter', 'photo_url', 'created_by', 'created_at'],
@@ -132,7 +133,14 @@ function write_(a, req, user, role) {
   switch (a) {
     case 'upsertManpower': {
       checkDate_(req.date);
-      upsert_('Manpower', req.date, { normal: num_(req.normal), lembur: num_(req.lembur), updated_by: user, updated_at: now });
+      const hasDetail = ['staff_normal', 'staff_lembur', 'pekerja_normal', 'pekerja_lembur'].some(k => req[k] !== undefined);
+      const v = { updated_by: user, updated_at: now };
+      if (hasDetail) {
+        v.staff_normal = num_(req.staff_normal); v.staff_lembur = num_(req.staff_lembur);
+        v.pekerja_normal = num_(req.pekerja_normal); v.pekerja_lembur = num_(req.pekerja_lembur);
+        v.normal = v.staff_normal + v.pekerja_normal; v.lembur = v.staff_lembur + v.pekerja_lembur;
+      } else { v.normal = num_(req.normal); v.lembur = num_(req.lembur); }
+      upsert_('Manpower', req.date, v);
       return { sheet: 'Manpower', ref: req.date };
     }
     case 'upsertCuaca': {

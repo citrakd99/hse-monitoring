@@ -259,6 +259,14 @@ select,input,textarea{font:inherit;color:var(--text);background:var(--surface);b
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
 .mp td input{width:64px;text-align:right;padding:4px 6px}
 .row-cum td{color:var(--muted)}
+.row-tot td{font-weight:700;background:var(--surface-2)}
+/* kolom label tetap terlihat saat tabel digeser */
+.mp tbody td:nth-child(-n+2),.mp thead tr:last-child th:nth-child(-n+2){position:sticky;z-index:1;background:var(--surface)}
+.mp tbody tr.row-tot td:nth-child(-n+2){background:var(--surface-2)}
+.mp tbody td:nth-child(1),.mp thead tr:last-child th:nth-child(1){left:0;min-width:96px;max-width:96px;white-space:normal}
+.mp tbody td:nth-child(2),.mp thead tr:last-child th:nth-child(2){left:96px;min-width:60px;box-shadow:inset -1px 0 0 var(--border)}
+.exporting .mp td,.exporting .mp th{position:static!important;box-shadow:none!important}
+.mp-grp{font-size:12px;font-weight:700;color:var(--brand);margin-top:4px;border-bottom:1px solid var(--border);padding-bottom:3px}
 .row-group td:first-child{font-weight:600}
 .note{background:var(--brand-soft);border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:16px}
 .chart-box{position:relative;height:240px}
@@ -360,7 +368,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 
 <!-- DAILY MONITORING -->
 <section class="view" id="v-manpower">
-  <div class="note">Isi <b>man power normal</b> & <b>lembur</b> per hari. Man hour dihitung otomatis: normal × <b id="jn"></b> jam, lembur × <b id="jl"></b> jam. Kumulatif berjalan dari Week 1 (periode <span class="wk-total"></span> week). Di HP lebih mudah lewat tombol <b>+</b> → <i>Manpower hari ini</i>.</div>
+  <div class="note">Isi jumlah <b>Staff</b> dan <b>Pekerja</b> (normal &amp; lembur) per hari; baris <b>Total Man Power</b> dijumlahkan otomatis. Man hour dihitung otomatis: normal × <b id="jn"></b> jam, lembur × <b id="jl"></b> jam. Kumulatif berjalan dari Week 1 (periode <span class="wk-total"></span> week). Di HP lebih mudah lewat tombol <b>+</b> → <i>Manpower hari ini</i>.</div>
   <div class="card">
     <div class="toolbar">
       <b>Manhour Monitoring (<span class="wk-total"></span> week)</b><span class="spacer"></span>
@@ -541,8 +549,12 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <div class="dlg-h">Input Manpower</div>
     <div class="dlg-b">
       <label class="full">Tanggal<input type="date" name="date" required></label>
-      <label>Man power normal<input type="number" name="normal" min="0" inputmode="numeric" required></label>
-      <label>Man power lembur<input type="number" name="lembur" min="0" inputmode="numeric" value="0" required></label>
+      <div class="full mp-grp">Staff</div>
+      <label>Normal<input type="number" name="sn" min="0" inputmode="numeric" required></label>
+      <label>Lembur<input type="number" name="sl" min="0" inputmode="numeric" value="0" required></label>
+      <div class="full mp-grp">Pekerja</div>
+      <label>Normal<input type="number" name="pn" min="0" inputmode="numeric" required></label>
+      <label>Lembur<input type="number" name="pl" min="0" inputmode="numeric" value="0" required></label>
       <div class="full set-calc" id="mp-calc"></div>
     </div>
     <div class="dlg-f"><button class="btn" value="cancel" formnovalidate>Batal</button><button class="btn primary" value="ok">Simpan</button></div>
@@ -601,8 +613,16 @@ function recalc(){
 function buildManpower(map){
   manpower=[];
   for(let i=0;i<CFG.weeks*7;i++){const date=fmt(addDays(CFG.projectStart,i)), r=map[date];
-    manpower.push({date,normal:r?r.normal:null,lembur:r?r.lembur:null});}
+    manpower.push(mpRec(date,r));}
 }
+/* manpower dirinci Staff & Pekerja; normal/lembur = total keduanya (dipakai semua perhitungan) */
+const MPK=['sn','sl','pn','pl']; // staff normal, staff lembur, pekerja normal, pekerja lembur
+function mpRec(date,r){
+  const o={date}; if(!r){MPK.forEach(k=>o[k]=null);o.normal=o.lembur=null;return o;}
+  MPK.forEach(k=>o[k]=Math.max(0,Math.round(+r[k]||0))); return mpTotal(o);
+}
+function mpTotal(o){o.normal=o.sn+o.pn;o.lembur=o.sl+o.pl;return o;}
+const mpPayload=r=>({date:r.date,staff_normal:r.sn,staff_lembur:r.sl,pekerja_normal:r.pn,pekerja_lembur:r.pl,normal:r.normal,lembur:r.lembur});
 
 /* --- data dari Google Sheet --- */
 function applyData(d){
@@ -612,7 +632,11 @@ function applyData(d){
   CFG.weeks=n(c.weeks,CFG.weeks); CFG.projectEnd=isDate(c.project_end)?c.project_end:''; CFG.jamNormal=n(c.jam_normal,CFG.jamNormal); CFG.jamLembur=n(c.jam_lembur,CFG.jamLembur);
   LI_TARGET.obsPerWeek=n(c.target_obs_week,LI_TARGET.obsPerWeek); LI_TARGET.closeRate=n(c.target_close_rate,LI_TARGET.closeRate); LI_TARGET.closeDays=n(c.target_close_days,LI_TARGET.closeDays);
   recalc();
-  const mp={}; (d.manpower||[]).forEach(r=>{if(r.date)mp[r.date]={normal:+r.normal||0,lembur:+r.lembur||0};}); buildManpower(mp);
+  const mp={}; (d.manpower||[]).forEach(r=>{if(!r.date)return;
+    const has=['staff_normal','staff_lembur','pekerja_normal','pekerja_lembur'].some(k=>r[k]!==''&&r[k]!=null);
+    // data lama (sebelum ada rincian) dianggap pekerja
+    mp[r.date]=has?{sn:r.staff_normal,sl:r.staff_lembur,pn:r.pekerja_normal,pl:r.pekerja_lembur}:{sn:0,sl:0,pn:r.normal,pl:r.lembur};});
+  buildManpower(mp);
   weather={}; (d.cuaca||[]).forEach(r=>{if(r.date)weather[r.date]=HOURS.map(h=>r['h'+String(h).padStart(2,'0')]||null);});
   observations=(d.observation||[]).map(r=>({id:r.id,date:r.date,observer:r.observer,area:r.area,finding:r.finding,type:r.type,category:r.category,risk:r.risk||'LOW',
     photo:r.photo_url||'',action:r.action||'',actionDate:r.action_date||'',actionPhoto:r.action_photo_url||'',status:r.action_date?'Closed':'Open'})).sort((a,b)=>a.date.localeCompare(b.date));
@@ -628,7 +652,8 @@ function loadDemo(){
   let seed=7; const rnd=()=>((seed=(seed*16807)%2147483647)/2147483647);
   const mp={};
   for(let i=0;i<=dayIndex;i++){const dow=i%7, base=dow===0?18:Math.round(42+i*0.9+rnd()*10);
-    mp[fmt(addDays(CFG.projectStart,i))]={normal:base,lembur:dow===0?0:Math.round(base*(0.15+rnd()*0.25))};}
+    const lb=dow===0?0:Math.round(base*(0.15+rnd()*0.25)), sn=Math.max(2,Math.round(base*0.12)), sl=Math.round(lb*0.2);
+    mp[fmt(addDays(CFG.projectStart,i))]={sn,sl,pn:base-sn,pl:lb-sl};}
   buildManpower(mp);
   weather={};
   for(let i=0;i<=dayIndex;i++){
@@ -730,7 +755,7 @@ function renderDashboard(){
   $('#k-mh').textContent=nf(totalMH);
   $('#k-days').textContent=nf(filled.length);
   $('#k-mp').textContent=nf(totalMP);
-  $('#k-mp-h').textContent=last?`Kumulatif · terakhir ${fmtID(new Date(last.date))}: ${last.normal} orang (${last.lembur} lembur)`:'Belum ada data manpower';
+  $('#k-mp-h').textContent=last?`Kumulatif · terakhir ${fmtID(new Date(last.date))}: ${last.normal} orang (Staff ${last.sn} · Pekerja ${last.pn}), ${last.lembur} lembur`:'Belum ada data manpower';
 
   // top 5 minggu berjalan
   const wk=observations.filter(o=>weekOf(o.date)===curWeek)
@@ -842,18 +867,19 @@ function renderManpower(){
   const sum=a=>a.reduce((x,y)=>x+(y||0),0);
   const row=(grp,lbl,vals,editKey,cls='',showSum=true)=>`<tr class="${cls}"><td>${grp}</td><td>${lbl}</td>`+vals.map((v,i)=>editKey&&days[i].date<=CFG.today&&days[i].date<=CFG.projectEnd?
     `<td class="num"><input type="number" min="0" inputmode="numeric" value="${v??''}" placeholder="–" data-i="${off+i}" data-k="${editKey}"></td>`:`<td class="num">${nf(v)}</td>`).join('')+`<td class="num"><b>${showSum?nf(sum(vals)):''}</b></td></tr>`;
-  const n=days.map(r=>r.normal), l=days.map(r=>r.lembur);
+  const col=k=>days.map(r=>r[k]), n=col('normal'), l=col('lembur');
   const mN=days.map(r=>r.normal==null?null:r.normal*CFG.jamNormal), mL=days.map(r=>r.lembur==null?null:r.lembur*CFG.jamLembur);
   $('#mp-body').innerHTML=
-    row('Man Power','normal',n,'normal','row-group')+row('','lembur',l,'lembur')+
+    row('Staff','normal',col('sn'),'sn','row-group')+row('','lembur',col('sl'),'sl')+
+    row('Pekerja','normal',col('pn'),'pn','row-group')+row('','lembur',col('pl'),'pl')+
+    row('Total Man Power','normal',n,null,'row-group row-tot')+row('','lembur',l,null,'row-tot')+
     row('Kumulatif Man Power','normal',cum('n',r=>r.normal),null,'row-cum row-group',false)+row('','lembur',cum('l',r=>r.lembur),null,'row-cum',false)+
     row('Man Hour','normal',mN,null,'row-group')+row('','lembur',mL,null)+
     row('Kumulatif Man Hour','normal',cum('mn',r=>r.normal*CFG.jamNormal),null,'row-cum row-group',false)+row('','lembur',cum('ml',r=>r.lembur*CFG.jamLembur),null,'row-cum',false);
   $('#mp-body').querySelectorAll('input').forEach(inp=>inp.onchange=()=>{
-    const r=manpower[+inp.dataset.i]; r[inp.dataset.k]=Math.max(0,Math.round(+inp.value||0));
-    if(r.normal==null)r.normal=0; if(r.lembur==null)r.lembur=0;
+    const r=manpower[+inp.dataset.i]; MPK.forEach(k=>{if(r[k]==null)r[k]=0;}); r[inp.dataset.k]=Math.max(0,Math.round(+inp.value||0)); mpTotal(r);
     renderManpower();renderDashboard();
-    save('upsertManpower',{date:r.date,normal:r.normal,lembur:r.lembur},`Manpower ${fmtID(new Date(r.date))} tersimpan`).catch(()=>{});});
+    save('upsertManpower',mpPayload(r),`Manpower ${fmtID(new Date(r.date))} tersimpan`).catch(()=>{});});
 }
 
 /* ================= CUACA ================= */
@@ -963,12 +989,12 @@ function renderGuide(){
     <li>Tombol <b>⟳</b> memuat ulang data terbaru. Klik nama Anda di header untuk keluar/ganti pengguna.</li>
     <li><b>PIN admin</b> dapat mengubah Master dan menghapus data; PIN petugas hanya input & edit.</li></ul>`],
   ['Alur kerja harian',`<ol>
-    <li><b>Pagi (sebelum 09:00)</b> – HSE officer mengisi <b>Manpower</b> normal hari ini.</li>
+    <li><b>Pagi (sebelum 09:00)</b> – HSE officer mengisi <b>Manpower</b> normal hari ini (Staff &amp; Pekerja).</li>
     <li><b>Sepanjang hari</b> – catat <b>Cuaca</b> per jam dan input setiap temuan di <b>Observation</b> (sertakan foto).</li>
     <li><b>Jika terjadi kejadian</b> – segera input di <b>Incident</b> maksimal 1×24 jam.</li>
     <li><b>Sore / setelah lembur</b> – lengkapi jumlah manpower <b>lembur</b> dan update status temuan yang sudah ditindaklanjuti.</li>
     <li><b>Akhir minggu</b> – cek Dashboard, export PDF Dashboard + Observation (filter <i>Minggu ini</i>) untuk laporan mingguan.</li></ol>`],
-  ['Daily Monitoring (Manpower & Manhour)',`<p>Isi jumlah orang per hari pada baris <b>man power normal</b> dan <b>lembur</b>. Baris lain dihitung otomatis.</p>
+  ['Daily Monitoring (Manpower & Manhour)',`<p>Isi jumlah orang per hari untuk <b>Staff</b> (engineer, supervisor, HSE, admin) dan <b>Pekerja</b> (tukang, helper, operator, subkon), masing-masing <b>normal</b> dan <b>lembur</b>. Baris Total, Kumulatif dan Man Hour dihitung otomatis.</p>
     <ul><li>Man hour normal = man power normal × <code>${CFG.jamNormal} jam</code></li><li>Man hour lembur = man power lembur × <code>${CFG.jamLembur} jam</code></li>
     <li><b>Total Safe Manhours</b> = jumlah seluruh man hour sejak Week 1.</li><li>Gunakan tombol ‹ › untuk pindah minggu (Week 1 – ${CFG.weeks}).</li></ul>`],
   ['Monitoring Cuaca',`<p>Klik sel pada jam & hari yang sesuai sampai ikon cuaca yang benar muncul.</p>
@@ -1191,7 +1217,7 @@ $('#set-form').onsubmit=async e=>{
   Object.assign(LI_TARGET,{obsPerWeek:cfg.target_obs_week,closeRate:cfg.target_close_rate,closeDays:cfg.target_close_days});
   if(!LIVE){store.set('hse-settings',{cfg:{projectName:CFG.projectName,projectStart:CFG.projectStart,projectEnd:CFG.projectEnd,jamNormal:CFG.jamNormal,jamLembur:CFG.jamLembur},li:{...LI_TARGET}});}
   // susun ulang tabel harian sesuai periode baru, data yang sudah ada tetap dipakai
-  const keepMp={}; manpower.forEach(r=>{if(r.normal!=null)keepMp[r.date]={normal:r.normal,lembur:r.lembur};});
+  const keepMp={}; manpower.forEach(r=>{if(r.normal!=null)keepMp[r.date]={sn:r.sn,sl:r.sl,pn:r.pn,pl:r.pl};});
   recalc(); buildManpower(keepMp);
   ['#mp-week','#wx-week','#wx-dash-week'].forEach(x=>$(x).value='');
   renderAll(); showMasterTab('setting');
@@ -1213,18 +1239,20 @@ $('#qa').querySelectorAll('.qa-b').forEach(b=>b.onclick=()=>{
 function openMp(date){
   const f=$('#mp-form'), r=manpower.find(x=>x.date===date)||{};
   f.date.value=date; f.date.min=CFG.projectStart; f.date.max=CFG.today<CFG.projectEnd?CFG.today:CFG.projectEnd;
-  f.normal.value=r.normal??''; f.lembur.value=r.lembur??0; mpCalc(); $('#dlg-mp').showModal(); setTimeout(()=>f.normal.focus(),50);
+  mpFill(r); $('#dlg-mp').showModal(); setTimeout(()=>f.sn.focus(),50);
 }
-function mpCalc(){const f=$('#mp-form'), n=+f.normal.value||0, l=+f.lembur.value||0;
-  $('#mp-calc').innerHTML=`Man hour: ${n} × ${CFG.jamNormal} + ${l} × ${CFG.jamLembur} = <b>${nf(n*CFG.jamNormal+l*CFG.jamLembur)} jam</b>`;}
-['normal','lembur'].forEach(k=>$('#mp-form').elements.namedItem(k).addEventListener('input',mpCalc));
-$('#mp-form').elements.namedItem('date').addEventListener('change',e=>{const r=manpower.find(x=>x.date===e.target.value)||{};const f=$('#mp-form');f.normal.value=r.normal??'';f.lembur.value=r.lembur??0;mpCalc();});
+function mpFill(r){const f=$('#mp-form'); f.sn.value=r.sn??''; f.sl.value=r.sl??0; f.pn.value=r.pn??''; f.pl.value=r.pl??0; mpCalc();
+}
+function mpCalc(){const f=$('#mp-form'), v=k=>+f[k].value||0, n=v('sn')+v('pn'), l=v('sl')+v('pl');
+  $('#mp-calc').innerHTML=`Total: <b>${n} orang</b> normal, <b>${l} orang</b> lembur · Man hour ${n} × ${CFG.jamNormal} + ${l} × ${CFG.jamLembur} = <b>${nf(n*CFG.jamNormal+l*CFG.jamLembur)} jam</b>`;}
+MPK.forEach(k=>$('#mp-form').elements.namedItem(k).addEventListener('input',mpCalc));
+$('#mp-form').elements.namedItem('date').addEventListener('change',e=>mpFill(manpower.find(x=>x.date===e.target.value)||{}));
 $('#dlg-mp').addEventListener('close',async()=>{
   if($('#dlg-mp').returnValue!=='ok')return; const f=Object.fromEntries(new FormData($('#mp-form')));
   const r=manpower.find(x=>x.date===f.date); if(!r){snack('Tanggal di luar periode proyek',true);return;}
-  r.normal=Math.max(0,Math.round(+f.normal||0)); r.lembur=Math.max(0,Math.round(+f.lembur||0));
+  MPK.forEach(k=>r[k]=Math.max(0,Math.round(+f[k]||0))); mpTotal(r);
   renderManpower(); renderDashboard();
-  save('upsertManpower',{date:r.date,normal:r.normal,lembur:r.lembur},`Manpower ${fmtID(new Date(r.date))} tersimpan`).catch(()=>{});});
+  save('upsertManpower',mpPayload(r),`Manpower ${fmtID(new Date(r.date))} tersimpan`).catch(()=>{});});
 $('#m-reset').onclick=()=>{if(!confirm('Kembalikan semua daftar master ke isi awal?'))return;store.del('hse-master');MASTER=structuredClone(DEFAULT_MASTER);masterChanged('category');};
 
 /* ================= RENDER SEMUA ================= */
