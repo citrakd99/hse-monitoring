@@ -322,6 +322,74 @@ label.ck input{margin-top:2px;width:17px;height:17px;flex:none;accent-color:var(
 .pt-warn{background:var(--med-bg);color:var(--med)}
 #wk-body tr{cursor:pointer}
 #wk-body tr:hover td{background:var(--surface-2)}
+/* manpower per jabatan */
+.mp-click{cursor:pointer}
+td.mp-click:hover,th.mp-click:hover{background:var(--brand-soft)!important;color:var(--brand)}
+.mp-empty{color:var(--muted);font-size:11px;border:1px dashed var(--border);border-radius:6px;padding:1px 6px}
+.mpd-top{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;padding-top:12px}
+.mpd-top label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.mpd-tools{display:flex;gap:6px;margin-left:auto}
+.mpd-tools .pf-all{margin:0}
+table.mpd td,table.mpd th{padding:4px 6px}
+table.mpd input{width:72px;text-align:right;padding:4px 6px}
+table.mpd tfoot td{font-weight:700;background:var(--surface-2)}
+tr.mpd-oth td{color:var(--muted);font-style:italic}
+.mpd-total{font-size:12px;color:var(--muted)}
+.mpd-total b{color:var(--text)}
+/* ERT */
+.ert-org{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:1000px){.ert-org{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:620px){.ert-org{grid-template-columns:1fr}}
+.exporting .ert-org{grid-template-columns:repeat(3,1fr)}
+.ert-role{border:1px solid var(--border);border-top:4px solid var(--c);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:var(--surface)}
+.ert-rh b{display:block;font-size:13px;color:var(--c)}
+.ert-rh small{color:var(--muted);font-size:11px}
+.ert-m,.ert-c{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:6px 8px;border-radius:8px;background:var(--surface-2);cursor:pointer}
+.ert-m small,.ert-c small{color:var(--muted);font-size:11px;display:block}
+.ert-warn{color:var(--high);font-size:11px;font-weight:600}
+.ert-empty{color:var(--high);font-size:12px;font-style:italic}
+.ert-add{align-self:flex-start;padding:3px 10px;font-size:12px}
+.ert-tel{white-space:nowrap;text-decoration:none;font-weight:700;font-size:12px;color:var(--brand);background:var(--brand-soft);border-radius:999px;padding:3px 10px}
+.ert-tel.big{font-size:13px;padding:5px 12px}
+.ert-miss{font-size:11px;color:var(--high)}
+.ert-con{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media (max-width:760px){.ert-con{grid-template-columns:1fr}}
+.ert-cg{display:flex;flex-direction:column;gap:6px}
+/* prosedur tanggap darurat */
+.proc-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.proc-b{display:flex;align-items:center;gap:6px;font:inherit;font-weight:600;font-size:13px;padding:8px 12px;border-radius:10px;border:1px solid var(--border);border-left:4px solid var(--c);background:var(--surface);color:var(--text);cursor:pointer}
+.proc-b.active{background:var(--c);color:#fff;border-color:var(--c)}
+.proc-hd{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-left:5px solid var(--c);padding-left:12px}
+.proc-hd h3{margin:0;font-size:17px}
+.proc-hd i{color:var(--muted)}
+.proc-obj{margin:12px 0;padding:10px 12px;background:var(--surface-2);border-radius:10px;font-size:13px}
+.proc-obj i{color:#2e86c9}
+.proc-call{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.proc-ap{font-size:13px}
+.proc-team{margin-bottom:14px}
+.flow{display:flex;flex-direction:column;align-items:stretch;max-width:980px;margin:0 auto}
+.fl-start,.fl-end{align-self:center;text-align:center;font-weight:800;padding:10px 18px;border:2px solid var(--text);border-radius:10px;background:var(--surface);min-width:240px}
+.fl-start i{display:block;font-weight:600;color:#2e86c9;font-size:12px}
+.fl-end{border-radius:999px;min-width:0}
+.fl-arr{align-self:center;width:2px;height:18px;background:var(--text);position:relative;margin-bottom:6px}
+.fl-arr::after{content:'';position:absolute;left:-5px;bottom:-6px;border:6px solid transparent;border-top-color:var(--text)}
+.fl-step{border:1.5px solid var(--text);border-radius:8px;padding:8px 12px;background:var(--surface)}
+.fl-step>b{display:block;text-transform:uppercase;font-size:12.5px}
+.fl-en{display:block;color:#2e86c9;font-size:11.5px;font-weight:600}
+.fl-it{font-size:12.5px;margin-top:4px}
+.fl-it span{display:block;color:#2e86c9;font-style:italic;font-size:11px;padding-left:10px}
+.fl-dec{align-self:center;width:150px;height:150px;display:grid;place-items:center;position:relative}
+.fl-dec::before{content:'';position:absolute;inset:22px;border:2px solid var(--text);transform:rotate(45deg);background:var(--med-bg)}
+.fl-dec span{position:relative;text-align:center;font-weight:700;font-size:12.5px;max-width:110px}
+.fl-dec i{display:block;color:#2e86c9;font-weight:600;font-size:11px}
+.fl-split{display:grid;gap:12px;align-items:start;border-top:2px solid var(--text);padding-top:10px}
+.fl-col{display:flex;flex-direction:column;align-items:stretch}
+.fl-lbl{align-self:center;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em}
+.fl-lbl.yn{background:var(--surface-2);border-radius:999px;padding:2px 10px;color:var(--text)}
+.fl-note{align-self:center;font-size:12px;font-weight:600;color:var(--high);background:var(--high-bg);border-radius:8px;padding:4px 10px;text-align:center}
+.fl-link{margin-top:8px;font:inherit;font-size:12px;font-weight:600;border:0;background:var(--brand-soft);color:var(--brand);border-radius:8px;padding:4px 10px;cursor:pointer}
+@media (max-width:620px){.fl-split{grid-template-columns:1fr!important}.fl-split{border-top:0}.fl-col{border-left:3px solid var(--border);padding-left:8px}}
+.exporting .fl-split{grid-template-columns:repeat(auto-fit,minmax(0,1fr))}
 /* filters */
 .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;padding:12px;background:var(--surface-2);border-radius:10px;margin-bottom:10px}
 .filters label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--muted);font-weight:500}
@@ -542,7 +610,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 <section class="view" id="v-manpower">
   <div class="seg no-pdf" id="mp-seg"><button data-m="mh" class="active">Manhour Harian</button><button data-m="wk">Daftar Pekerja</button></div>
   <div id="mp-mh">
-  <div class="note">Isi jumlah <b>Staff</b> dan <b>Pekerja</b> (normal &amp; lembur) per hari; baris <b>Total Man Power</b> dijumlahkan otomatis. Man hour dihitung otomatis: normal × <b id="jn"></b> jam, lembur × <b id="jl"></b> jam. Kumulatif berjalan dari Week 1 (periode <span class="wk-total"></span> week). Di HP lebih mudah lewat tombol <b>+</b> → <i>Manpower hari ini</i>.</div>
+  <div class="note"><b>Klik tanggal</b> (atau angka Staff / Pekerja) untuk mengisi jumlah yang masuk kerja & lembur <b>per jabatan</b>; total Staff, Direct Worker dan Man Power dijumlahkan otomatis. Man hour dihitung otomatis: normal × <b id="jn"></b> jam, lembur × <b id="jl"></b> jam. Kumulatif berjalan dari Week 1 (periode <span class="wk-total"></span> week). Di HP lebih mudah lewat tombol <b>+</b> → <i>Manpower hari ini</i>.</div>
   <div class="card">
     <div class="toolbar">
       <b>Manhour Monitoring (<span class="wk-total"></span> week)</b><span class="spacer"></span>
@@ -616,6 +684,8 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 
 <!-- INCIDENT -->
 <section class="view" id="v-incident">
+  <div class="seg no-pdf" id="inc-seg"><button data-m="log" class="active">Incident Log</button><button data-m="ert">ERT</button><button data-m="proc">Prosedur Darurat</button></div>
+  <div id="inc-log">
   <div class="grid ic-sum" id="ic-sum"></div>
   <div class="card" style="margin-top:16px">
     <div class="toolbar">
@@ -634,6 +704,23 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <thead><tr><th>No</th><th>Date</th><th>Time</th><th>Klasifikasi</th><th>Area</th><th>Kronologi</th><th>Pihak terlibat</th><th>Tindakan segera</th><th class="num">Hari hilang</th><th>Pelapor</th></tr></thead>
       <tbody id="inc-body"></tbody>
     </table></div>
+  </div>
+  </div>
+  <div id="inc-ert" hidden>
+    <div class="grid kpis" id="ert-kpi"></div>
+    <div class="card" style="margin-top:16px">
+      <div class="toolbar"><b>Struktur Emergency Response Team</b></div>
+      <div class="ert-org" id="ert-org"></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="toolbar"><b>Kontak Darurat</b><span class="spacer"></span><button class="btn primary no-pdf" id="ert-addc">+ Kontak</button></div>
+      <div class="ert-con" id="ert-con"></div>
+      <p class="fx-note" id="ert-note"></p>
+    </div>
+  </div>
+  <div id="inc-proc" hidden>
+    <div class="proc-tabs no-pdf" id="proc-tabs"></div>
+    <div class="card" id="proc-body" style="margin-top:12px"></div>
   </div>
 </section>
 
@@ -815,21 +902,16 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <button class="qa-b qa-wide" data-q="wk"><span class="ic" style="--c:#0f7a57"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2"/><path d="M19 8v6M16 11h6"/></svg></span><b>Tambah pekerja baru</b><small>Nama, KTP, induction, training, sertifikasi</small></button>
   </div>
 </dialog>
-<dialog id="dlg-mp">
-  <form method="dialog" id="mp-form">
-    <div class="dlg-h">Input Manpower</div>
-    <div class="dlg-b">
-      <label class="full">Tanggal<input type="date" name="date" required></label>
-      <div class="full mp-grp">Staff</div>
-      <label>Normal<input type="number" name="sn" min="0" inputmode="numeric" required></label>
-      <label>Lembur<input type="number" name="sl" min="0" inputmode="numeric" value="0" required></label>
-      <div class="full mp-grp">Pekerja</div>
-      <label>Normal<input type="number" name="pn" min="0" inputmode="numeric" required></label>
-      <label>Lembur<input type="number" name="pl" min="0" inputmode="numeric" value="0" required></label>
-      <div class="full set-calc" id="mp-calc"></div>
-    </div>
-    <div class="dlg-f"><button class="btn" value="cancel" formnovalidate>Batal</button><button class="btn primary" value="ok">Simpan</button></div>
+<dialog id="dlg-mp" class="dlg-wide">
+  <div class="dlg-h">Input Manpower per Jabatan</div>
+  <form id="mp-form" class="ptw-body" onsubmit="return false">
+    <div class="mpd-top"><label>Tanggal<input type="date" name="date" required></label>
+      <div class="mpd-tools"><button type="button" class="pf-all" id="mpd-fill">Isi = pekerja aktif terdaftar</button><button type="button" class="pf-all" id="mpd-clear">Kosongkan</button></div></div>
+    <div class="set-calc" id="mpd-legacy" hidden></div>
+    <div id="mpd-staff"></div>
+    <div id="mpd-wk"></div>
   </form>
+  <div class="dlg-f"><div class="mpd-total" id="mp-calc"></div><span class="spacer"></span><button class="btn" id="mpd-cancel" type="button">Batal</button><button class="btn primary" id="mpd-save" type="button">Simpan</button></div>
 </dialog>
 <dialog id="dlg-act">
   <form method="dialog" id="act-form">
@@ -875,6 +957,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   <form id="wk-form" class="ptw-body" onsubmit="return false">
     <div class="ptw-sec"><div class="ptw-grid">
       <label class="full">Nama lengkap<input name="name" required maxlength="80" autocomplete="off"></label>
+      <label class="full">Jabatan<select name="position"></select></label>
       <label>No KTP (NIK, 16 digit)<input name="ktp" inputmode="numeric" maxlength="20" autocomplete="off" placeholder="3201xxxxxxxxxxxx"></label>
       <label>Jenis kelamin<select name="gender"></select></label>
       <label>Kategori<select name="category"></select></label>
@@ -892,12 +975,26 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   </form>
   <div class="dlg-f"><button class="btn danger" id="wk-del" type="button" hidden>Hapus</button><span class="spacer"></span><button class="btn" id="wk-cancel" type="button">Batal</button><button class="btn primary" id="wk-save" type="button">Simpan</button></div>
 </dialog>
+<dialog id="dlg-ert">
+  <form id="ert-form" onsubmit="return false">
+    <div class="dlg-h" id="ert-title">Anggota ERT</div>
+    <div class="dlg-b">
+      <label class="full">Peran / kategori<select name="role"></select></label>
+      <label class="full" id="ert-wk">Pilih dari daftar pekerja aktif<select name="worker"></select></label>
+      <label class="full"><span id="ert-lname">Nama</span><input name="name" maxlength="80"></label>
+      <label>No telepon / HP<input name="phone" inputmode="tel" maxlength="30"></label>
+      <label><span id="ert-linfo">Keterangan</span><input name="info" maxlength="120"></label>
+    </div>
+    <div class="dlg-f"><button class="btn danger" id="ert-del" type="button" hidden>Hapus</button><span class="spacer"></span><button class="btn" id="ert-cancel" type="button">Batal</button><button class="btn primary" id="ert-save" type="button">Simpan</button></div>
+  </form>
+</dialog>
 <div id="toast">Membuat PDF…</div>
 <div id="snack"></div>
 
 <script src="config.js"></script>
 <script src="ptw.js"></script>
 <script src="pekerja.js"></script>
+<script src="darurat.js"></script>
 <script>
 /* ================= CONFIG ================= */
 const API=((window.HSE_CONFIG&&window.HSE_CONFIG.apiUrl)||'').trim();
@@ -913,13 +1010,15 @@ const DEFAULT_MASTER = {
   type:['Unsafe Action','Unsafe Condition'],
   area:['Building 4','Building 2','Hazardous','Toilet Building 2','Mosque','Compressor Room','Genset Room','Trafo Room','Chemical Room','Siteplan','Gate Perimeter','Other'],
   finding:['Melanggar prosedur','Tidak menggunakan PPE','Area kerja','Alat tidak proper','dll'],
+  jabatan_staff:[...WK_DEFAULT_POS_STAFF],
+  jabatan_pekerja:[...WK_DEFAULT_POS_WORKER],
   training:[...WK_DEFAULT_TRAINING],
   sertifikasi:[...WK_DEFAULT_CERT]
 };
 // Mode demo: master disimpan di localStorage. Mode online: dari sheet "Master".
 const store={get(k){try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}},del(k){try{localStorage.removeItem(k);}catch{}}};
 let MASTER=Object.assign(structuredClone(DEFAULT_MASTER),LIVE?{}:(store.get('hse-master')||{}));
-const saveMaster=()=>{if(!LIVE)store.set('hse-master',{category:MASTER.category,type:MASTER.type,area:MASTER.area,finding:MASTER.finding,training:MASTER.training,sertifikasi:MASTER.sertifikasi});};
+const saveMaster=()=>{if(!LIVE)store.set('hse-master',{category:MASTER.category,type:MASTER.type,area:MASTER.area,finding:MASTER.finding,jabatan_staff:MASTER.jabatan_staff,jabatan_pekerja:MASTER.jabatan_pekerja,training:MASTER.training,sertifikasi:MASTER.sertifikasi});};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const WX = [ // urutan = tingkat keparahan
   {k:'C', n:'Cerah', i:'☀️'},{k:'B', n:'Berawan', i:'⛅'},{k:'M', n:'Mendung', i:'☁️'},
@@ -955,10 +1054,10 @@ function buildManpower(map){
 const MPK=['sn','sl','pn','pl']; // staff normal, staff lembur, pekerja normal, pekerja lembur
 function mpRec(date,r){
   const o={date}; if(!r){MPK.forEach(k=>o[k]=null);o.normal=o.lembur=null;return o;}
-  MPK.forEach(k=>o[k]=Math.max(0,Math.round(+r[k]||0))); return mpTotal(o);
+  MPK.forEach(k=>o[k]=Math.max(0,Math.round(+r[k]||0))); if(r.det)o.det=r.det; return mpTotal(o);
 }
 function mpTotal(o){o.normal=o.sn+o.pn;o.lembur=o.sl+o.pl;return o;}
-const mpPayload=r=>({date:r.date,staff_normal:r.sn,staff_lembur:r.sl,pekerja_normal:r.pn,pekerja_lembur:r.pl,normal:r.normal,lembur:r.lembur});
+const mpPayload=r=>({date:r.date,staff_normal:r.sn,staff_lembur:r.sl,pekerja_normal:r.pn,pekerja_lembur:r.pl,normal:r.normal,lembur:r.lembur,detail:JSON.stringify(r.det||{})});
 
 /* --- data dari Google Sheet --- */
 function applyData(d){
@@ -971,14 +1070,16 @@ function applyData(d){
   const mp={}; (d.manpower||[]).forEach(r=>{if(!r.date)return;
     const has=['staff_normal','staff_lembur','pekerja_normal','pekerja_lembur'].some(k=>r[k]!==''&&r[k]!=null);
     // data lama (sebelum ada rincian) dianggap pekerja
-    mp[r.date]=has?{sn:r.staff_normal,sl:r.staff_lembur,pn:r.pekerja_normal,pl:r.pekerja_lembur}:{sn:0,sl:0,pn:r.normal,pl:r.lembur};});
+    let det=null; try{det=r.detail?JSON.parse(r.detail):null;}catch(e){}
+    mp[r.date]=has?{sn:r.staff_normal,sl:r.staff_lembur,pn:r.pekerja_normal,pl:r.pekerja_lembur,det}:{sn:0,sl:0,pn:r.normal,pl:r.lembur,det};});
   buildManpower(mp);
   weather={}; (d.cuaca||[]).forEach(r=>{if(r.date)weather[r.date]=HOURS.map(h=>r['h'+String(h).padStart(2,'0')]||null);});
   observations=(d.observation||[]).map(r=>({id:r.id,date:r.date,observer:r.observer,area:r.area,finding:r.finding,type:r.type,category:r.category,risk:r.risk||'LOW',
     photo:r.photo_url||'',action:r.action||'',actionDate:r.action_date||'',actionPhoto:r.action_photo_url||'',status:r.action_date?'Closed':'Open'})).sort((a,b)=>a.date.localeCompare(b.date));
   incidents=(d.incident||[]).map(r=>({id:r.id,date:r.date,time:r.time,cls:r.cls,area:r.area,desc:r.desc,involved:r.involved,action:r.action,lostDays:+r.lost_days||0,reporter:r.reporter,photo:r.photo_url||''}))
     .sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
-  const m=d.master||{}; ['category','type','area','finding','training','sertifikasi'].forEach(k=>{if(m[k]&&m[k].length)MASTER[k]=m[k];});
+  const m=d.master||{}; ['category','type','area','finding','jabatan_staff','jabatan_pekerja','training','sertifikasi'].forEach(k=>{if(m[k]&&m[k].length)MASTER[k]=m[k];});
+  ERT_SERVER=Array.isArray(d.ert); ert=(d.ert||[]).map(ertFromRow);
   // Daftar pekerja
   WK_SERVER=Array.isArray(d.worker); workers=(d.worker||[]).map(wkFromRow);
   // Permit to Work
@@ -991,6 +1092,13 @@ function applyData(d){
 }
 
 /* --- data contoh (mode demo) --- */
+function mpDemoDet(sn,sl,pn,pl,rnd){ // bagi jumlah orang ke beberapa jabatan
+  const spread=(n,list)=>{const o={};for(let i=0;i<n;i++){const j=list[Math.min(list.length-1,Math.floor(Math.pow(rnd(),1.6)*list.length))];o[j]=(o[j]||0)+1;}return o;};
+  const det={s:{},p:{}};
+  [[sn,sl,MASTER.jabatan_staff,'s'],[pn,pl,MASTER.jabatan_pekerja,'p']].forEach(([n,l,list,g])=>{const a=spread(n,list),b=spread(l,Object.keys(a).length?Object.keys(a):list);
+    new Set([...Object.keys(a),...Object.keys(b)]).forEach(j=>det[g][j]=[a[j]||0,b[j]||0]);});
+  return det;
+}
 function loadDemo(){
   const st=store.get('hse-settings'); if(st){Object.assign(CFG,st.cfg||{}); Object.assign(LI_TARGET,st.li||{});}
   recalc();
@@ -998,7 +1106,7 @@ function loadDemo(){
   const mp={};
   for(let i=0;i<=dayIndex;i++){const dow=i%7, base=dow===0?18:Math.round(42+i*0.9+rnd()*10);
     const lb=dow===0?0:Math.round(base*(0.15+rnd()*0.25)), sn=Math.max(2,Math.round(base*0.12)), sl=Math.round(lb*0.2);
-    mp[fmt(addDays(CFG.projectStart,i))]={sn,sl,pn:base-sn,pl:lb-sl};}
+    mp[fmt(addDays(CFG.projectStart,i))]={sn,sl,pn:base-sn,pl:lb-sl,det:mpDemoDet(sn,sl,base-sn,lb-sl,rnd)};}
   buildManpower(mp);
   weather={};
   for(let i=0;i<=dayIndex;i++){
@@ -1038,6 +1146,7 @@ function loadDemo(){
   demoProgram(rnd);
   PTW_SERVER=true; ptwDemo();
   WK_SERVER=true; wkDemo(rnd);
+  ERT_SERVER=true; ertDemo(rnd);
 }
 
 /* ================= API (Google Apps Script) ================= */
@@ -1212,10 +1321,11 @@ function renderManpower(){
   const w=+$('#mp-week').value; const days=manpower.slice((w-1)*7,w*7); const off=(w-1)*7;
   const cum=(key,fn)=>days.map((_,i)=>{let s=0;for(let j=0;j<=off+i;j++){const r=manpower[j];if(r.normal!=null)s+=fn(r);}return manpower[off+i].normal==null?null:s;});
   $('#mp-head').innerHTML=`<tr><th colspan="2"></th><th colspan="7" class="c">W${w}</th><th class="num">Total W${w}</th></tr><tr><th></th><th></th>`+
-    days.map((r,i)=>`<th class="c${r.date>CFG.projectEnd?' off':''}">${dayName(r.date)}<br><small>${fmtID(new Date(r.date))}</small></th>`).join('')+'<th></th></tr>';
+    days.map((r,i)=>`<th class="c${r.date>CFG.projectEnd?' off':''}${r.date<=CFG.today&&r.date<=CFG.projectEnd?' mp-click':''}"${r.date<=CFG.today&&r.date<=CFG.projectEnd?` data-date="${r.date}"`:''}>${dayName(r.date)}<br><small>${fmtID(new Date(r.date))}</small></th>`).join('')+'<th></th></tr>';
   const sum=a=>a.reduce((x,y)=>x+(y||0),0);
-  const row=(grp,lbl,vals,editKey,cls='',showSum=true)=>`<tr class="${cls}"><td>${grp}</td><td>${lbl}</td>`+vals.map((v,i)=>editKey&&days[i].date<=CFG.today&&days[i].date<=CFG.projectEnd?
-    `<td class="num"><input type="number" min="0" inputmode="numeric" value="${v??''}" placeholder="–" data-i="${off+i}" data-k="${editKey}"></td>`:`<td class="num">${nf(v)}</td>`).join('')+`<td class="num"><b>${showSum?nf(sum(vals)):''}</b></td></tr>`;
+  const can=i=>days[i].date<=CFG.today&&days[i].date<=CFG.projectEnd&&days[i].date>=CFG.projectStart;
+  const row=(grp,lbl,vals,editKey,cls='',showSum=true)=>`<tr class="${cls}"><td>${grp}</td><td>${lbl}</td>`+vals.map((v,i)=>editKey&&can(i)?
+    `<td class="num mp-click" data-date="${days[i].date}" title="Klik untuk isi rincian per jabatan">${v==null?'<span class="mp-empty">isi</span>':nf(v)}</td>`:`<td class="num">${nf(v)}</td>`).join('')+`<td class="num"><b>${showSum?nf(sum(vals)):''}</b></td></tr>`;
   const col=k=>days.map(r=>r[k]), n=col('normal'), l=col('lembur');
   const mN=days.map(r=>r.normal==null?null:r.normal*CFG.jamNormal), mL=days.map(r=>r.lembur==null?null:r.lembur*CFG.jamLembur);
   $('#mp-body').innerHTML=
@@ -1225,10 +1335,8 @@ function renderManpower(){
     row('Kumulatif Man Power','normal',cum('n',r=>r.normal),null,'row-cum row-group',false)+row('','lembur',cum('l',r=>r.lembur),null,'row-cum',false)+
     row('Man Hour','normal',mN,null,'row-group')+row('','lembur',mL,null)+
     row('Kumulatif Man Hour','normal',cum('mn',r=>r.normal*CFG.jamNormal),null,'row-cum row-group',false)+row('','lembur',cum('ml',r=>r.lembur*CFG.jamLembur),null,'row-cum',false);
-  $('#mp-body').querySelectorAll('input').forEach(inp=>inp.onchange=()=>{
-    const r=manpower[+inp.dataset.i]; MPK.forEach(k=>{if(r[k]==null)r[k]=0;}); r[inp.dataset.k]=Math.max(0,Math.round(+inp.value||0)); mpTotal(r);
-    renderManpower();renderDashboard();
-    save('upsertManpower',mpPayload(r),`Manpower ${fmtID(new Date(r.date))} tersimpan`).catch(()=>{});});
+  $('#mp-body').querySelectorAll('.mp-click').forEach(td=>td.onclick=()=>openMp(td.dataset.date));
+  $('#mp-head').querySelectorAll('th[data-date]').forEach(th=>th.onclick=()=>openMp(th.dataset.date));
 }
 
 /* ================= CUACA ================= */
@@ -1303,7 +1411,7 @@ function renderIncident(){
 }
 
 /* ================= MASTER (editable) ================= */
-const EDITABLE=[['category','Finding Category'],['type','Finding Type'],['area','Area'],['finding','Contoh Finding'],['training','Training Pekerja'],['sertifikasi','Sertifikasi Pekerja']];
+const EDITABLE=[['category','Finding Category'],['type','Finding Type'],['area','Area'],['finding','Contoh Finding'],['jabatan_staff','Jabatan Staff'],['jabatan_pekerja','Jabatan Direct Worker'],['training','Training Pekerja'],['sertifikasi','Sertifikasi Pekerja']];
 function renderMaster(){
   const locked=(t,items,why)=>`<div class="card"><h3>${t} <span class="lock">🔒 ${why}</span></h3><ul class="mlist">${items.map(i=>`<li><span class="t">${i}</span></li>`).join('')}</ul></div>`;
   $('#master').innerHTML=
@@ -1321,7 +1429,8 @@ function renderMaster(){
   $('#master').querySelectorAll('.del').forEach(b=>b.onclick=async()=>{
     const k=b.dataset.k, v=MASTER[k][+b.dataset.i];
     if(MASTER[k].length<=1){alert('Minimal harus ada 1 item.');return;}
-    if(!confirm(`Hapus "${v}" dari daftar?\nData lama yang memakai nilai ini tetap tersimpan.`))return;
+    const used=['jabatan_staff','jabatan_pekerja','training','sertifikasi'].includes(k)?workers.filter(w=>w.position===v||w.trainings.includes(v)||w.certs.includes(v)).length:0;
+    if(!confirm(`Hapus "${v}" dari daftar?${used?`\n⚠ Masih dipakai oleh ${used} pekerja.`:''}\nData lama yang memakai nilai ini tetap tersimpan.`))return;
     try{await save('deleteMaster',{list:k,value:v},`"${v}" dihapus`);}catch{return;}
     MASTER[k]=MASTER[k].filter(x=>x!==v); masterChanged(k);});
 }
@@ -1381,12 +1490,17 @@ function renderGuide(){
     <li><b>Kepatuhan</b> = realisasi (maksimal sebanyak rencana) ÷ rencana, hanya untuk week yang sudah berjalan.</li>
     <li>Admin dapat menambah, <b>mengedit (✎)</b> dan menghapus (×) program di kartu <b>Daftar Program HSE</b>. Mengubah frekuensi langsung mengubah rencana di matriks.</li>
     <li>Kartu <b>Plan Program HSE Mingguan</b> di Dashboard menampilkan kategori <b>Training</b> secara default; pilih kategori lain atau <i>Semua kategori</i> dari dropdown.</li></ul>`],
+  ['ERT & Prosedur Tanggap Darurat',`<p>Menu <b>Incident</b> memiliki tab <b>ERT</b> dan <b>Prosedur Darurat</b>.</p>
+    <ul><li><b>ERT</b>: struktur Emergency Response Team (Ketua, Wakil, Koordinator HSE, Fire Fighter, First Aider, Evakuasi, Head Count, Security, Komunikasi & Logistik). Anggota dipilih dari Daftar Pekerja aktif; aplikasi memberi tanda bila Fire Fighter / First Aider belum memiliki sertifikat Petugas Peran Kebakaran / Petugas P3K, atau bila anggota sudah tidak aktif.</li>
+    <li><b>Kontak darurat</b>: ambulans 119, damkar 113, polisi 110, Basarnas 115, PLN 123, RS rujukan, BPBD, titik kumpul — tekan nomor untuk langsung menelepon dari HP. Lengkapi nomor yang masih kosong (admin).</li>
+    <li><b>Prosedur Darurat</b>: 6 bagan alir dari dokumen <i>Flowchart Penanganan Kejadian</i> — Kecelakaan Fatal, LTI, Pertolongan Pertama, Near Miss, Kebakaran dan Bencana Alam — lengkap dengan kontak cepat, tim ERT terkait dan tombol lapor insiden.</li></ul>`],
   ['Daftar Pekerja',`<p>Menu <b>Manpower → Daftar Pekerja</b> berisi data setiap pekerja proyek beserta kartu statistik.</p>
     <ul><li>Klik <b>+ Tambah Pekerja</b> (atau tombol cepat +): isi nama, No KTP 16 digit, jenis kelamin (default Pria), kategori Staff/Pekerja, perusahaan, status induction, pelanggaran (P1/P2/P3), status bekerja (Aktif, P3, Non Aktif), training yang diikuti dan sertifikasi (bisa pilih beberapa).</li>
     <li><b>P3 = terminasi</b> dari proyek: status bekerja otomatis P3 dan setelah disimpan tidak dapat diubah menjadi Aktif lagi.</li>
     <li><b>P2</b>: status induction otomatis kembali <b>Belum</b>; pekerja wajib induction ulang dengan tanggal induction sama atau setelah tanggal pelanggaran.</li>
     <li>Pekerja aktif yang belum induction ditandai.</li>
-    <li>Daftar training dan sertifikasi dapat ditambah admin di <b>Master → Data Master</b>.</li>
+    <li><b>Jabatan</b> dipilih dari daftar Jabatan Staff / Jabatan Direct Worker; kategori Staff/Pekerja terisi otomatis. Daftar jabatan, training dan sertifikasi dapat ditambah / dihapus admin di <b>Master → Data Master</b> (aplikasi memberi peringatan bila item masih dipakai).</li>
+    <li>Isi manpower harian lewat popup per jabatan: kolom <i>Terdaftar aktif</i> diambil dari daftar pekerja, tombol <i>Isi = pekerja aktif terdaftar</i> mengisi otomatis.</li>
     <li>No KTP adalah data pribadi: tabel dan PDF hanya menampilkan 4 digit terakhir. Jangan bagikan Google Sheet ke pihak yang tidak berkepentingan.</li></ul>`],
   ['Permit to Work (PTW)',`<p>Menu <b>Permit</b> berisi 9 form sesuai <i>PTW Batik Project</i>: General Work Permit (Lamp. 1), Confined Space, Hot Work, Electrical, Working at Height, Excavation, Isolation/LOTOTO, Lifting dan Overtime/Holiday (Lamp. 2–9).</p>
     <ol><li>Buat <b>General Work Permit</b> lebih dulu, centang jenis ijin yang diajukan beserta tanggalnya.</li>
@@ -1659,7 +1773,7 @@ $('#wp-week').onchange=renderWeekPlan;
 $('#wp-cat').onchange=()=>{store.set('hse-wp-cat',$('#wp-cat').value);renderWeekPlan();};
 
 /* ================= PAGE HEAD + EXPORT PDF ================= */
-const PAGES={dashboard:'Dashboard',manpower:'Daily Monitoring – Manhour',cuaca:'Monitoring Cuaca',obs:'Daily Observation',incident:'Incident Log',program:'HSE Program',permit:'Permit to Work',master:'Master Data & Panduan'};
+const PAGES={dashboard:'Dashboard',manpower:'Daily Monitoring – Manhour',cuaca:'Monitoring Cuaca',obs:'Daily Observation',incident:'Incident & Tanggap Darurat',program:'HSE Program',permit:'Permit to Work',master:'Master Data & Panduan'};
 const SLUG={dashboard:'Dashboard',manpower:'Manhour',cuaca:'Cuaca',obs:'Observation',incident:'Incident',program:'Program',permit:'Permit',master:'Master'};
 Object.entries(PAGES).forEach(([k,t])=>$('#v-'+k).insertAdjacentHTML('afterbegin',
   `<div class="page-head"><div><h2>${t}</h2><small>HSE Monitoring · <span class="ph-proj"></span> · per <span class="ph-date"></span></small></div>
@@ -1667,7 +1781,7 @@ Object.entries(PAGES).forEach(([k,t])=>$('#v-'+k).insertAdjacentHTML('afterbegin
 /* Export PDF: halaman dipotong mengikuti isi (tidak memotong baris tabel / kartu / grafik) */
 const PDF_LAYOUT={dashboard:{o:'p',w:900},master:{o:'p',w:860},manpower:{o:'l',w:1180},cuaca:{o:'l',w:1060},obs:{o:'l',w:1240},incident:{o:'l',w:1180},program:{o:'l',w:1240},permit:{o:'l',w:1180}};
 // elemen yang tidak boleh terbelah di antara dua halaman
-const PDF_ATOMIC='tr, .wp-item, .wp-top, .wp-extra, .kpi, .li, .ic-card, .pyr, .chart-box, .fx, .page-head, .note, .filter-info, .legend, .perf-foot, .mlist li, .guide summary, .guide .gb > *, h3, .set-grid > *, .set-calc, .set-f';
+const PDF_ATOMIC='tr, .fl-step, .fl-dec, .fl-start, .fl-note, .ert-m, .ert-c, .ert-rh, .proc-hd, .proc-obj, .wp-item, .wp-top, .wp-extra, .kpi, .li, .ic-card, .pyr, .chart-box, .fx, .page-head, .note, .filter-info, .legend, .perf-foot, .mlist li, .guide summary, .guide .gb > *, h3, .set-grid > *, .set-calc, .set-f';
 let pdfBusy=false;
 async function exportPDF(k){
   if(pdfBusy)return; pdfBusy=true;
@@ -1681,7 +1795,7 @@ async function exportPDF(k){
   await new Promise(r=>setTimeout(r,300));
   const filtered=k==='obs'?['#f-from','#f-to','#f-risk','#f-area','#f-cat','#f-status'].some(s=>$(s).value):k==='incident'?['#i-from','#i-to','#i-cls','#i-area'].some(s=>$(s).value):false;
   const sub=k==='master'?($('#m-seg button.active')?.dataset.m||'data'):'';
-  const extra=k==='manpower'?(!$('#mp-wk').hidden?'-Pekerja':`-W${$('#mp-week').value}`):k==='cuaca'?`-W${$('#wx-week').value}`:sub==='guide'?'-Panduan':sub==='setting'?'-Pengaturan':filtered?'-filtered':'';
+  const extra=k==='incident'?({log:'',ert:'-ERT',proc:'-Prosedur-'+procCur}[$('#inc-seg button.active')?.dataset.m||'log']):k==='manpower'?(!$('#mp-wk').hidden?'-Pekerja':`-W${$('#mp-week').value}`):k==='cuaca'?`-W${$('#wx-week').value}`:sub==='guide'?'-Panduan':sub==='setting'?'-Pengaturan':filtered?'-filtered':'';
   try{
     const base=sec.getBoundingClientRect(), W=Math.ceil(sec.scrollWidth), H=Math.ceil(sec.scrollHeight);
     // 1) cari titik potong yang aman
@@ -1856,26 +1970,50 @@ $('#qa').querySelectorAll('.qa-b').forEach(b=>b.onclick=()=>{
   if(q==='ptw'){goTab('permit');openPermit(null);}
   if(q==='wk'){goTab('manpower');wkTab('wk');openWorker(null);}
 });
+/* ---- popup manpower: rincian per jabatan (Staff & Direct Worker) ---- */
+const MPD_OTHER='Lainnya (tanpa rincian)';
 function openMp(date){
-  const f=$('#mp-form'), r=manpower.find(x=>x.date===date)||{};
-  f.date.value=date; f.date.min=CFG.projectStart; f.date.max=CFG.today<CFG.projectEnd?CFG.today:CFG.projectEnd;
-  mpFill(r); $('#dlg-mp').showModal(); setTimeout(()=>f.sn.focus(),50);
+  const f=$('#mp-form'); f.date.value=date; f.date.min=CFG.projectStart; f.date.max=CFG.today<CFG.projectEnd?CFG.today:CFG.projectEnd;
+  mpFill(manpower.find(x=>x.date===date)||{}); $('#dlg-mp').showModal(); setTimeout(()=>$('#mp-form input[data-k="n"]')?.focus(),50);
 }
-function mpFill(r){const f=$('#mp-form'); f.sn.value=r.sn??''; f.sl.value=r.sl??0; f.pn.value=r.pn??''; f.pl.value=r.pl??0; mpCalc();
+function mpFill(r){
+  const det=r.det&&Object.keys(r.det.s||{}).length+Object.keys(r.det.p||{}).length?r.det:null;
+  const legacy=!det&&r.normal!=null&&(r.normal||r.lembur);
+  const reg=j=>workers.filter(w=>w.status==='Aktif'&&w.position===j).length;
+  const grp=(g,title,list,oldN,oldL)=>{
+    const d=(det&&det[g])||{}, names=[...list,...Object.keys(d).filter(j=>!list.includes(j)&&j!==MPD_OTHER),MPD_OTHER];
+    if(legacy){d[MPD_OTHER]=[oldN||0,oldL||0];}
+    return `<div class="ptw-sec"><h4>${title}</h4><table class="mpd"><thead><tr><th>Jabatan</th><th class="num">Terdaftar aktif</th><th class="num">Masuk</th><th class="num">Lembur</th></tr></thead><tbody>${names.map(j=>{const v=d[j]||[0,0],rg=j===MPD_OTHER?'':reg(j);
+      return `<tr${j===MPD_OTHER?' class="mpd-oth"':''}><td>${esc(j)}</td><td class="num">${rg===''?'':rg||'–'}</td><td class="num"><input type="number" min="0" inputmode="numeric" data-g="${g}" data-j="${esc(j)}" data-k="n" data-reg="${rg||0}" value="${v[0]||''}" placeholder="0"></td>
+        <td class="num"><input type="number" min="0" inputmode="numeric" data-g="${g}" data-j="${esc(j)}" data-k="l" value="${v[1]||''}" placeholder="0"></td></tr>`;}).join('')}</tbody>
+      <tfoot><tr><td>Subtotal ${title.split(' ')[0]}</td><td></td><td class="num" id="mpd-${g}n"></td><td class="num" id="mpd-${g}l"></td></tr></tfoot></table></div>`;};
+  $('#mpd-staff').innerHTML=grp('s','Staff',MASTER.jabatan_staff,r.sn,r.sl);
+  $('#mpd-wk').innerHTML=grp('p','Direct Worker (Pekerja)',MASTER.jabatan_pekerja,r.pn,r.pl);
+  $('#mpd-legacy').hidden=!legacy; $('#mpd-legacy').innerHTML=legacy?`Data tanggal ini tersimpan tanpa rincian jabatan (Staff ${r.sn}/${r.sl}, Pekerja ${r.pn}/${r.pl}); angkanya ditaruh di baris <b>${MPD_OTHER}</b>. Pindahkan ke jabatan yang sesuai bila perlu.`:'';
+  $('#mp-form').querySelectorAll('input[data-g]').forEach(i=>i.addEventListener('input',mpCalc)); mpCalc();
 }
-function mpCalc(){const f=$('#mp-form'), v=k=>+f[k].value||0, n=v('sn')+v('pn'), l=v('sl')+v('pl');
-  $('#mp-calc').innerHTML=`Total: <b>${n} orang</b> normal, <b>${l} orang</b> lembur · Man hour ${n} × ${CFG.jamNormal} + ${l} × ${CFG.jamLembur} = <b>${nf(n*CFG.jamNormal+l*CFG.jamLembur)} jam</b>`;}
-MPK.forEach(k=>$('#mp-form').elements.namedItem(k).addEventListener('input',mpCalc));
+function mpCollect(){
+  const det={s:{},p:{}}, t={sn:0,sl:0,pn:0,pl:0};
+  $('#mp-form').querySelectorAll('input[data-g]').forEach(i=>{const v=Math.max(0,Math.round(+i.value||0)); if(!v)return; const g=i.dataset.g,j=i.dataset.j;
+    (det[g][j]??=[0,0])[i.dataset.k==='n'?0:1]=v; t[(g==='s'?'s':'p')+(i.dataset.k==='n'?'n':'l')]+=v;});
+  return {det,t};
+}
+function mpCalc(){const {t}=mpCollect(), n=t.sn+t.pn, l=t.sl+t.pl;
+  ['sn','sl','pn','pl'].forEach(k=>{const e=$('#mpd-'+(k[0]==='s'?'s':'p')+k[1]); if(e)e.textContent=t[k];});
+  $('#mp-calc').innerHTML=`Staff <b>${t.sn}</b>/${t.sl} · Pekerja <b>${t.pn}</b>/${t.pl} · Total <b>${n}</b> masuk, <b>${l}</b> lembur · <b>${nf(n*CFG.jamNormal+l*CFG.jamLembur)}</b> man hour`;}
 $('#mp-form').elements.namedItem('date').addEventListener('change',e=>mpFill(manpower.find(x=>x.date===e.target.value)||{}));
-$('#dlg-mp').addEventListener('close',async()=>{
-  if($('#dlg-mp').returnValue!=='ok')return; const f=Object.fromEntries(new FormData($('#mp-form')));
-  const r=manpower.find(x=>x.date===f.date); if(!r){snack('Tanggal di luar periode proyek',true);return;}
-  MPK.forEach(k=>r[k]=Math.max(0,Math.round(+f[k]||0))); mpTotal(r);
+$('#mpd-fill').onclick=()=>{$('#mp-form').querySelectorAll('input[data-k="n"][data-reg]').forEach(i=>{if(+i.dataset.reg)i.value=i.dataset.reg;}); mpCalc();};
+$('#mpd-clear').onclick=()=>{$('#mp-form').querySelectorAll('input[data-g]').forEach(i=>i.value=''); mpCalc();};
+$('#mpd-cancel').onclick=()=>$('#dlg-mp').close();
+$('#mpd-save').onclick=()=>{
+  const date=$('#mp-form').elements.namedItem('date').value, r=manpower.find(x=>x.date===date);
+  if(!r||date>CFG.today){snack('Tanggal di luar periode proyek / belum berjalan',true);return;}
+  const {det,t}=mpCollect(); Object.assign(r,t,{det}); mpTotal(r); $('#dlg-mp').close();
   renderManpower(); renderDashboard();
-  save('upsertManpower',mpPayload(r),`Manpower ${fmtID(new Date(r.date))} tersimpan`).catch(()=>{});});
+  save('upsertManpower',mpPayload(r),`Manpower ${fmtID(new Date(r.date))} tersimpan`).catch(()=>{});};
 $('#m-reset').onclick=()=>{if(!confirm('Kembalikan semua daftar master ke isi awal?'))return;store.del('hse-master');MASTER=structuredClone(DEFAULT_MASTER);masterChanged('category');};
 
-ptwInit(); wkInit();
+ptwInit(); wkInit(); ertInit();
 
 /* ================= RENDER SEMUA ================= */
 function renderAll(){
@@ -1890,7 +2028,7 @@ function renderAll(){
   $('#m-note-mode').textContent=LIVE?(ROLE==='admin'?'Anda login sebagai admin: perubahan langsung tersimpan ke Google Sheet.':'Hanya admin yang dapat mengubah daftar ini.'):'Mode demo: perubahan disimpan di browser ini saja.';
   $('#m-reset').hidden=LIVE;
   refreshSelects(); perfMonths();
-  renderDashboard(); renderManpower(); renderCuaca(); renderObs(); renderIncident(); renderMaster(); renderGuide(); renderSetting(); renderProgram(); fillProgSelect(); renderPermit(); renderWorkers();
+  renderDashboard(); renderManpower(); renderCuaca(); renderObs(); renderIncident(); renderMaster(); renderGuide(); renderSetting(); renderProgram(); fillProgSelect(); renderPermit(); renderWorkers(); renderErt(); renderProc();
   showMasterTab($('#m-seg button.active')?.dataset.m||'data');
 }
 

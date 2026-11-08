@@ -13,12 +13,13 @@
 const SCHEMA = {
   Config: ['key', 'value', 'keterangan'],
   // kolom rincian ditambahkan di akhir supaya data lama tetap terbaca
-  Manpower: ['date', 'normal', 'lembur', 'updated_by', 'updated_at', 'staff_normal', 'staff_lembur', 'pekerja_normal', 'pekerja_lembur'],
+  Manpower: ['date', 'normal', 'lembur', 'updated_by', 'updated_at', 'staff_normal', 'staff_lembur', 'pekerja_normal', 'pekerja_lembur', 'detail'],
   Cuaca: ['date', 'h07', 'h08', 'h09', 'h10', 'h11', 'h12', 'h13', 'h14', 'h15', 'h16', 'h17', 'h18', 'h19', 'h20', 'h21', 'updated_by', 'updated_at'],
   Observation: ['id', 'date', 'observer', 'area', 'finding', 'type', 'category', 'risk', 'photo_url', 'action', 'action_date', 'action_photo_url', 'status', 'created_by', 'created_at', 'updated_by', 'updated_at'],
   Incident: ['id', 'date', 'time', 'cls', 'area', 'desc', 'involved', 'action', 'lost_days', 'reporter', 'photo_url', 'created_by', 'created_at'],
   Master: ['list', 'value'],
-  Worker: ['id', 'name', 'ktp', 'gender', 'category', 'company', 'induction', 'induction_date', 'violation', 'work_status', 'trainings', 'certifications', 'notes', 'created_by', 'created_at', 'updated_by', 'updated_at', 'violation_date'],
+  ERT: ['id', 'kind', 'role', 'name', 'worker_id', 'phone', 'info', 'updated_by', 'updated_at'],
+  Worker: ['id', 'name', 'ktp', 'gender', 'category', 'company', 'induction', 'induction_date', 'violation', 'work_status', 'trainings', 'certifications', 'notes', 'created_by', 'created_at', 'updated_by', 'updated_at', 'violation_date', 'position'],
   Permit: ['id', 'no', 'type', 'parent_no', 'status', 'description', 'location', 'date_from', 'date_to', 'applicant', 'data', 'created_by', 'created_at', 'updated_by', 'updated_at'],
   Program: ['id', 'category', 'name', 'frequency', 'pic'],
   Activity: ['id', 'date', 'program_id', 'topic', 'participants', 'pic', 'location', 'notes', 'photo_url', 'created_by', 'created_at'],
@@ -46,6 +47,10 @@ const DEFAULT_MASTER = {
   type: ['Unsafe Action', 'Unsafe Condition'],
   area: ['Building 4', 'Building 2', 'Hazardous', 'Toilet Building 2', 'Mosque', 'Compressor Room', 'Genset Room', 'Trafo Room', 'Chemical Room', 'Siteplan', 'Gate Perimeter', 'Other'],
   finding: ['Melanggar prosedur', 'Tidak menggunakan PPE', 'Area kerja', 'Alat tidak proper', 'dll'],
+  jabatan_staff: ['Project Manager', 'Site Manager', 'Site Engineer', 'Supervisor / Pelaksana', 'HSE Manager', 'HSE Officer / Safety Officer', 'Safety Man', 'Quality Control (QC)',
+    'Quantity Surveyor (QS)', 'Surveyor', 'Drafter', 'Logistik / Warehouse', 'Admin Proyek'],
+  jabatan_pekerja: ['Mandor / Foreman', 'Tukang Besi', 'Tukang Kayu', 'Tukang Batu', 'Tukang Las / Welder', 'Fitter', 'Electrician', 'Plumber', 'Tukang Cat', 'Rigger', 'Scaffolder',
+    'Operator Alat Berat', 'Mekanik', 'Helper / Kenek', 'Driver', 'Security', 'Cleaning Service / OB'],
   training: ['K3 Umum', 'Hot Work (HW)', 'Working at Height (WAH)', 'Listrik', 'Confined Space', 'Lifting & Rigging', 'Scaffolding', 'Excavation', 'LOTOTO', 'P3K / First Aid', 'Fire Fighting / APAR', 'Kesiapsiagaan Darurat'],
   sertifikasi: ['Ahli K3 Umum (AK3U)', 'Ahli K3 Listrik', 'Teknisi K3 Listrik', 'Juru Las / Welder', 'Juru Ikat / Rigger', 'Teknisi Scaffolding', 'TKBT 1 (Bekerja di Ketinggian)', 'TKBT 2 (Bekerja di Ketinggian)',
     'Petugas K3 Ruang Terbatas', 'Operator Crane (SIO)', 'Operator Forklift (SIO)', 'Operator Excavator (SIO)', 'Petugas P3K', 'Petugas Peran Kebakaran', 'Supervisor / Pengawas K3']
@@ -112,6 +117,14 @@ function setup() {
   MASTER_LISTS.filter(l => haveLists.indexOf(l) < 0).forEach(l => DEFAULT_MASTER[l].forEach(v => rows.push([l, v])));
   if (rows.length) ms.getRange(ms.getLastRow() + 1, 1, rows.length, 2).setValues(rows);
 
+  const ertSh = ss.getSheetByName('ERT');
+  if (ertSh.getLastRow() < 2) {
+    const C = [['Medis', 'Ambulans / PSC', '119', 'Layanan gawat darurat nasional'], ['Medis', 'Rumah Sakit Rujukan', '', 'Isi nama, alamat & nomor RS rujukan proyek'],
+      ['Medis', 'Klinik / Dokter Proyek', '', ''], ['Pemadam', 'Pemadam Kebakaran', '113', ''], ['Kepolisian', 'Polisi', '110', ''], ['Pemerintah / SAR', 'Basarnas', '115', ''],
+      ['Pemerintah / SAR', 'BPBD setempat', '', ''], ['Pemerintah / SAR', 'Disnaker / Pengawas K3', '', 'Lapor wajib untuk kecelakaan fatal'], ['Utilitas', 'PLN (gangguan listrik)', '123', ''],
+      ['Proyek / Klien', 'Project Manager', '', ''], ['Proyek / Klien', 'EHS Cushman & Wakefield', '', ''], ['Titik Kumpul', 'Assembly Point utama', '', 'Isi lokasi titik kumpul']];
+    ertSh.getRange(2, 1, C.length, 7).setValues(C.map((c, i) => ['ERC-' + String(i + 1).padStart(2, '0'), 'contact', c[0], c[1], '', c[2], c[3]]));
+  }
   const pg = ss.getSheetByName('Program');
   if (pg.getLastRow() < 2) pg.getRange(2, 1, DEFAULT_PROGRAMS.length, 5).setValues(DEFAULT_PROGRAMS);
 
@@ -178,6 +191,7 @@ function write_(a, req, user, role) {
         v.staff_normal = num_(req.staff_normal); v.staff_lembur = num_(req.staff_lembur);
         v.pekerja_normal = num_(req.pekerja_normal); v.pekerja_lembur = num_(req.pekerja_lembur);
         v.normal = v.staff_normal + v.pekerja_normal; v.lembur = v.staff_lembur + v.pekerja_lembur;
+        v.detail = String(req.detail || '{}').slice(0, 20000); // rincian per jabatan (JSON)
       } else { v.normal = num_(req.normal); v.lembur = num_(req.lembur); }
       upsert_('Manpower', req.date, v);
       return { sheet: 'Manpower', ref: req.date };
@@ -263,7 +277,7 @@ function write_(a, req, user, role) {
       if (ktp && rows_('Worker').some(x => String(x.ktp) === ktp && String(x.id) !== String(req.id || ''))) throw new Error('No KTP sudah terdaftar');
       const one = (v, list, def) => list.indexOf(v) >= 0 ? v : def;
       const v = {
-        name, ktp: ktp ? "'" + ktp : '', gender: one(r.gender, ['Pria', 'Wanita'], 'Pria'), category: one(r.category, ['Pekerja', 'Staff'], 'Pekerja'),
+        name, position: String(r.position || '').slice(0, 60), ktp: ktp ? "'" + ktp : '', gender: one(r.gender, ['Pria', 'Wanita'], 'Pria'), category: one(r.category, ['Pekerja', 'Staff'], 'Pekerja'),
         company: String(r.company || '').slice(0, 80), induction: one(r.induction, ['Sudah', 'Belum'], 'Belum'), induction_date: r.induction_date || '',
         violation: one(r.violation, ['-', 'P1', 'P2', 'P3'], '-'), work_status: one(r.work_status, ['Aktif', 'P3', 'Non Aktif'], 'Aktif'),
         trainings: String(r.trainings || '').slice(0, 1000), certifications: String(r.certifications || '').slice(0, 1000), notes: String(r.notes || '').slice(0, 300),
@@ -289,6 +303,14 @@ function write_(a, req, user, role) {
       Object.assign(v, { created_by: user, created_at: now });
       append_('Worker', id, v);
       return { sheet: 'Worker', ref: name, id };
+    }
+    case 'saveErt': {
+      adminOnly();
+      if (['member', 'contact'].indexOf(r.kind) < 0 || !String(r.name || '').trim()) throw new Error('Data ERT tidak valid');
+      const v = { kind: r.kind, role: String(r.role || '').slice(0, 40), name: String(r.name).trim().slice(0, 80), worker_id: String(r.worker_id || ''),
+        phone: String(r.phone || '').slice(0, 30), info: String(r.info || '').slice(0, 120), updated_by: user, updated_at: now };
+      if (req.id) { if (!update_('ERT', req.id, v)) throw new Error('Data ERT tidak ditemukan'); return { sheet: 'ERT', ref: v.name, id: req.id }; }
+      const id = newId_('ERT'); append_('ERT', id, v); return { sheet: 'ERT', ref: v.name, id };
     }
     case 'savePermit': {
       if (PTW_TYPES.indexOf(r.type) < 0) throw new Error('Jenis permit tidak valid');
@@ -328,7 +350,7 @@ function write_(a, req, user, role) {
     }
     case 'deleteRow': {
       adminOnly();
-      if (['Observation', 'Incident', 'Activity', 'Program', 'Permit', 'Worker'].indexOf(req.sheet) < 0) throw new Error('Sheet tidak boleh dihapus');
+      if (['Observation', 'Incident', 'Activity', 'Program', 'Permit', 'Worker', 'ERT'].indexOf(req.sheet) < 0) throw new Error('Sheet tidak boleh dihapus');
       if (req.sheet === 'Permit') { const pr = rows_('Permit').find(x => String(x.id) === String(req.id)); if (pr && ['Aktif', 'Selesai'].indexOf(pr.status) >= 0) throw new Error('Permit ' + pr.status + ' terkunci, tidak dapat dihapus'); }
       if (!deleteById_(req.sheet, req.id)) throw new Error('Data tidak ditemukan');
       return { sheet: req.sheet, ref: req.id };
@@ -371,6 +393,7 @@ function readAll_(cfg) {
     activity: rows_('Activity'),
     permit: rows_('Permit'),
     worker: rows_('Worker'),
+    ert: rows_('ERT'),
     master
   };
 }

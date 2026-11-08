@@ -13,7 +13,8 @@ Langkah pemasangan: lihat **[DEPLOY.md](DEPLOY.md)**.
 | `index.html` | Seluruh aplikasi (UI, perhitungan, export PDF) |
 | `config.js` | URL API Google Apps Script |
 | `ptw.js` | Modul Permit to Work (definisi 9 form, register, cetak) |
-| `pekerja.js` | Modul Daftar Pekerja |
+| `pekerja.js` | Modul Daftar Pekerja (jabatan, induction, pelanggaran, training, sertifikasi) |
+| `darurat.js` | Modul ERT & Prosedur Tanggap Darurat |
 | `assets/` | Logo untuk form permit |
 | `apps-script/Code.gs` | Backend: setup sheet otomatis, API baca/tulis, upload foto ke Drive, log |
 | `sw.js`, `manifest.webmanifest`, `icons/` | PWA (install & offline) |
@@ -28,6 +29,7 @@ Langkah pemasangan: lihat **[DEPLOY.md](DEPLOY.md)**.
 | HSE Program | (baru) | Matriks rencana vs realisasi per week, log kegiatan (training, induction, safety moment, patrol, inspeksi), daftar program |
 | Permit | PTW Batik Project.pdf | Register Permit to Work 9 jenis (General, Confined Space, Hot Work, Electrical, WAH, Excavation, Isolation, Lifting, Overtime), form isian, cetak PDF format asli (Legal), status Draft→Diajukan→Aktif→Selesai; Aktif & Selesai terkunci |
 | Manpower → Daftar Pekerja | (baru) | Data pekerja (KTP tersamar), induction, pelanggaran P1–P3 (P2 = induction ulang, P3 = terminasi), training & sertifikasi, kartu statistik |
+| Incident → ERT & Prosedur Darurat | 6 Flowchart Penanganan Kejadian | Struktur ERT (9 peran, cek sertifikat), kontak darurat tap-to-call, 6 bagan alir (Fatal, LTI, First Aid, Near Miss, Kebakaran, Bencana Alam) |
 | Incident | (baru) | Ringkasan per klasifikasi, incident log + form Lapor Insiden, filter. Sumber Safety Pyramid |
 | Master Data | Kolom O–R di Daily Observation | Sub-tab **Data Master** (tambah/hapus Category, Type, Area, Contoh Finding; Risk & Incident Classification dikunci) dan **Panduan** penggunaan |
 
@@ -42,7 +44,8 @@ Dibuat otomatis oleh fungsi `setup()`. Satu baris per input:
 - **Activity**: `id | date | program_id | topic | participants | pic | location | notes | photo_url | created_by | created_at`
 - **Permit**: `id | no | type | parent_no | status | description | location | date_from | date_to | applicant | data (JSON checklist) | …` (Permit to Work, 9 form)
 - **Worker**: `id | name | ktp | gender | category | company | induction | induction_date | violation | work_status | trainings | certifications | notes | … | violation_date`
-- **Master**: `list | value | keterangan` (termasuk daftar `training` & `sertifikasi`)
+- **ERT**: `id | kind (member/contact) | role | name | worker_id | phone | info` (struktur ERT & kontak darurat)
+- **Master**: `list | value | keterangan` (termasuk `jabatan_staff`, `jabatan_pekerja`, `training`, `sertifikasi`)
 - **Config**: `project_name, project_start, weeks, jam_normal, jam_lembur, target_*, pin, admin_pin, photo_folder_id`
 - **Log**: `timestamp | user | role | action | sheet | ref`
 

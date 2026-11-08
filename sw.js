@@ -1,6 +1,6 @@
 // Service worker: cache app shell agar bisa dibuka offline.
 // Naikkan VERSION setiap kali index.html berubah supaya user dapat versi baru.
-const VERSION = 'hse-v1.6.1';
+const VERSION = 'hse-v1.7';
 const SHELL = [
   './',
   './index.html',
@@ -8,6 +8,7 @@ const SHELL = [
   './config.js',
   './ptw.js',
   './pekerja.js',
+  './darurat.js',
   './assets/logo-safran-cw.jpg',
   './assets/logo-ckd.jpg',
   './icons/icon-192.png',
