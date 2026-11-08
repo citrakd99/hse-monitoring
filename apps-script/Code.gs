@@ -148,13 +148,62 @@ function doGet() {
   return json_({ ok: true, app: 'HSE Monitoring API', hint: 'Gunakan POST dari aplikasi web.' });
 }
 
+/* ---- Pengaman tebak-PIN ----
+ * Apps Script tidak bisa melihat IP pengirim, jadi penghitung berlaku global:
+ * jika PIN salah PIN_MAX_FAIL kali dalam PIN_WINDOW_MIN menit, SEMUA login
+ * dikunci PIN_LOCK_MIN menit (termasuk PIN yang benar), agar PIN tidak bisa
+ * ditebak terus-menerus. Buka kunci lebih cepat: jalankan fungsi `bukaKunciPin`.
+ */
+const PIN_MAX_FAIL = 5, PIN_WINDOW_MIN = 15, PIN_LOCK_MIN = 15;
+
+function pinLockedUntil_() {
+  const t = Number(CacheService.getScriptCache().get('pin_lock') || 0);
+  return t > Date.now() ? t : 0;
+}
+
+function pinFail_(user) {
+  const cache = CacheService.getScriptCache();
+  const lock = LockService.getScriptLock();
+  let n = 0;
+  try {
+    lock.waitLock(5000);
+    n = Number(cache.get('pin_fail') || 0) + 1;
+    if (n >= PIN_MAX_FAIL) {
+      cache.put('pin_lock', String(Date.now() + PIN_LOCK_MIN * 60000), PIN_LOCK_MIN * 60);
+      cache.remove('pin_fail');
+    } else {
+      cache.put('pin_fail', String(n), PIN_WINDOW_MIN * 60);
+    }
+  } catch (e) { /* jika lock gagal, tetap tolak */ } finally { try { lock.releaseLock(); } catch (e) {} }
+  log_(user, '-', n >= PIN_MAX_FAIL ? 'PIN salah → KUNCI ' + PIN_LOCK_MIN + ' menit' : 'PIN salah (' + n + '/' + PIN_MAX_FAIL + ')', '', '');
+  return n >= PIN_MAX_FAIL;
+}
+
+/** Jalankan manual dari editor Apps Script untuk membuka kunci PIN sebelum waktunya. */
+function bukaKunciPin() {
+  const cache = CacheService.getScriptCache();
+  cache.removeAll(['pin_lock', 'pin_fail']);
+  log_('editor', 'admin', 'Buka kunci PIN', '', '');
+}
+
+function lockMsg_(until) {
+  const m = Math.max(1, Math.ceil((until - Date.now()) / 60000));
+  return 'Login dikunci sementara karena terlalu banyak percobaan gagal. Coba lagi dalam ' + m + ' menit.';
+}
+
 function doPost(e) {
   try {
     const req = JSON.parse(e.postData.contents || '{}');
+    const lockedUntil = pinLockedUntil_();
+    if (lockedUntil) return json_({ ok: false, error: lockMsg_(lockedUntil) });
     const cfg = readConfig_();
     const role = req.pin && String(req.pin) === String(cfg.admin_pin) ? 'admin'
       : req.pin && String(req.pin) === String(cfg.pin) ? 'user' : null;
-    if (!role) return json_({ ok: false, error: 'PIN salah' });
+    if (!role) {
+      const who = String(req.user || '').slice(0, 60) || 'tanpa nama';
+      if (pinFail_(who)) return json_({ ok: false, error: lockMsg_(pinLockedUntil_() || Date.now() + PIN_LOCK_MIN * 60000) });
+      return json_({ ok: false, error: 'PIN salah' });
+    }
     if (/^ganti-pin/.test(String(cfg.pin)) || /^ganti-pin/.test(String(cfg.admin_pin)))
       return json_({ ok: false, error: 'PIN default belum diganti di sheet Config' });
 

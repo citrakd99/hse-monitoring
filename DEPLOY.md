@@ -16,8 +16,8 @@ Tiga langkah: **Google Sheet** (database) → **Apps Script** (API) → **GitHub
 6. Kembali ke Sheet. Sudah ada sheet: `Config`, `Manpower`, `Cuaca`, `Observation`, `Incident`, `Master`, `Log`, dan folder Drive **HSE Monitoring – Foto**.
 7. Di sheet **Config**, isi:
    - `project_start` & `project_end` – periode proyek (yyyy-mm-dd). Jumlah week dihitung otomatis. Bisa juga diubah admin dari aplikasi: **Master → Pengaturan Proyek**.
-   - `pin` – PIN untuk petugas input.
-   - `admin_pin` – PIN admin (beda dengan `pin`).
+   - `pin` – PIN untuk petugas input. Gunakan minimal 8 karakter campuran huruf & angka.
+   - `admin_pin` – PIN admin (beda dengan `pin`), sebaiknya lebih panjang lagi.
    - Target leading indicator bila perlu.
 
    > Aplikasi menolak semua akses selama PIN masih `ganti-pin-…`.
@@ -76,6 +76,7 @@ Buka <http://localhost:8765>, masuk dengan nama + PIN, lalu coba isi manpower. B
 | Hal | Rekomendasi |
 |---|---|
 | PIN | Ganti `pin` berkala / saat ada anggota tim keluar. Cukup ubah di sheet Config, tidak perlu deploy ulang. |
+| Kunci PIN salah | Setelah **5 kali PIN salah dalam 15 menit**, semua login dikunci **15 menit** (termasuk yang PIN-nya benar, karena Apps Script tidak bisa membedakan pengirim). Setiap percobaan tercatat di sheet **Log**. Untuk membuka lebih cepat: buka Apps Script → pilih fungsi `bukaKunciPin` → **Run**. Kalau Log sering menunjukkan kunci padahal tim tidak salah PIN, berarti ada yang mencoba menebak: ganti PIN. |
 | Akses Sheet | Share Google Sheet hanya ke admin HSE (Editor) dan manajemen (Viewer). Petugas lapangan cukup pakai aplikasi. |
 | Foto | Disimpan di folder Drive *HSE Monitoring – Foto* dengan akses *siapa pun yang punya link* agar bisa tampil di aplikasi. Jangan foto wajah/identitas korban. |
 | Audit | Semua penyimpanan tercatat di sheet **Log** (waktu, nama, role, aksi). |
