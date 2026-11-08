@@ -13,6 +13,12 @@ const WK_STATUS = ['Aktif', 'P3', 'Non Aktif'];
 // Ketentuan pelanggaran:
 //  P3 = terminasi dari proyek -> status bekerja P3 permanen, tidak bisa Aktif lagi
 //  P2 = status induction kembali 'Belum' -> wajib induction ulang (tanggal induction >= tanggal pelanggaran)
+// daftar jabatan standar proyek konstruksi (dapat diubah admin di Master)
+const WK_DEFAULT_POS_STAFF = ['Project Manager', 'Site Manager', 'Site Engineer', 'Supervisor / Pelaksana', 'HSE Manager', 'HSE Officer / Safety Officer', 'Safety Man', 'Quality Control (QC)',
+  'Quantity Surveyor (QS)', 'Surveyor', 'Drafter', 'Logistik / Warehouse', 'Admin Proyek'];
+const WK_DEFAULT_POS_WORKER = ['Mandor / Foreman', 'Tukang Besi', 'Tukang Kayu', 'Tukang Batu', 'Tukang Las / Welder', 'Fitter', 'Electrician', 'Plumber', 'Tukang Cat', 'Rigger', 'Scaffolder',
+  'Operator Alat Berat', 'Mekanik', 'Helper / Kenek', 'Driver', 'Security', 'Cleaning Service / OB'];
+const wkPosCat = p => MASTER.jabatan_staff.includes(p) ? 'Staff' : MASTER.jabatan_pekerja.includes(p) ? 'Pekerja' : '';
 const WK_DEFAULT_TRAINING = ['K3 Umum', 'Hot Work (HW)', 'Working at Height (WAH)', 'Listrik', 'Confined Space', 'Lifting & Rigging', 'Scaffolding', 'Excavation', 'LOTOTO', 'P3K / First Aid', 'Fire Fighting / APAR', 'Kesiapsiagaan Darurat'];
 const WK_DEFAULT_CERT = ['Ahli K3 Umum (AK3U)', 'Ahli K3 Listrik', 'Teknisi K3 Listrik', 'Juru Las / Welder', 'Juru Ikat / Rigger', 'Teknisi Scaffolding', 'TKBT 1 (Bekerja di Ketinggian)', 'TKBT 2 (Bekerja di Ketinggian)',
   'Petugas K3 Ruang Terbatas', 'Operator Crane (SIO)', 'Operator Forklift (SIO)', 'Operator Excavator (SIO)', 'Petugas P3K', 'Petugas Peran Kebakaran', 'Supervisor / Pengawas K3'];
@@ -23,10 +29,10 @@ const wkList = s => String(s || '').split('|').map(x => x.trim()).filter(Boolean
 const ktpMask = k => { const d = String(k || '').replace(/\D/g, ''); return d ? '•••• ' + d.slice(-4) : '–'; };
 function wkFromRow(r) {
   return { id: String(r.id), name: r.name || '', ktp: String(r.ktp || ''), gender: r.gender || 'Pria', category: r.category || 'Pekerja', company: r.company || '',
-    induction: r.induction || 'Belum', inductionDate: r.induction_date || '', violation: r.violation || '-', violationDate: r.violation_date || '', status: r.work_status || 'Aktif',
+    position: r.position || '', induction: r.induction || 'Belum', inductionDate: r.induction_date || '', violation: r.violation || '-', violationDate: r.violation_date || '', status: r.work_status || 'Aktif',
     trainings: wkList(r.trainings), certs: wkList(r.certifications), notes: r.notes || '' };
 }
-const wkToRow = w => ({ name: w.name, ktp: w.ktp, gender: w.gender, category: w.category, company: w.company, induction: w.induction, induction_date: w.inductionDate,
+const wkToRow = w => ({ name: w.name, position: w.position || '', ktp: w.ktp, gender: w.gender, category: w.category, company: w.company, induction: w.induction, induction_date: w.inductionDate,
   violation: w.violation, violation_date: w.violationDate || '', work_status: w.status, trainings: w.trainings.join('|'), certifications: w.certs.join('|'), notes: w.notes });
 
 function wkDemo(rnd) {
@@ -38,7 +44,7 @@ function wkDemo(rnd) {
     const staff = i % 9 === 0, v = rnd() < 0.8 ? '-' : rnd() < 0.6 ? 'P1' : rnd() < 0.7 ? 'P2' : 'P3';
     const tr = MASTER.training.filter(() => rnd() < 0.3); if (!tr.includes('K3 Umum')) tr.unshift('K3 Umum');
     const o = { id: 'DW' + i, name: `${f} ${pick(last)}`, ktp: '3201' + String(Math.floor(rnd() * 1e12)).padStart(12, '0'), gender: ['Sari', 'Dewi', 'Rina'].includes(f) ? 'Wanita' : 'Pria',
-      category: staff ? 'Staff' : 'Pekerja', company: staff ? comp[0] : pick(comp), induction: rnd() < 0.88 ? 'Sudah' : 'Belum', inductionDate: fmt(addDays(CFG.projectStart, Math.floor(rnd() * 30))),
+      category: staff ? 'Staff' : 'Pekerja', position: staff ? MASTER.jabatan_staff[i % MASTER.jabatan_staff.length] : MASTER.jabatan_pekerja[Math.floor(rnd() * MASTER.jabatan_pekerja.length)], company: staff ? comp[0] : pick(comp), induction: rnd() < 0.88 ? 'Sudah' : 'Belum', inductionDate: fmt(addDays(CFG.projectStart, Math.floor(rnd() * 30))),
       violation: v, violationDate: v === '-' ? '' : fmt(addDays(CFG.today, -Math.floor(rnd() * 10))), status: v === 'P3' ? 'P3' : rnd() < 0.1 ? 'Non Aktif' : 'Aktif', trainings: tr, certs: MASTER.sertifikasi.filter(() => rnd() < 0.12), notes: '' };
     if (v === 'P2') o.induction = 'Belum'; // P2 wajib induction ulang
     return o;
@@ -59,7 +65,9 @@ function renderWorkers() {
   // ringkasan training & sertifikasi
   const tally = key => { const m = {}; workers.forEach(w => w[key].forEach(t => m[t] = (m[t] || 0) + 1)); return Object.entries(m).sort((a, b) => b[1] - a[1]); };
   const chips = (arr, cls) => arr.map(([t, c]) => `<span class="wk-chip ${cls}">${esc(t)} <b>${c}</b></span>`).join('') || '<span style="color:var(--muted)">–</span>';
-  $('#wk-sum').innerHTML = `<div><div class="wk-sl">Training diikuti (jumlah pekerja)</div>${chips(tally('trainings'), 'tr')}</div>
+  const pos = g => { const m = {}; workers.filter(w => w.status === 'Aktif' && w.category === g).forEach(w => { const p = w.position || '(belum diisi)'; m[p] = (m[p] || 0) + 1; }); return Object.entries(m).sort((a, b) => b[1] - a[1]); };
+  $('#wk-sum').innerHTML = `<div><div class="wk-sl">Jabatan Staff aktif</div>${chips(pos('Staff'), 'ps')}</div><div><div class="wk-sl">Jabatan Direct Worker aktif</div>${chips(pos('Pekerja'), 'pw')}</div>
+    <div><div class="wk-sl">Training diikuti (jumlah pekerja)</div>${chips(tally('trainings'), 'tr')}</div>
     <div><div class="wk-sl">Sertifikasi · ${withCert} pekerja bersertifikat, ${certTotal} sertifikat</div>${chips(tally('certs'), 'ct')}</div>`;
 
   const F = { q: $('#wk-q').value.trim().toLowerCase(), st: $('#wk-st').value, ind: $('#wk-ind').value, v: $('#wk-v').value, tr: $('#wk-tr').value };
@@ -68,7 +76,7 @@ function renderWorkers() {
     .sort((a, b) => a.name.localeCompare(b.name));
   $('#wk-info').innerHTML = summarize(n, list.length, 'pekerja', [['Cari', F.q], ['Status', F.st], ['Induction', F.ind], ['Pelanggaran', F.v === 'ada' ? 'Ada' : F.v], ['Training/Sertifikasi', F.tr]]);
   const pill = (v, map) => `<span class="pt-st ${map[v] || 'pt-draft'}">${esc(v)}</span>`;
-  $('#wk-body').innerHTML = list.map((w, i) => `<tr data-id="${esc(w.id)}"><td>${i + 1}</td><td><b>${esc(w.name)}</b><br><small style="color:var(--muted)">${esc(w.category)}${w.company ? ' · ' + esc(w.company) : ''}</small></td>
+  $('#wk-body').innerHTML = list.map((w, i) => `<tr data-id="${esc(w.id)}"><td>${i + 1}</td><td><b>${esc(w.name)}</b><br><small style="color:var(--muted)">${esc(w.position || w.category)}${w.company ? ' · ' + esc(w.company) : ''}</small></td>
     <td style="font-variant-numeric:tabular-nums">${ktpMask(w.ktp)}</td><td>${w.gender === 'Wanita' ? 'W' : 'P'}</td>
     <td>${pill(w.induction, { Sudah: 'pt-act', Belum: 'pt-exp' })}</td><td>${w.violation === '-' ? '–' : pill(w.violation, { P1: 'pt-sub', P2: 'pt-warn', P3: 'pt-exp' })}</td>
     <td>${w.status === 'P3' ? '<span class="pt-st pt-exp">P3 · Terminasi</span>' : pill(w.status, { Aktif: 'pt-act', 'Non Aktif': 'pt-cancel' })}</td>
@@ -90,7 +98,9 @@ function openWorker(w) {
   const multi = (box, items, sel, name) => $(box).innerHTML = items.map(t => `<label class="ck"><input type="checkbox" name="${name}" value="${esc(t)}" ${sel.includes(t) ? 'checked' : ''}> <span>${esc(t)}</span></label>`).join('')
     + sel.filter(t => !items.includes(t)).map(t => `<label class="ck"><input type="checkbox" name="${name}" value="${esc(t)}" checked> <span>${esc(t)} <small>(tidak ada di master)</small></span></label>`).join('');
   const v = w || { name: '', ktp: '', gender: 'Pria', category: 'Pekerja', company: '', induction: 'Belum', inductionDate: '', violation: '-', status: 'Aktif', trainings: [], certs: [], notes: '' };
-  ['name', 'ktp', 'gender', 'category', 'company', 'induction', 'inductionDate', 'violation', 'status', 'notes'].forEach(k => el(k).value = v[k] || '');
+  const ps = el('position'); ps.innerHTML = '<option value="">— pilih jabatan —</option>' + [['Staff', MASTER.jabatan_staff], ['Direct Worker', MASTER.jabatan_pekerja]].map(([g, l]) => `<optgroup label="${g}">${l.map(p => `<option>${esc(p)}</option>`).join('')}</optgroup>`).join('')
+    + (v.position && !wkPosCat(v.position) ? `<option>${esc(v.position)}</option>` : '');
+  ['name', 'position', 'ktp', 'gender', 'category', 'company', 'induction', 'inductionDate', 'violation', 'status', 'notes'].forEach(k => el(k).value = v[k] || '');
   multi('#wk-trbox', MASTER.training, v.trainings, 'trainings'); multi('#wk-ctbox', MASTER.sertifikasi, v.certs, 'certs');
   $('#wk-title').textContent = w ? `Edit Pekerja · ${w.name}` : 'Tambah Pekerja';
   $('#wk-del').hidden = !(w && ROLE === 'admin');
@@ -127,7 +137,7 @@ function wkHint() {
 }
 async function wkSave() {
   const f = $('#wk-form'), fd = new FormData(f), g = k => String(fd.get(k) || '').trim();
-  const w = { ...(wkEdit || {}), name: g('name'), ktp: g('ktp').replace(/\D/g, ''), gender: g('gender'), category: g('category'), company: g('company'), inductionDate: g('inductionDate'),
+  const w = { ...(wkEdit || {}), name: g('name'), position: g('position'), ktp: g('ktp').replace(/\D/g, ''), gender: g('gender'), category: g('category'), company: g('company'), inductionDate: g('inductionDate'),
     violation: f.elements.namedItem('violation').value, status: f.elements.namedItem('status').value, induction: f.elements.namedItem('induction').value, notes: g('notes'), trainings: fd.getAll('trainings'), certs: fd.getAll('certs') };
   const orig = wkEdit || {};
   if (orig.violation === 'P3') { w.violation = 'P3'; w.status = 'P3'; } // terminasi permanen
@@ -153,6 +163,7 @@ function wkInit() {
   fillSelect(f.elements.namedItem('gender'), WK_GENDER); fillSelect(f.elements.namedItem('category'), WK_CATEGORY); fillSelect(f.elements.namedItem('induction'), WK_INDUCTION);
   fillSelect(f.elements.namedItem('violation'), WK_VIOLATION); fillSelect(f.elements.namedItem('status'), WK_STATUS);
   f.addEventListener('input', wkHint); f.addEventListener('change', wkHint);
+  f.elements.namedItem('position').addEventListener('change', e => { const c = wkPosCat(e.target.value); if (c) f.elements.namedItem('category').value = c; });
   f.elements.namedItem('violation').addEventListener('change', () => { wkRules(); wkHint(); });
   $('#add-wk').onclick = () => openWorker(null);
   $('#wk-save').onclick = wkSave; $('#wk-cancel').onclick = () => $('#dlg-wk').close();
