@@ -1,6 +1,6 @@
 // Service worker: cache app shell agar bisa dibuka offline.
 // Naikkan VERSION setiap kali index.html berubah supaya user dapat versi baru.
-const VERSION = 'hse-v1.7';
+const VERSION = 'hse-v1.7.1';
 const SHELL = [
   './',
   './index.html',
@@ -33,13 +33,15 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   // API Google Apps Script & foto Google Drive selalu langsung ke jaringan
   if (/script\.google(usercontent)?\.com|drive\.google\.com|googleusercontent\.com/.test(req.url)) return;
-  // Halaman & config.js: network-first (supaya perubahan langsung terpakai), fallback ke cache saat offline
-  if (req.mode === 'navigate' || req.url.endsWith('/config.js')) {
+  // Halaman & file aplikasi sendiri (html/js/css/manifest): network-first supaya selalu versi terbaru
+  // dan saling cocok; cache hanya dipakai saat offline.
+  const same = new URL(req.url).origin === self.location.origin;
+  if (req.mode === 'navigate' || (same && /\.(js|css|html|webmanifest)(\?|$)/.test(req.url))) {
     e.respondWith(fetch(req).then(r => { const copy = r.clone(); caches.open(VERSION).then(c => c.put(req, copy)); return r; })
-      .catch(() => caches.match(req).then(r => r || caches.match('./index.html'))));
+      .catch(() => caches.match(req, { ignoreSearch: true }).then(r => r || (req.mode === 'navigate' ? caches.match('./index.html') : undefined))));
     return;
   }
-  // Aset lain: cache-first
+  // Aset lain (gambar, library CDN berversi): cache-first
   e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(r => {
     if (r.ok || r.type === 'opaque') { const copy = r.clone(); caches.open(VERSION).then(c => c.put(req, copy)); }
     return r;
