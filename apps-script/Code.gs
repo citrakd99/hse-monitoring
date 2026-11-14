@@ -1,5 +1,5 @@
 /**
- * HSE Monitoring – Nama Proyek
+ * HSE Monitoring
  * Backend Google Apps Script yang menempel pada Google Sheet.
  *
  * Cara pakai singkat (detail di DEPLOY.md):

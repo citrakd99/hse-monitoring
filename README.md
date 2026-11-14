@@ -1,4 +1,4 @@
-# HSE Monitoring – Nama Proyek
+# HSE Monitoring
 
 Versi 1.0 (`index.html`, PWA) berdasarkan `HSE - Monitoring.xlsx`. Data disimpan di **Google Sheet** lewat **Google Apps Script**; aplikasi di-host di **GitHub Pages**.
 

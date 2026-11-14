@@ -1,6 +1,6 @@
 /* =====================================================================
-   PERMIT TO WORK (PTW) – Nama Proyek
-   Definisi 9 form sesuai "Dokumen PTW proyek", register permit,
+   PERMIT TO WORK (PTW)
+   Definisi 9 form sesuai dokumen PTW proyek, register permit,
    form isian dan cetak PDF format asli (Legal, 1 halaman per permit).
    MVP: tanda tangan basah (dicetak lalu ditandatangani di lapangan).
    File ini memakai fungsi global dari index.html ($, esc, CFG, save, dll).

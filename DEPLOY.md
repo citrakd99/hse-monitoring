@@ -7,7 +7,7 @@ Tiga langkah: **Google Sheet** (database) → **Apps Script** (API) → **GitHub
 ## 1. Buat Google Sheet + Apps Script
 
 1. Buka <https://sheets.new> dengan akun Google yang akan menjadi **pemilik data** (sebaiknya akun HSE proyek, bukan akun pribadi).
-2. Beri nama, misalnya **HSE Monitoring – Nama Proyek**.
+2. Beri nama, misalnya **HSE Monitoring**.
 3. Menu **Extensions → Apps Script**.
 4. Hapus isi `Code.gs`, lalu tempel seluruh isi file [`apps-script/Code.gs`](apps-script/Code.gs). Klik **Save** (ikon disket).
 5. Di toolbar, pilih fungsi **`setup`** lalu klik **Run**.
