@@ -524,7 +524,7 @@ function ptwPage(p) {
     ? `: Tanggal/<i>Date</i> : ${val(dt(p.from))} <span class="pp-r"><b>(Max 1 hari libur) Jam 08:00 s/d 18:00 WIB / Kerja lembur dari jam 18:00-22:00 WIB</b> · ${esc(d.otMode || '')}</span>`
     : `: Dari Tgl/<i>From Date</i> : ${val(dt(p.from))} &nbsp; s/d : ${val(dt(p.to))} <span class="pp-r"><b>(Max 5 Hari kerja) Jam 08:00 s/d 18:00 WIB</b></span>`;
   return `<div class="pp" style="--tc:${T.color}">
-    <div class="pp-hd"><img src="assets/logo-kiri.jpg" alt=""><div class="pp-t"><u>${T.title}</u><br>${T.titleId}</div><img src="assets/logo-ckd.jpg" alt=""></div>
+    <div class="pp-hd"><span style="width:60px"></span><div class="pp-t"><u>${T.title}</u><br>${T.titleId}</div><img src="assets/logo-ckd.jpg" alt=""></div>
     <div class="pp-info">
       ${T.info?.gwpNo ? `<div><span>No. General Work Permit<br><i>General Work Permit No</i></span>: ${val(p.no)}</div><div><span>No. Job Safety Analysis</span>: ${val(d.jsa)}</div>` : ''}
       <div><span>Nama Project / <i>Project Name</i></span>: <b>${esc(CFG.projectName)}</b> ${T.info?.gwpNo ? '' : `<span class="pp-r">No Permit : <b>${esc(p.no)}</b></span>`}</div>
