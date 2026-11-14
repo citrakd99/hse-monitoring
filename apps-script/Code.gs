@@ -13,7 +13,7 @@
 const SCHEMA = {
   Config: ['key', 'value', 'keterangan'],
   // kolom rincian ditambahkan di akhir supaya data lama tetap terbaca
-  Manpower: ['date', 'normal', 'lembur', 'updated_by', 'updated_at', 'staff_normal', 'staff_lembur', 'pekerja_normal', 'pekerja_lembur', 'detail'],
+  Manpower: ['date', 'normal', 'lembur', 'updated_by', 'updated_at', 'staff_normal', 'staff_lembur', 'pekerja_normal', 'pekerja_lembur', 'detail', 'lembur_end'],
   Cuaca: ['date', 'h07', 'h08', 'h09', 'h10', 'h11', 'h12', 'h13', 'h14', 'h15', 'h16', 'h17', 'h18', 'h19', 'h20', 'h21', 'updated_by', 'updated_at'],
   Observation: ['id', 'date', 'observer', 'area', 'finding', 'type', 'category', 'risk', 'photo_url', 'action', 'action_date', 'action_photo_url', 'status', 'created_by', 'created_at', 'updated_by', 'updated_at'],
   Incident: ['id', 'date', 'time', 'cls', 'area', 'desc', 'involved', 'action', 'lost_days', 'reporter', 'photo_url', 'created_by', 'created_at'],
@@ -32,7 +32,8 @@ const DEFAULT_CONFIG = [
   ['project_end', '2027-05-01', 'Tanggal selesai (yyyy-mm-dd). Jumlah week dihitung otomatis dari mulai s/d selesai'],
   ['weeks', 30, 'Cadangan: dipakai hanya jika project_end kosong'],
   ['jam_normal', 8, 'Jam kerja normal per orang per hari'],
-  ['jam_lembur', 4, 'Jam lembur per orang per hari'],
+  ['lembur_mulai', 18, 'Jam mulai lembur (angka jam 0-23, mis. 18 = 18:00)'],
+  ['lembur_pulang', 22, 'Default jam pulang lembur (angka jam; 24 ke atas = besok pagi, mis. 26 = 02:00). Per hari dipilih di popup manpower'],
   ['target_obs_week', 20, 'Target observasi per minggu'],
   ['target_close_rate', 90, 'Target close-out rate (%)'],
   ['target_close_days', 3, 'Target rata-rata hari penyelesaian'],
@@ -109,6 +110,9 @@ function setup() {
   const haveKeys = cfg.getLastRow() > 1 ? cfg.getRange(2, 1, cfg.getLastRow() - 1, 1).getValues().map(r => r[0]) : [];
   DEFAULT_CONFIG.filter(r => haveKeys.indexOf(r[0]) < 0).forEach(r => cfg.appendRow(r));
   cfg.getRange('B:B').setNumberFormat('@');
+  // jam_lembur (versi lama) diganti lembur_mulai & lembur_pulang
+  const jl = haveKeys.indexOf('jam_lembur');
+  if (jl >= 0) cfg.getRange(jl + 2, 3).setValue('Tidak dipakai lagi: diganti lembur_mulai & lembur_pulang');
 
   const ms = ss.getSheetByName('Master');
   // isi daftar master yang belum ada (aman dijalankan ulang; daftar yang sudah ada tidak diubah)
@@ -242,6 +246,8 @@ function write_(a, req, user, role) {
         v.normal = v.staff_normal + v.pekerja_normal; v.lembur = v.staff_lembur + v.pekerja_lembur;
         v.detail = String(req.detail || '{}').slice(0, 20000); // rincian per jabatan (JSON)
       } else { v.normal = num_(req.normal); v.lembur = num_(req.lembur); }
+      // jam pulang lembur: angka jam 1-31 (>=24 = besok pagi); kosong = pakai default lembur_pulang
+      if (req.lembur_end !== undefined) { const le = Math.round(Number(req.lembur_end)); v.lembur_end = le >= 1 && le <= 31 ? le : ''; }
       upsert_('Manpower', req.date, v);
       return { sheet: 'Manpower', ref: req.date };
     }
@@ -287,7 +293,7 @@ function write_(a, req, user, role) {
     }
     case 'updateConfig': {
       adminOnly();
-      const allowed = ['project_name', 'project_start', 'project_end', 'jam_normal', 'jam_lembur', 'target_obs_week', 'target_close_rate', 'target_close_days'];
+      const allowed = ['project_name', 'project_start', 'project_end', 'jam_normal', 'lembur_mulai', 'lembur_pulang', 'target_obs_week', 'target_close_rate', 'target_close_days'];
       const c = req.config || {};
       if (c.project_start !== undefined) checkDate_(c.project_start);
       if (c.project_end !== undefined) checkDate_(c.project_end);
