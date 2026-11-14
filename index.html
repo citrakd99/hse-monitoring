@@ -411,6 +411,11 @@ tr.mpd-oth td{color:var(--muted);font-style:italic}
 .seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:3px;margin-bottom:14px}
 .seg button{border:0;background:none;font:inherit;font-weight:600;padding:7px 16px;border-radius:8px;color:var(--muted);cursor:pointer}
 .seg button.active{background:var(--surface);color:var(--brand);box-shadow:var(--shadow)}
+.lang-seg{display:inline-flex;flex-wrap:wrap;gap:8px}
+.lang-seg button{border:1.5px solid var(--border);background:var(--surface);font:inherit;font-weight:600;padding:9px 16px;border-radius:10px;color:var(--muted);cursor:pointer}
+.lang-seg button.active{border-color:var(--brand);color:var(--brand);background:var(--surface-2)}
+.lang-seg.sm button{padding:5px 10px;font-size:12px}
+.lang-card{margin-bottom:14px}
 .mlist{list-style:none;padding:0!important;margin:0}
 .mlist li{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid var(--border);margin:0!important}
 .mlist li span.t{flex:1}
@@ -814,6 +819,9 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <div class="grid master" id="master"></div>
   </div>
   <div id="m-setting" hidden>
+    <div class="card setting no-pdf lang-card"><h3>Bahasa / Language</h3>
+      <div class="lang-seg" data-noi18n><button type="button" data-l="id">🇮🇩 Bahasa Indonesia</button><button type="button" data-l="en">🇬🇧 English</button></div>
+      <p class="fx-note" data-noi18n>Berlaku untuk perangkat ini saja, tidak mengubah data · Applies to this device only, data is not changed</p></div>
     <form class="card setting" id="set-form">
       <h3>Pengaturan Proyek <span class="sub" id="set-ro"></span></h3>
       <div class="set-grid">
@@ -897,7 +905,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <label class="full">PIN<input name="pin" type="password" required autocomplete="current-password" placeholder="PIN dari admin HSE"></label>
       <div class="full login-err" id="login-err"></div>
     </div>
-    <div class="dlg-f"><button class="btn primary" id="login-btn">Masuk</button></div>
+    <div class="dlg-f"><div class="lang-seg sm" data-noi18n><button type="button" data-l="id">ID</button><button type="button" data-l="en">EN</button></div><span class="spacer"></span><button class="btn primary" id="login-btn">Masuk</button></div>
   </form>
 </dialog>
 <button class="fab no-pdf" id="fab" aria-label="Tombol cepat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -1002,10 +1010,12 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 <div id="toast">Membuat PDF…</div>
 <div id="snack"></div>
 
-<script src="config.js?v=1.7.1"></script>
-<script src="ptw.js?v=1.7.1"></script>
-<script src="pekerja.js?v=1.7.1"></script>
-<script src="darurat.js?v=1.7.1"></script>
+<script src="i18n.js?v=1.9"></script>
+<script src="i18n-en.js?v=1.9"></script>
+<script src="config.js?v=1.9"></script>
+<script src="ptw.js?v=1.9"></script>
+<script src="pekerja.js?v=1.9"></script>
+<script src="darurat.js?v=1.9"></script>
 <script>
 /* ================= CONFIG ================= */
 const API=((window.HSE_CONFIG&&window.HSE_CONFIG.apiUrl)||'').trim();
@@ -1042,7 +1052,7 @@ const IC_LABEL={'Fatality':'Fatality','LWC':'Lost Workday Case (LWC)','RWC/MTC':
 
 const addDays=(s,n)=>{const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);return d;};
 const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-const fmtID=d=>d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'});
+const fmtID=d=>d.toLocaleDateString(LOCALE,{day:'2-digit',month:'short',year:'numeric'});
 
 /* ================= STATE ================= */
 let dayIndex=0, curWeek=1;
@@ -1190,7 +1200,7 @@ async function api(action,body={}){
 }
 function snack(msg,err){const s=$('#snack');s.textContent=msg;s.className='show'+(err?' err':'');clearTimeout(snack.t);snack.t=setTimeout(()=>s.className='',err?5000:2500);}
 function setSync(state,extra){
-  const dot=$('#sync-dot'), t=$('#sync-txt'), tm=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  const dot=$('#sync-dot'), t=$('#sync-txt'), tm=new Date().toLocaleTimeString(LOCALE,{hour:'2-digit',minute:'2-digit'});
   dot.className='dot'+(state==='ok'?' ok':state==='err'?' err':'');
   t.textContent=state==='demo'?'Mode demo (data contoh)':state==='ok'?`Google Sheet · sinkron ${tm}`:state==='saving'?'Menyimpan…':state==='loading'?'Memuat data…':
     state==='cache'?`Offline · data ${extra}`:`Gagal: ${extra||''}`;
@@ -1214,13 +1224,13 @@ async function readPhoto(input){
 
 /* ================= HELPERS ================= */
 const $=s=>document.querySelector(s);
-const nf=n=>n==null?'':n.toLocaleString('id-ID');
+const nf=n=>n==null?'':n.toLocaleString(LOCALE);
 const mh=r=>r.normal==null?null:r.normal*CFG.jamNormal+r.lembur*lh(r);
 const weekOf=date=>Math.floor((new Date(date)-new Date(CFG.projectStart))/864e5/7)+1;
 const wxBy=k=>WX.find(w=>w.k===k);
 const worst=arr=>{const v=arr.filter(Boolean);if(!v.length)return null;return v.reduce((a,b)=>WX.findIndex(w=>w.k===b)>WX.findIndex(w=>w.k===a)?b:a);};
 const riskRank={HIGH:3,MEDIUM:2,LOW:1};
-function weekOptions(sel,val){const sh=d=>d.toLocaleDateString('id-ID',{day:'2-digit',month:'short'});
+function weekOptions(sel,val){const sh=d=>d.toLocaleDateString(LOCALE,{day:'2-digit',month:'short'});
   sel.innerHTML=Array.from({length:CFG.weeks},(_,i)=>{const a=addDays(CFG.projectStart,i*7), b=new Date(Math.min(addDays(CFG.projectStart,i*7+6),new Date(CFG.projectEnd+'T00:00:00')));
     return `<option value="${i+1}">Week ${i+1} · ${sh(a)}–${sh(b)}</option>`;}).join('');sel.value=val;}
 function legend(el){el.innerHTML=WX.map(w=>`<span>${w.i} ${w.n}</span>`).join('');}
@@ -1259,7 +1269,7 @@ function renderDashboard(){
   Chart.defaults.color=c('--muted'); Chart.defaults.borderColor=c('--border'); Chart.defaults.font.family='Inter';
   charts.mh?.destroy();
   charts.mh=new Chart($('#ch-mh'),{type:'bar',data:{labels:weeks.map(w=>'W'+w),datasets:[
-    {label:'Normal',data:nMH,backgroundColor:c('--brand'),stack:'a'},{label:'Lembur',data:lMH,backgroundColor:c('--med'),stack:'a'}]},
+    {label:'Normal',data:nMH,backgroundColor:c('--brand'),stack:'a'},{label:t('Lembur'),data:lMH,backgroundColor:c('--med'),stack:'a'}]},
     options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true}}}});
   const cats=MASTER.category;
   charts.obs?.destroy();
@@ -1296,13 +1306,13 @@ function renderPerf(){
   const inM=d=>d.slice(0,7)===m, inY=d=>d>=CFG.projectStart&&d.slice(0,7)<=m; // PTD = sejak start proyek s/d akhir bulan terpilih
   const mhIn=f=>manpower.filter(r=>r.normal!=null&&f(r.date)).reduce((a,r)=>a+mh(r),0);
   const cnt=(f,cls)=>incidents.filter(x=>f(x.date)&&cls.includes(x.cls)).length;
-  const rate=(n,h)=>h?(n*BASE/h).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2}):'–';
+  const rate=(n,h)=>h?(n*BASE/h).toLocaleString(LOCALE,{minimumFractionDigits:2,maximumFractionDigits:2}):'–';
   const M={mh:mhIn(inM),rec:cnt(inM,RECORDABLE),lwc:cnt(inM,LWC_CASES)}, Y={mh:mhIn(inY),rec:cnt(inY,RECORDABLE),lwc:cnt(inY,LWC_CASES)};
   $('#perf-body').innerHTML=
     `<tr><td>Safe Manhour</td><td>${nf(M.mh)}</td><td>${nf(Y.mh)}</td></tr>`+
     `<tr><td>TRIR</td><td>${rate(M.rec,M.mh)}<small>${M.rec} recordable</small></td><td>${rate(Y.rec,Y.mh)}<small>${Y.rec} recordable</small></td></tr>`+
     `<tr><td>LWCIR</td><td>${rate(M.lwc,M.mh)}<small>${M.lwc} LWC/fatality</small></td><td>${rate(Y.lwc,Y.mh)}<small>${Y.lwc} LWC/fatality</small></td></tr>`;
-  const mName=new Date(m+'-01T00:00:00').toLocaleDateString('id-ID',{month:'long',year:'numeric'});
+  const mName=new Date(m+'-01T00:00:00').toLocaleDateString(LOCALE,{month:'long',year:'numeric'});
   $('#perf-foot').textContent=`Month = ${mName} · PTD (Project-to-Date) = ${fmtID(new Date(CFG.projectStart))} – akhir ${mName}`;
 }
 /* Leading indicators: target bisa disesuaikan di sini (nanti dari sheet Config) */
@@ -1321,14 +1331,14 @@ function renderLeading(){
     tile(thisW.length>=LI_TARGET.obsPerWeek?'good':thisW.length>=LI_TARGET.obsPerWeek*.6?'warn':'bad',
       `${thisW.length}<small style="color:var(${diff>=0?'--low':'--high'})">${diff===0?'= ':diff>0?'▲':'▼'}${diff===0?'':Math.abs(diff)}</small>`,'Observasi minggu ini',`Target ≥ ${LI_TARGET.obsPerWeek} · minggu lalu ${prevW.length}`)+
     tile(rate>=LI_TARGET.closeRate?'good':rate>=70?'warn':'bad',`${rate}%`,'Close-out rate (PTD)',`${closed.length} dari ${observations.length} temuan closed · target ≥ ${LI_TARGET.closeRate}%`)+
-    tile(days<=LI_TARGET.closeDays?'good':days<=LI_TARGET.closeDays*2?'warn':'bad',days.toLocaleString('id-ID',{maximumFractionDigits:1}),'Rata-rata hari penyelesaian',`Dari temuan sampai action · target ≤ ${LI_TARGET.closeDays} hari`)+
+    tile(days<=LI_TARGET.closeDays?'good':days<=LI_TARGET.closeDays*2?'warn':'bad',days.toLocaleString(LOCALE,{maximumFractionDigits:1}),'Rata-rata hari penyelesaian',`Dari temuan sampai action · target ≤ ${LI_TARGET.closeDays} hari`)+
     tile(highOpen===0?'good':'bad',highOpen,'Temuan HIGH masih Open','Harus 0 – prioritas tindak lanjut')+
     tile(nm.length>0?'good':'warn',nm.length,'Laporan Near Miss (PTD)',`${nmW} minggu ini · makin banyak dilaporkan makin baik`);
 }
 function perfMonths(){
   const out=[]; let d=new Date(CFG.projectStart.slice(0,7)+'-01T00:00:00'); const end=CFG.today.slice(0,7);
   while(fmt(d).slice(0,7)<=end){out.push(fmt(d).slice(0,7)); d.setMonth(d.getMonth()+1);}
-  $('#perf-month').innerHTML=out.map(m=>`<option value="${m}">${new Date(m+'-01T00:00:00').toLocaleDateString('id-ID',{month:'short',year:'numeric'})}</option>`).join('');
+  $('#perf-month').innerHTML=out.map(m=>`<option value="${m}">${new Date(m+'-01T00:00:00').toLocaleDateString(LOCALE,{month:'short',year:'numeric'})}</option>`).join('');
   $('#perf-month').value=end; $('#perf-month').onchange=renderPerf;
 }
 function renderWxDash(){
@@ -1478,11 +1488,12 @@ function masterChanged(k){
 
 /* ================= PANDUAN ================= */
 function renderGuide(){
-  const S=[
+  const S=LANG==='en'&&window.GUIDE_EN?GUIDE_EN():[
   ['Masuk & sinkronisasi',`<ul><li>Saat pertama dibuka, isi <b>Nama</b> dan <b>PIN</b> dari admin HSE. Nama Anda tercatat di setiap data yang disimpan (sheet <i>Log</i>).</li>
     <li>Status di header: <b>Google Sheet · sinkron jam</b> = data terbaru; <b>Offline</b> = menampilkan data terakhir yang tersimpan di HP, input belum bisa disimpan.</li>
     <li>Tombol <b>⟳</b> memuat ulang data terbaru. Klik nama Anda di header untuk keluar/ganti pengguna.</li>
-    <li><b>PIN admin</b> dapat mengubah Master dan menghapus data; PIN petugas hanya input & edit.</li></ul>`],
+    <li><b>PIN admin</b> dapat mengubah Master dan menghapus data; PIN petugas hanya input & edit.</li>
+    <li>Bahasa tampilan (Indonesia / English): <b>Master → Pengaturan Proyek → Bahasa / Language</b>, atau tombol ID / EN di layar login. Berlaku untuk perangkat ini saja; data di Sheet tidak berubah.</li></ul>`],
   ['Alur kerja harian',`<ol>
     <li><b>Pagi (sebelum 09:00)</b> – HSE officer mengisi <b>Manpower</b> normal hari ini (Staff &amp; Pekerja).</li>
     <li><b>Sepanjang hari</b> – catat <b>Cuaca</b> per jam dan input setiap temuan di <b>Observation</b> (sertakan foto).</li>
@@ -1632,7 +1643,7 @@ function renderProgram(){
   const catSel=$('#pg-cat'), rSel=$('#pg-range'), keepC=catSel.value, keepR=rSel.value;
   catSel.innerHTML='<option value="">Semua</option>'+PG_CATS.map(c=>`<option>${c}</option>`).join('');
   const months=[]; for(let d=new Date(CFG.projectStart.slice(0,7)+'-01T00:00:00');fmt(d).slice(0,7)<=CFG.projectEnd.slice(0,7);d.setMonth(d.getMonth()+1))months.push(fmt(d).slice(0,7));
-  rSel.innerHTML=months.map(m=>`<option value="${m}">${new Date(m+'-01T00:00:00').toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</option>`).join('')+'<option value="all">Semua week (PTD)</option>';
+  rSel.innerHTML=months.map(m=>`<option value="${m}">${new Date(m+'-01T00:00:00').toLocaleDateString(LOCALE,{month:'long',year:'numeric'})}</option>`).join('')+'<option value="all">Semua week (PTD)</option>';
   catSel.value=keepC; rSel.value=keepR||(months.includes(CFG.today.slice(0,7))?CFG.today.slice(0,7):months[0]);
   const cat=catSel.value, range=rSel.value, weeks=pgWeeksFor(range), list=programs.filter(p=>!cat||p.category===cat);
 
@@ -1647,7 +1658,7 @@ function renderProgram(){
     `<div class="card kpi"><div class="lbl">Pekerja ter-induksi (PTD)</div><div class="val">${nf(sumP(['Induction']))}</div><div class="hint">${activities.filter(a=>pgById(a.programId)?.category==='Induction').length} sesi induction</div></div>`;
 
   // matriks
-  const sh=d=>new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short'});
+  const sh=d=>new Date(d+'T00:00:00').toLocaleDateString(LOCALE,{day:'2-digit',month:'short'});
   $('#pg-head').innerHTML=`<tr><th>Program</th><th>PIC</th>${weeks.map(w=>`<th class="wk${w===curWeek&&wkStart(w)<=CFG.today?' cur':''}">W${w}<small>${sh(wkStart(w))}</small></th>`).join('')}<th class="num">Realisasi</th><th class="num">%</th></tr>`;
   let body='';
   PG_CATS.filter(c=>list.some(p=>p.category===c)).forEach(c=>{
@@ -1773,7 +1784,7 @@ function demoProgram(rnd){
 
 /* ================= PLAN PROGRAM MINGGUAN (DASHBOARD) ================= */
 function renderWeekPlan(){
-  const sel=$('#wp-week'), keep=+sel.value||curWeek, sh=d=>new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short'});
+  const sel=$('#wp-week'), keep=+sel.value||curWeek, sh=d=>new Date(d+'T00:00:00').toLocaleDateString(LOCALE,{day:'2-digit',month:'short'});
   const opts=[curWeek-1,curWeek,curWeek+1].filter(w=>w>=1&&w<=CFG.weeks);
   sel.innerHTML=opts.map(w=>`<option value="${w}">${w===curWeek?'Minggu ini':w<curWeek?'Minggu lalu':'Minggu depan'} · W${w} (${sh(wkStart(w))}–${sh(wkEnd(w))})</option>`).join('');
   const w=opts.includes(keep)?keep:curWeek; sel.value=w;
@@ -1856,14 +1867,14 @@ async function exportPDF(k){
     // 3) render sekali, lalu potong per halaman
     const scale=Math.max(0.8,Math.min(2,Math.sqrt(14e6/(W*H))));
     const canvas=await html2canvas(sec,{scale,backgroundColor:'#ffffff',logging:false,useCORS:true,width:W,height:H,scrollX:-window.scrollX,scrollY:-window.scrollY});
-    const sx=canvas.width/W, title=`HSE Monitoring · ${CFG.projectName} · ${PAGES[k]}`, printed=`Dicetak ${new Date().toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}`;
+    const sx=canvas.width/W, title=`HSE Monitoring · ${CFG.projectName} · ${t(PAGES[k])}`, printed=`${t('Dicetak')} ${new Date().toLocaleString(LOCALE,{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}`;
     slices.forEach(([a,b],i)=>{
       const hPx=Math.max(1,Math.round((b-a)*sx)), c=document.createElement('canvas'); c.width=canvas.width; c.height=hPx;
       const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(canvas,0,Math.round(a*sx),canvas.width,hPx,0,0,canvas.width,hPx);
       if(i)pdf.addPage();
       pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',M,M,PW-2*M,(b-a)*mmPerPx);
       pdf.setFontSize(8); pdf.setTextColor(120);
-      pdf.text(title,M,PH-M+2); pdf.text(`${printed} · Hal. ${i+1}/${slices.length}`,PW-M,PH-M+2,{align:'right'});
+      pdf.text(title,M,PH-M+2); pdf.text(`${printed} · ${t('Hal.')} ${i+1}/${slices.length}`,PW-M,PH-M+2,{align:'right'});
       pdf.setDrawColor(220); pdf.line(M,PH-M-2,PW-M,PH-M-2);
     });
     pdf.save(`HSE-${SLUG[k]}${extra}-${CFG.today}.pdf`);
@@ -1899,7 +1910,7 @@ $('#wx-dash-week').onchange=renderWxDash;
 $('#perf-card').onclick=e=>{
   if(e.target.closest('select'))return;
   const m=$('#perf-month').value, h=manpower.filter(r=>r.normal!=null&&r.date.slice(0,7)===m).reduce((a,r)=>a+mh(r),0);
-  $('#fx-min').innerHTML=h?`Catatan: jam kerja bulan terpilih <b>${nf(h)}</b> jam, jadi <b>1 kasus</b> saja sudah membuat rate bulan itu = <b>${(BASE/h).toLocaleString('id-ID',{maximumFractionDigits:2})}</b>.`:'';
+  $('#fx-min').innerHTML=h?`Catatan: jam kerja bulan terpilih <b>${nf(h)}</b> jam, jadi <b>1 kasus</b> saja sudah membuat rate bulan itu = <b>${(BASE/h).toLocaleString(LOCALE,{maximumFractionDigits:2})}</b>.`:'';
   $('#dlg-fx').showModal();};
 $('#dlg-fx').onclick=e=>{if(e.target===$('#dlg-fx'))$('#dlg-fx').close();};
 // filter observation
@@ -1949,6 +1960,7 @@ $('#m-seg').querySelectorAll('button').forEach(b=>b.onclick=()=>{
   $('#m-seg').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));
   showMasterTab(b.dataset.m);});
 const M_TITLE={data:'Master Data',setting:'Pengaturan Proyek',guide:'Panduan Penggunaan'};
+document.querySelectorAll('.lang-seg button').forEach(b=>{b.classList.toggle('active',b.dataset.l===LANG);b.onclick=()=>{if(b.dataset.l!==LANG)I18N.setLang(b.dataset.l);};});
 function showMasterTab(m){
   $('#m-seg').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x.dataset.m===m));
   ['data','setting','guide'].forEach(k=>$('#m-'+k).hidden=k!==m);
@@ -1960,7 +1972,7 @@ function weeksInfo(a,b){
   if(!isDate(a)||!isDate(b))return 'Isi tanggal mulai dan selesai.';
   if(b<a)return '⚠ Tanggal selesai harus setelah tanggal mulai.';
   const d=Math.round((new Date(b)-new Date(a))/864e5)+1, w=Math.ceil(d/7), sisa=d%7;
-  return `Durasi <b>${d} hari</b> = <b>${w} week</b>${sisa?` (week terakhir ${sisa} hari)`:''} · Week 1 mulai hari <b>${new Date(a+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long'})}</b> ${fmtID(new Date(a))}, berakhir ${fmtID(new Date(b))}.`;
+  return `Durasi <b>${d} hari</b> = <b>${w} week</b>${sisa?` (week terakhir ${sisa} hari)`:''} · Week 1 mulai hari <b>${new Date(a+'T00:00:00').toLocaleDateString(LOCALE,{weekday:'long'})}</b> ${fmtID(new Date(a))}, berakhir ${fmtID(new Date(b))}.`;
 }
 function renderSetting(){
   const f=$('#set-form'), el=k=>f.elements.namedItem(k), canEdit=ROLE==='admin';
@@ -2101,7 +2113,7 @@ async function loadLive(){
     renderAll(); setSync('ok');
   }catch(e){
     const c=store.get('hse-cache');
-    if(c){setSync('cache',new Date(c.at).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}));}
+    if(c){setSync('cache',new Date(c.at).toLocaleString(LOCALE,{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}));}
     else setSync('err',e.message);
     if(SESSION)snack('Gagal memuat: '+e.message,true);
   }
@@ -2111,7 +2123,7 @@ async function loadLive(){
   if(!LIVE){loadDemo(); renderAll(); setSync('demo'); return;}
   // tampilkan data terakhir dulu (cepat & bisa offline), lalu ambil yang terbaru
   const c=store.get('hse-cache');
-  if(c){applyData(c.data); setSync('cache',new Date(c.at).toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}));}
+  if(c){applyData(c.data); setSync('cache',new Date(c.at).toLocaleString(LOCALE,{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}));}
   else{recalc(); buildManpower({});}
   renderAll(); updateWho();
   if(!SESSION){showLogin();return;}

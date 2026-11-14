@@ -188,7 +188,15 @@ const PROCS = {
 const PROC_ORDER = ['fatal', 'lti', 'aid', 'nm', 'fire', 'nat'];
 let procCur = 'fire';
 function procNodes(nodes) {
+  const EN = LANG === 'en';
   return nodes.map(n => {
+    // mode English: tampilkan teks Inggris saja (bagan asli dua bahasa)
+    if (EN) {
+      if (n.s === 'start') return `<div class="fl-start">${esc(n.e || t(n.t))}</div>`;
+      if (n.s === 'dec') return `<div class="fl-dec"><span>${esc(n.e || t(n.t))}</span></div>`;
+      if (n.s === 'step') return `<div class="fl-step"><b>${esc(n.e || t(n.t))}</b>${(n.items || []).map(([a, b]) => `<div class="fl-it">• ${esc(b || t(a))}</div>`).join('')}
+      ${n.link ? `<button class="fl-link no-pdf" data-proc="${n.link}">Open procedure: ${esc(PROCS[n.link].e)} →</button>` : ''}</div>`;
+    }
     if (n.s === 'start') return `<div class="fl-start">${esc(n.t)}${n.e ? `<i>${esc(n.e)}</i>` : ''}</div>`;
     if (n.s === 'end') return '<div class="fl-end">Selesai / End</div>';
     if (n.s === 'note') return `<div class="fl-note">${esc(n.t)}</div>`;
@@ -206,9 +214,9 @@ function renderProc() {
   const ap = ert.find(x => x.kind === 'contact' && x.role === 'Titik Kumpul');
   const team = ERT_ROLES.filter(r => ({ fire: ['lead', 'fire', 'evac', 'count'], nat: ['lead', 'evac', 'count', 'aid'], aid: ['aid', 'hse'], lti: ['aid', 'hse', 'lead'], fatal: ['lead', 'hse', 'sec'], nm: ['hse'] })[procCur].includes(r.k))
     .map(r => ({ r, m: ert.filter(x => x.kind === 'member' && x.role === r.k) }));
-  $('#proc-body').innerHTML = `<div class="proc-hd" style="--c:${P.c}"><div><h3>${P.ic} Penanganan ${esc(P.t)}</h3><i>${esc(P.e)}</i></div>
+  $('#proc-body').innerHTML = `<div class="proc-hd" style="--c:${P.c}"><div>${LANG === 'en' ? `<h3>${P.ic} ${esc(P.e)}</h3>` : `<h3>${P.ic} Penanganan ${esc(P.t)}</h3><i>${esc(P.e)}</i>`}</div>
       ${P.cls ? `<button class="btn primary no-pdf" id="proc-report">+ Lapor ${esc(P.cls)}</button>` : ''}</div>
-    <div class="proc-obj"><b>Objektif / <i>Objective</i></b><br>${esc(P.obj[0])}<br><i>${esc(P.obj[1])}</i></div>
+    <div class="proc-obj">${LANG === 'en' ? `<b>Objective</b><br>${esc(P.obj[1])}` : `<b>Objektif / <i>Objective</i></b><br>${esc(P.obj[0])}<br><i>${esc(P.obj[1])}</i>`}</div>
     ${calls.length || ap ? `<div class="proc-call">${calls.map(c => `<a class="ert-tel big" href="${telHref(c.phone)}">📞 ${esc(c.name)} · ${esc(c.phone)}</a>`).join('')}${ap && P.call.includes('Titik Kumpul') ? `<span class="proc-ap">📍 Titik kumpul: <b>${esc(ap.info || ap.name)}</b></span>` : ''}</div>` : ''}
     <div class="proc-team">${team.map(({ r, m }) => `<span class="wk-chip" style="background:var(--surface-2)"><b style="color:${r.c}">${esc(r.t.split(' / ')[0])}</b>: ${m.length ? m.map(x => esc(x.name)).join(', ') : '<span style="color:var(--high)">belum ada</span>'}</span>`).join('')}</div>
     <div class="flow">${procNodes(P.flow)}</div>

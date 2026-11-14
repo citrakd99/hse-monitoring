@@ -372,7 +372,7 @@ function ptwForm() {
     ${inp('applicant', 'Nama pemohon ijin', p.applicant, 'required')}${inp('d.phone', 'No HP pemohon', d.phone, 'inputmode="tel"')}
   </div></div>`;
   if (T.info?.applied) {
-    h += `<div class="ptw-sec"><h4>Jenis ijin kerja yang diajukan <small>Type of work permit applied for</small></h4><div class="pf-applied">` +
+    h += `<div class="ptw-sec"><h4>${LANG === 'en' ? 'Type of work permit applied for' : 'Jenis ijin kerja yang diajukan <small>Type of work permit applied for</small>'}</h4><div class="pf-applied">` +
       PTW_APPLIED.map(([k, id]) => { const a = (d.applied || {})[k] || {}; return `<div class="pf-ap"><label class="ck"><input type="checkbox" data-ap="${k}" ${a.on ? 'checked' : ''}> ${id}</label>
         <input type="date" data-apf="${k}" value="${a.from || ''}"><span>s/d</span><input type="date" data-apt="${k}" value="${a.to || ''}"></div>`; }).join('') + '</div></div>';
   }
@@ -381,8 +381,9 @@ function ptwForm() {
     if (b.k === 'fields') { h += `<div class="ptw-sec">${b.hidden ? '' : `<h4>Informasi LOTOTO</h4>`}<div class="ptw-grid">${b.items.map(([k, l]) => `<label class="full">${l}<input data-f="d.${k}" value="${esc(d[k] || '')}"></label>`).join('')}</div></div>`; return; }
     if (b.k === 'radio') { h += `<div class="ptw-sec"><div class="ptw-grid"><label class="full">${b.t}<select data-f="d.${b.id}"><option value="">—</option>${b.items.map(([v]) => opt(v, d[b.id])).join('')}</select></label></div></div>`; return; }
     const long = b.k === 'checks';
-    h += `<div class="ptw-sec"><h4>${b.t} <small>${b.e || ''}</small><button type="button" class="pf-all" data-blk="${b.id}">Centang semua</button></h4>
-      <div class="${long ? 'pf-checks' : 'pf-opts'}">${b.items.map(([k, id]) => `<label class="ck"><input type="checkbox" data-c="${b.id}.${k}" ${d.checks.includes(b.id + '.' + k) ? 'checked' : ''}> <span>${ptwText(id, d)}</span></label>`).join('')}</div>
+    const enOnly = LANG === 'en' && b.e; // mode English: judul & item cukup versi Inggris (form cetak tetap dua bahasa)
+    h += `<div class="ptw-sec"><h4>${enOnly ? b.e : b.t}${enOnly ? '' : ` <small>${b.e || ''}</small>`}<button type="button" class="pf-all" data-blk="${b.id}">Centang semua</button></h4>
+      <div class="${long ? 'pf-checks' : 'pf-opts'}">${b.items.map(([k, id, en]) => `<label class="ck"><input type="checkbox" data-c="${b.id}.${k}" ${d.checks.includes(b.id + '.' + k) ? 'checked' : ''}> <span>${ptwText(LANG === 'en' ? (en || t(id)) : id, d)}</span></label>`).join('')}</div>
       ${b.other ? `<label class="pf-oth">${typeof b.other === 'string' ? b.other : 'Lainnya / Other'}<input data-f="d.oth_${b.id}" value="${esc(d['oth_' + b.id] || '')}"></label>` : ''}</div>`;
   });
   h += `<div class="ptw-sec"><div class="ptw-grid"><label>Libatkan tim Engineering / Maintenance Area Owner?<select data-f="d.engInvolve">${opt('Tidak', d.engInvolve)}${opt('Ya', d.engInvolve)}</select></label>
@@ -545,7 +546,7 @@ function ptwPage(p) {
 async function ptwPrint(list) {
   list = list.filter(Boolean); if (!list.length) return;
   $('#toast').textContent = 'Membuat PDF permit…'; $('#toast').classList.add('show');
-  const host = document.createElement('div'); host.className = 'pp-host'; document.body.appendChild(host);
+  const host = document.createElement('div'); host.className = 'pp-host'; host.setAttribute('data-noi18n', ''); document.body.appendChild(host); // form resmi dua bahasa: jangan diterjemahkan
   try {
     const { jsPDF } = window.jspdf; const pdf = new jsPDF({ unit: 'pt', format: 'legal', orientation: 'portrait' });
     const PW = pdf.internal.pageSize.getWidth(), PH = pdf.internal.pageSize.getHeight();
