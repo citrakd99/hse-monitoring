@@ -479,6 +479,14 @@ td.c,th.c{text-align:center}
 .pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
 .LOW{background:var(--low-bg);color:var(--low)} .MEDIUM{background:var(--med-bg);color:var(--med)} .HIGH{background:var(--high-bg);color:var(--high)}
 .st-open{background:var(--high-bg);color:var(--high)} .st-closed{background:var(--low-bg);color:var(--low)}
+.st-box{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted)}
+.st-tog{display:flex;gap:8px}
+.st-tog label{flex:1;position:relative;cursor:pointer}
+.st-tog input{position:absolute;opacity:0;pointer-events:none}
+.st-tog span{display:block;text-align:center;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-weight:700;color:var(--muted);background:var(--surface)}
+.st-tog input:focus-visible+span{outline:2px solid var(--brand);outline-offset:2px}
+.st-tog input[value=Open]:checked+span{background:var(--high-bg);color:var(--high);border-color:var(--high)}
+.st-tog input[value=Closed]:checked+span{background:var(--low-bg);color:var(--low);border-color:var(--low)}
 .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
 select,input,textarea{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 10px}
 .btn{font:inherit;font-weight:600;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:8px;padding:7px 12px;cursor:pointer}
@@ -842,6 +850,8 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <label class="full">Action<textarea name="action" rows="2" placeholder="Tindakan perbaikan"></textarea></label>
       <label>Action Date<input type="date" name="actionDate"></label>
       <label>Photo action<input type="file" accept="image/*" capture="environment" id="ff-aphoto"><a id="ff-aphoto-cur" target="_blank" rel="noopener" hidden>Lihat foto tersimpan</a></label>
+      <div class="full st-box">Status temuan<div class="st-tog" role="radiogroup"><label><input type="radio" name="status" value="Open" checked><span>Open</span></label><label><input type="radio" name="status" value="Closed"><span>✓ Closed</span></label></div>
+        <small>Pilih <b>Closed</b> hanya jika perbaikan sudah selesai &amp; dicek. Mengisi Action saja tidak otomatis menutup temuan.</small></div>
     </div>
     <div class="dlg-f"><button class="btn danger" value="delete" id="obs-del" formnovalidate hidden>Hapus</button><span class="spacer"></span><button class="btn" value="cancel" formnovalidate>Batal</button><button class="btn primary" value="ok">Simpan</button></div>
   </form>
@@ -1089,7 +1099,7 @@ function applyData(d){
   buildManpower(mp);
   weather={}; (d.cuaca||[]).forEach(r=>{if(r.date)weather[r.date]=HOURS.map(h=>r['h'+String(h).padStart(2,'0')]||null);});
   observations=(d.observation||[]).map(r=>({id:r.id,date:r.date,observer:r.observer,area:r.area,finding:r.finding,type:r.type,category:r.category,risk:r.risk||'LOW',
-    photo:r.photo_url||'',action:r.action||'',actionDate:r.action_date||'',actionPhoto:r.action_photo_url||'',status:r.action_date?'Closed':'Open'})).sort((a,b)=>a.date.localeCompare(b.date));
+    photo:r.photo_url||'',action:r.action||'',actionDate:r.action_date||'',actionPhoto:r.action_photo_url||'',status:r.status==='Closed'||r.status==='Open'?r.status:(r.action_date?'Closed':'Open')})).sort((a,b)=>a.date.localeCompare(b.date));
   incidents=(d.incident||[]).map(r=>({id:r.id,date:r.date,time:r.time,cls:r.cls,area:r.area,desc:r.desc,involved:r.involved,action:r.action,lostDays:+r.lost_days||0,reporter:r.reporter,photo:r.photo_url||''}))
     .sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
   const m=d.master||{}; ['category','type','area','finding','jabatan_staff','jabatan_pekerja','training','sertifikasi'].forEach(k=>{if(m[k]&&m[k].length)MASTER[k]=m[k];});
@@ -1401,10 +1411,21 @@ function openObs(o){
   const el=k=>f.elements.namedItem(k); // pakai namedItem: field 'action' bentrok dengan form.action
   if(o){['date','observer','area','type','category','risk','finding','action','actionDate'].forEach(k=>{if(el(k))el(k).value=o[k]||'';});}
   else{el('date').value=CFG.today; el('observer').value=SESSION?.user||'';}
+  f.querySelector(`input[name=status][value=${o?.status==='Closed'?'Closed':'Open'}]`).checked=true;
   [['#ff-photo-cur',o?.photo],['#ff-aphoto-cur',o?.actionPhoto]].forEach(([s,u])=>{const a=$(s);a.hidden=!safeUrl(u);if(safeUrl(u))a.href=u;});
   $('#obs-del').hidden=!(o&&ROLE==='admin');
   $('#dlg').showModal();
 }
+$('#obs-form').querySelectorAll('input[name=status]').forEach(i=>i.addEventListener('change',()=>{
+  const ad=$('#obs-form').elements.namedItem('actionDate'); if(i.checked&&i.value==='Closed'&&!ad.value)ad.value=CFG.today;}));
+$('#obs-form').addEventListener('submit',e=>{
+  if(e.submitter?.value!=='ok')return; const f=$('#obs-form'), el=k=>f.elements.namedItem(k), st=f.querySelector('input[name=status]:checked')?.value;
+  let msg='';
+  if(el('actionDate').value&&el('actionDate').value<el('date').value)msg='Action date tidak boleh sebelum tanggal temuan';
+  else if(st==='Closed'&&!el('action').value.trim())msg='Untuk Closed, isi dulu Action (tindakan perbaikan)';
+  else if(st==='Closed'&&!el('actionDate').value)msg='Untuk Closed, isi Action Date (tanggal selesai)';
+  if(msg){e.preventDefault();snack(msg,true);}
+});
 function fillSelect(el,items,keep){const v=el.value;el.innerHTML=(keep||'')+items.map(x=>`<option>${esc(x)}</option>`).join('');if([...el.options].some(o=>o.value===v))el.value=v;}
 function refreshSelects(){
   const all=t=>`<option value="">Semua${t?' '+t:''}</option>`;
@@ -1475,7 +1496,7 @@ function renderGuide(){
     <table><tbody>${WX.map(w=>`<tr><td style="font-size:18px">${w.i}</td><td><b>${w.n}</b></td><td><code>${w.k}</code></td></tr>`).join('')}</tbody></table>
     <p>Di Dashboard cuaca diringkas menjadi 3 shift (07–12, 12–17, 17–22) memakai kondisi <b>terburuk</b> di shift tersebut.</p>`],
   ['Daily Observation',`<ol><li>Klik <b>+ Tambah Observasi</b>, isi tanggal, nama observer, area, type, category, risk dan deskripsi temuan + foto.</li>
-    <li>Setelah perbaikan dilakukan, <b>klik baris temuan</b> di tabel, isi <b>Action</b>, <b>Action Date</b> dan foto sesudah. Status otomatis menjadi <span class="pill st-closed">Closed</span>.</li>
+    <li>Setelah perbaikan dilakukan, <b>klik baris temuan</b> di tabel, isi <b>Action</b>, <b>Action Date</b> dan foto sesudah. Status <b>tidak berubah otomatis</b>: tekan tombol <span class="pill st-closed">Closed</span> hanya jika perbaikan benar-benar selesai &amp; sudah dicek. Selama masih proses, biarkan <span class="pill st-open">Open</span> (Action boleh diisi sebagai progres).</li>
     <li>Foto dari kamera HP otomatis diperkecil sebelum dikirim dan disimpan di folder Google Drive proyek.</li></ol>
     <p><b>Tingkat risiko:</b></p><ul>${MASTER.risk.map(([k,d])=>`<li><span class="pill ${k}">${k}</span> ${d}</li>`).join('')}</ul>
     <p><b>Type:</b> <i>Unsafe Action</i> = perilaku orang yang tidak aman; <i>Unsafe Condition</i> = kondisi lingkungan/alat yang tidak aman.</p>`],
@@ -1900,14 +1921,13 @@ $('#dlg').addEventListener('close',async()=>{
   }
   if(rv!=='ok')return;
   const f=Object.fromEntries(new FormData($('#obs-form')));
-  const row={date:f.date,observer:f.observer,area:f.area,type:f.type,category:f.category,risk:f.risk,finding:f.finding,action:f.action,actionDate:f.actionDate};
-  if(row.actionDate&&row.actionDate<row.date){snack('Action date tidak boleh sebelum tanggal temuan',true);return;}
+  const row={date:f.date,observer:f.observer,area:f.area,type:f.type,category:f.category,risk:f.risk,finding:f.finding,action:f.action,actionDate:f.actionDate,status:f.status==='Closed'?'Closed':'Open'};
   let photo,actionPhoto;
   try{photo=await readPhoto($('#ff-photo')); actionPhoto=await readPhoto($('#ff-aphoto'));}catch{snack('Foto tidak bisa dibaca',true);}
   const strip=p=>p?{name:p.name,mime:p.mime,data:p.data}:undefined;
   let r;
   try{r=await save(o?'updateObservation':'addObservation',{id:o?.id,row,photo:strip(photo),actionPhoto:strip(actionPhoto)},o?'Observasi diperbarui':'Observasi tersimpan');}catch{return;}
-  const rec={...(o||{}),...row,status:row.actionDate?'Closed':'Open',id:r.id||o?.id||('L'+Date.now()),
+  const rec={...(o||{}),...row,id:r.id||o?.id||('L'+Date.now()),
     photo:r.photo_url||photo?.preview||o?.photo||'',actionPhoto:r.action_photo_url||actionPhoto?.preview||o?.actionPhoto||''};
   if(o)Object.assign(o,rec); else observations.push(rec);
   observations.sort((a,b)=>a.date.localeCompare(b.date)); renderObs(); renderDashboard();});

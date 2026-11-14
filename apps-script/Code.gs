@@ -266,7 +266,13 @@ function write_(a, req, user, role) {
         risk: RISKS.indexOf(r.risk) >= 0 ? r.risk : 'LOW', action: r.action || '', action_date: r.actionDate || '',
         updated_by: user, updated_at: now
       };
-      v.status = v.action_date ? 'Closed' : 'Open';
+      // status dipilih manual di aplikasi (Action terisi belum tentu selesai).
+      // Request lama tanpa status → perilaku lama (ada action date = Closed).
+      v.status = r.status === 'Closed' || r.status === 'Open' ? r.status : (v.action_date ? 'Closed' : 'Open');
+      if (v.status === 'Closed' && (!String(v.action).trim() || !v.action_date))
+        throw new Error('Status Closed wajib mengisi Action dan Action Date');
+      if (v.action_date) checkDate_(v.action_date);
+      if (v.action_date && v.action_date < v.date) throw new Error('Action date tidak boleh sebelum tanggal temuan');
       if (req.photo) v.photo_url = savePhoto_(req.photo, 'OBS');
       if (req.actionPhoto) v.action_photo_url = savePhoto_(req.actionPhoto, 'ACT');
       let id = req.id;
