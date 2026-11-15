@@ -283,7 +283,8 @@ function write_(a, req, user, role) {
       } else {
         if (!update_('Observation', id, v)) throw new Error('Observasi tidak ditemukan: ' + id);
       }
-      return { sheet: 'Observation', ref: id, id, photo_url: v.photo_url, action_photo_url: v.action_photo_url };
+      // status dikembalikan agar aplikasi tahu server sudah mendukung status manual
+      return { sheet: 'Observation', ref: id, id, status: v.status, photo_url: v.photo_url, action_photo_url: v.action_photo_url };
     }
     case 'addIncident': {
       checkDate_(r.date);

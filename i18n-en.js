@@ -392,7 +392,8 @@ I18N.ok([]);
     [/^week sebelumnya (\d+)$/, 'previous week $1'],
     [/^HIGH Open akhir Week (\d+)$/, 'HIGH Open at end of Week $1'],
     [/^(\d+) di Week (\d+)$/, '$1 in Week $2'],
-    [/^Status per akhir Week (\d+) \((.+)\)\.$/, 'Status as of the end of Week $1 ($2).']
+    [/^Status per akhir Week (\d+) \((.+)\)\.$/, 'Status as of the end of Week $1 ($2).'],
+    [/^Status tersimpan sebagai (\w+): Apps Script di Google belum diperbarui\. Admin perlu menempel Code\.gs terbaru lalu Deploy → New version\.$/, 'Status saved as $1: the Apps Script on Google has not been updated. An admin must paste the latest Code.gs and then Deploy → New version.']
   ]);
 })();
 

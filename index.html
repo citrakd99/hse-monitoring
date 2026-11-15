@@ -1015,12 +1015,12 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 <div id="toast">Membuat PDF…</div>
 <div id="snack"></div>
 
-<script src="i18n.js?v=1.12"></script>
-<script src="i18n-en.js?v=1.12"></script>
-<script src="config.js?v=1.12"></script>
-<script src="ptw.js?v=1.12"></script>
-<script src="pekerja.js?v=1.12"></script>
-<script src="darurat.js?v=1.12"></script>
+<script src="i18n.js?v=1.13"></script>
+<script src="i18n-en.js?v=1.13"></script>
+<script src="config.js?v=1.13"></script>
+<script src="ptw.js?v=1.13"></script>
+<script src="pekerja.js?v=1.13"></script>
+<script src="darurat.js?v=1.13"></script>
 <script>
 /* ================= CONFIG ================= */
 const API=((window.HSE_CONFIG&&window.HSE_CONFIG.apiUrl)||'').trim();
@@ -1970,6 +1970,11 @@ $('#dlg').addEventListener('close',async()=>{
   try{r=await save(o?'updateObservation':'addObservation',{id:o?.id,row,photo:strip(photo),actionPhoto:strip(actionPhoto)},o?'Observasi diperbarui':'Observasi tersimpan');}catch{return;}
   const rec={...(o||{}),...row,id:r.id||o?.id||('L'+Date.now()),
     photo:r.photo_url||photo?.preview||o?.photo||'',actionPhoto:r.action_photo_url||actionPhoto?.preview||o?.actionPhoto||''};
+  // Apps Script lama tidak mengembalikan status dan selalu menulis Closed bila Action Date terisi:
+  // tampilkan status yang benar-benar tersimpan dan beri tahu pengguna
+  if(LIVE&&r.status===undefined){rec.status=row.actionDate?'Closed':'Open';
+    if(rec.status!==row.status)setTimeout(()=>snack(`Status tersimpan sebagai ${rec.status}: Apps Script di Google belum diperbarui. Admin perlu menempel Code.gs terbaru lalu Deploy → New version.`,true),50);}
+  else if(r.status)rec.status=r.status;
   if(o)Object.assign(o,rec); else observations.push(rec);
   observations.sort((a,b)=>a.date.localeCompare(b.date)); renderObs(); renderDashboard();});
 
