@@ -593,11 +593,12 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <div class="perf-foot" id="perf-foot"></div>
     </div>
     <div class="card">
-      <h3>Top 5 Observation (Weekly) <span class="sub" id="top5-week"></span></h3>
+      <h3>Top 5 Observation (Weekly) <span class="sub"><select class="dash-wk" id="top5-wk" aria-label="Week"></select></span></h3>
       <div class="tbl-wrap"><table>
         <thead><tr><th>No</th><th>Finding</th><th>Area</th><th>Risk</th><th>Action</th><th>Status</th></tr></thead>
         <tbody id="top5"></tbody>
       </table></div>
+      <div class="fx-note" id="top5-note"></div>
     </div>
   </div>
 
@@ -609,8 +610,9 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   </div>
 
   <div class="card" style="margin-top:16px">
-    <h3>Leading Indicators <span class="sub">Aktivitas pencegahan · Week <span id="li-week"></span> & PTD</span></h3>
+    <h3>Leading Indicators <span class="sub"><select class="dash-wk" id="li-wk" aria-label="Week"></select></span></h3>
     <div class="grid li-grid" id="li"></div>
+    <div class="fx-note">Aktivitas pencegahan pada week terpilih. Angka PTD dihitung sejak awal proyek s/d akhir week tersebut.</div>
   </div>
 
   <div class="grid two" style="margin-top:16px">
@@ -679,6 +681,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <button class="btn primary no-pdf" id="add-obs">+ Tambah Observasi</button>
     </div>
     <div class="filters no-pdf">
+      <label>Week<select id="f-wk"></select></label>
       <label>Dari<input type="date" id="f-from"></label>
       <label>Sampai<input type="date" id="f-to"></label>
       <label>Risk<select id="f-risk"></select></label>
@@ -706,6 +709,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <button class="btn primary no-pdf" id="add-inc">+ Lapor Insiden</button>
     </div>
     <div class="filters no-pdf">
+      <label>Week<select id="i-wk"></select></label>
       <label>Dari<input type="date" id="i-from"></label>
       <label>Sampai<input type="date" id="i-to"></label>
       <label>Klasifikasi<select id="i-cls"></select></label>
@@ -760,6 +764,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <button class="btn primary no-pdf" id="add-act">+ Catat Kegiatan</button>
     </div>
     <div class="filters no-pdf">
+      <label>Week<select id="a-wk"></select></label>
       <label>Dari<input type="date" id="a-from"></label>
       <label>Sampai<input type="date" id="a-to"></label>
       <label>Kategori<select id="a-cat"></select></label>
@@ -826,7 +831,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <h3>Pengaturan Proyek <span class="sub" id="set-ro"></span></h3>
       <div class="set-grid">
         <label class="full">Nama proyek<input name="projectName" required maxlength="80"></label>
-        <label>Tanggal mulai (Week 1 hari ke-1)<input type="date" name="projectStart" required></label>
+        <label>Tanggal mulai proyek<input type="date" name="projectStart" required></label>
         <label>Tanggal selesai<input type="date" name="projectEnd" required></label>
         <div class="full set-calc" id="set-calc"></div>
         <label>Jam kerja normal / orang / hari<input type="number" name="jamNormal" min="1" max="24" step="0.5" required></label>
@@ -1010,12 +1015,12 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 <div id="toast">Membuat PDF…</div>
 <div id="snack"></div>
 
-<script src="i18n.js?v=1.9"></script>
-<script src="i18n-en.js?v=1.9"></script>
-<script src="config.js?v=1.9"></script>
-<script src="ptw.js?v=1.9"></script>
-<script src="pekerja.js?v=1.9"></script>
-<script src="darurat.js?v=1.9"></script>
+<script src="i18n.js?v=1.12"></script>
+<script src="i18n-en.js?v=1.12"></script>
+<script src="config.js?v=1.12"></script>
+<script src="ptw.js?v=1.12"></script>
+<script src="pekerja.js?v=1.12"></script>
+<script src="darurat.js?v=1.12"></script>
 <script>
 /* ================= CONFIG ================= */
 const API=((window.HSE_CONFIG&&window.HSE_CONFIG.apiUrl)||'').trim();
@@ -1057,18 +1062,22 @@ const fmtID=d=>d.toLocaleDateString(LOCALE,{day:'2-digit',month:'short',year:'nu
 /* ================= STATE ================= */
 let dayIndex=0, curWeek=1;
 let manpower=[], weather={}, observations=[], incidents=[];
+/* Senin pada/ sebelum tanggal d (yyyy-mm-dd) */
+function mondayOf(d){const x=new Date(d+'T00:00:00');x.setDate(x.getDate()-((x.getDay()+6)%7));return fmt(x);}
 function recalc(){
   CFG.today=fmt(new Date());
   // periode proyek: jumlah week dihitung dari tanggal mulai s/d selesai
   if(!isDate(CFG.projectEnd)||CFG.projectEnd<CFG.projectStart)CFG.projectEnd=fmt(addDays(CFG.projectStart,CFG.weeks*7-1));
   CFG.days=Math.round((new Date(CFG.projectEnd)-new Date(CFG.projectStart))/864e5)+1;
-  CFG.weeks=Math.max(1,Math.ceil(CFG.days/7));
+  // week = Senin s/d Minggu; Week 1 = minggu yang memuat tanggal mulai proyek
+  CFG.weekBase=mondayOf(CFG.projectStart);
+  CFG.weeks=Math.max(1,Math.ceil((Math.round((new Date(CFG.projectEnd)-new Date(CFG.weekBase))/864e5)+1)/7));
   dayIndex=Math.max(0,Math.round((new Date(CFG.today)-new Date(CFG.projectStart))/864e5));
-  curWeek=Math.min(CFG.weeks,Math.floor(dayIndex/7)+1);
+  curWeek=Math.min(CFG.weeks,Math.max(1,weekOf(CFG.today)));
 }
 function buildManpower(map){
   manpower=[];
-  for(let i=0;i<CFG.weeks*7;i++){const date=fmt(addDays(CFG.projectStart,i)), r=map[date];
+  for(let i=0;i<CFG.weeks*7;i++){const date=fmt(addDays(CFG.weekBase,i)), r=map[date];
     manpower.push(mpRec(date,r));}
 }
 /* manpower dirinci Staff & Pekerja; normal/lembur = total keduanya (dipakai semua perhitungan) */
@@ -1226,13 +1235,14 @@ async function readPhoto(input){
 const $=s=>document.querySelector(s);
 const nf=n=>n==null?'':n.toLocaleString(LOCALE);
 const mh=r=>r.normal==null?null:r.normal*CFG.jamNormal+r.lembur*lh(r);
-const weekOf=date=>Math.floor((new Date(date)-new Date(CFG.projectStart))/864e5/7)+1;
+const weekOf=date=>Math.floor(Math.round((new Date(date)-new Date(CFG.weekBase||mondayOf(CFG.projectStart)))/864e5)/7)+1;
 const wxBy=k=>WX.find(w=>w.k===k);
 const worst=arr=>{const v=arr.filter(Boolean);if(!v.length)return null;return v.reduce((a,b)=>WX.findIndex(w=>w.k===b)>WX.findIndex(w=>w.k===a)?b:a);};
 const riskRank={HIGH:3,MEDIUM:2,LOW:1};
 function weekOptions(sel,val){const sh=d=>d.toLocaleDateString(LOCALE,{day:'2-digit',month:'short'});
-  sel.innerHTML=Array.from({length:CFG.weeks},(_,i)=>{const a=addDays(CFG.projectStart,i*7), b=new Date(Math.min(addDays(CFG.projectStart,i*7+6),new Date(CFG.projectEnd+'T00:00:00')));
-    return `<option value="${i+1}">Week ${i+1} · ${sh(a)}–${sh(b)}</option>`;}).join('');sel.value=val;}
+  sel.innerHTML=Array.from({length:CFG.weeks},(_,i)=>`<option value="${i+1}">${wkLabel(i+1)}</option>`).join('');sel.value=val;}
+/* label week: tanggal Senin–Minggu (dibatasi periode proyek) */
+function wkLabel(w){const sh=d=>new Date(d+'T00:00:00').toLocaleDateString(LOCALE,{day:'2-digit',month:'short'});return `Week ${w} · ${sh(wkStart(w))}–${sh(wkEnd(w))}`;}
 function legend(el){el.innerHTML=WX.map(w=>`<span>${w.i} ${w.n}</span>`).join('');}
 
 /* ================= DASHBOARD ================= */
@@ -1249,11 +1259,12 @@ function renderDashboard(){
   $('#k-mp').textContent=nf(totalMP);
   $('#k-mp-h').textContent=last?`Kumulatif · terakhir ${fmtID(new Date(last.date))}: ${last.normal} orang (Staff ${last.sn} · Pekerja ${last.pn}), ${last.lembur} lembur`:'Belum ada data manpower';
 
-  // top 5 minggu berjalan
-  const wk=observations.filter(o=>weekOf(o.date)===curWeek)
+  // top 5 week terpilih (default minggu berjalan)
+  const W=dashWeek||curWeek, stAt=o=>obsStatusAt(o,wkEnd(W));
+  const wk=observations.filter(o=>weekOf(o.date)===W).map(o=>({...o,status:W===curWeek?o.status:stAt(o)}))
     .sort((a,b)=>riskRank[b.risk]-riskRank[a.risk]||(a.status==='Open'?-1:1)).slice(0,5);
-  $('#top5-week').textContent=`Week ${curWeek}`;
-  $('#top5').innerHTML=wk.map((o,i)=>`<tr><td>${i+1}</td><td style="white-space:normal;min-width:180px">${o.finding}</td><td>${o.area}</td><td><span class="pill ${o.risk}">${o.risk}</span></td><td style="white-space:normal;min-width:160px">${o.action}</td><td><span class="pill st-${o.status.toLowerCase()}">${o.status}</span></td></tr>`).join('')||'<tr><td colspan="6">Belum ada observasi minggu ini</td></tr>';
+  $('#top5').innerHTML=wk.map((o,i)=>`<tr><td>${i+1}</td><td style="white-space:normal;min-width:180px">${o.finding}</td><td>${o.area}</td><td><span class="pill ${o.risk}">${o.risk}</span></td><td style="white-space:normal;min-width:160px">${o.action}</td><td><span class="pill st-${o.status.toLowerCase()}">${o.status}</span></td></tr>`).join('')||`<tr><td colspan="6">${W===curWeek?'Belum ada observasi minggu ini':'Tidak ada observasi pada week ini'}</td></tr>`;
+  $('#top5-note').textContent=W===curWeek?'':`Status per akhir Week ${W} (${fmtID(new Date(wkEnd(W)))}).`;
 
   renderWxDash();
   renderPyramid(totalMH, filled.length);
@@ -1317,23 +1328,28 @@ function renderPerf(){
 }
 /* Leading indicators: target bisa disesuaikan di sini (nanti dari sheet Config) */
 const LI_TARGET={obsPerWeek:20, closeRate:90, closeDays:3};
+// status temuan pada akhir tanggal 'end': Closed hanya bila sudah Closed dan action date <= end
+const obsStatusAt=(o,end)=>o.status==='Closed'&&o.actionDate&&o.actionDate<=end?'Closed':'Open';
+let dashWeek=0; // week yang dipilih di Dashboard (Top 5 & Leading Indicators)
 function renderLeading(){
-  const wk=o=>weekOf(o.date), thisW=observations.filter(o=>wk(o)===curWeek), prevW=observations.filter(o=>wk(o)===curWeek-1);
-  const closed=observations.filter(o=>o.status==='Closed'&&o.actionDate);
-  const rate=observations.length?Math.round(closed.length/observations.length*100):0;
+  // week terpilih; angka PTD dihitung s/d akhir week tsb (week berjalan = kondisi saat ini)
+  const W=dashWeek||curWeek, cur=W===curWeek, end=cur?CFG.today:wkEnd(W);
+  const wk=o=>weekOf(o.date), thisW=observations.filter(o=>wk(o)===W), prevW=observations.filter(o=>wk(o)===W-1);
+  const upto=observations.filter(o=>o.date<=end), st=o=>cur?o.status:obsStatusAt(o,end);
+  const closed=upto.filter(o=>st(o)==='Closed'&&o.actionDate);
+  const rate=upto.length?Math.round(closed.length/upto.length*100):0;
   const days=closed.length?closed.reduce((a,o)=>a+Math.max(0,(new Date(o.actionDate)-new Date(o.date))/864e5),0)/closed.length:0;
-  const highOpen=observations.filter(o=>o.risk==='HIGH'&&o.status==='Open').length;
-  const nm=incidents.filter(x=>x.cls==='Near Miss'), nmW=nm.filter(x=>weekOf(x.date)===curWeek).length;
+  const highOpen=upto.filter(o=>o.risk==='HIGH'&&st(o)==='Open').length;
+  const nm=incidents.filter(x=>x.cls==='Near Miss'&&x.date<=end), nmW=nm.filter(x=>weekOf(x.date)===W).length;
   const diff=thisW.length-prevW.length;
   const tile=(cls,v,l,d)=>`<div class="li ${cls}"><div class="v">${v}</div><div class="l">${l}</div><div class="d">${d}</div></div>`;
-  $('#li-week').textContent=curWeek;
   $('#li').innerHTML=
     tile(thisW.length>=LI_TARGET.obsPerWeek?'good':thisW.length>=LI_TARGET.obsPerWeek*.6?'warn':'bad',
-      `${thisW.length}<small style="color:var(${diff>=0?'--low':'--high'})">${diff===0?'= ':diff>0?'▲':'▼'}${diff===0?'':Math.abs(diff)}</small>`,'Observasi minggu ini',`Target ≥ ${LI_TARGET.obsPerWeek} · minggu lalu ${prevW.length}`)+
-    tile(rate>=LI_TARGET.closeRate?'good':rate>=70?'warn':'bad',`${rate}%`,'Close-out rate (PTD)',`${closed.length} dari ${observations.length} temuan closed · target ≥ ${LI_TARGET.closeRate}%`)+
+      `${thisW.length}<small style="color:var(${diff>=0?'--low':'--high'})">${diff===0?'= ':diff>0?'▲':'▼'}${diff===0?'':Math.abs(diff)}</small>`,cur?'Observasi minggu ini':`Observasi Week ${W}`,`Target ≥ ${LI_TARGET.obsPerWeek} · ${cur?'minggu lalu':'week sebelumnya'} ${prevW.length}`)+
+    tile(rate>=LI_TARGET.closeRate?'good':rate>=70?'warn':'bad',`${rate}%`,'Close-out rate (PTD)',`${closed.length} dari ${upto.length} temuan closed · target ≥ ${LI_TARGET.closeRate}%`)+
     tile(days<=LI_TARGET.closeDays?'good':days<=LI_TARGET.closeDays*2?'warn':'bad',days.toLocaleString(LOCALE,{maximumFractionDigits:1}),'Rata-rata hari penyelesaian',`Dari temuan sampai action · target ≤ ${LI_TARGET.closeDays} hari`)+
-    tile(highOpen===0?'good':'bad',highOpen,'Temuan HIGH masih Open','Harus 0 – prioritas tindak lanjut')+
-    tile(nm.length>0?'good':'warn',nm.length,'Laporan Near Miss (PTD)',`${nmW} minggu ini · makin banyak dilaporkan makin baik`);
+    tile(highOpen===0?'good':'bad',highOpen,cur?'Temuan HIGH masih Open':`HIGH Open akhir Week ${W}`,'Harus 0 – prioritas tindak lanjut')+
+    tile(nm.length>0?'good':'warn',nm.length,'Laporan Near Miss (PTD)',`${nmW} ${cur?'minggu ini':'di Week '+W} · makin banyak dilaporkan makin baik`);
 }
 function perfMonths(){
   const out=[]; let d=new Date(CFG.projectStart.slice(0,7)+'-01T00:00:00'); const end=CFG.today.slice(0,7);
@@ -1341,10 +1357,11 @@ function perfMonths(){
   $('#perf-month').innerHTML=out.map(m=>`<option value="${m}">${new Date(m+'-01T00:00:00').toLocaleDateString(LOCALE,{month:'short',year:'numeric'})}</option>`).join('');
   $('#perf-month').value=end; $('#perf-month').onchange=renderPerf;
 }
+document.querySelectorAll('.dash-wk').forEach(sel=>sel.onchange=()=>{dashWeek=+sel.value;document.querySelectorAll('.dash-wk').forEach(x=>x.value=dashWeek);renderDashboard();});
 function renderWxDash(){
   const w=+$('#wx-dash-week').value; const slots=[[7,12],[12,17],[17,22]];
   $('#wx-dash').innerHTML=DAYS.map((_,i)=>{
-    const date=fmt(addDays(CFG.projectStart,(w-1)*7+i)); const arr=weather[date];
+    const date=fmt(addDays(CFG.weekBase,(w-1)*7+i)); const arr=weather[date];
     return `<tr><td>${dayName(date)}<br><small style="color:var(--muted)">${fmtID(new Date(date))}</small></td>`+slots.map(([a,b])=>{
       const k=arr?worst(arr.slice(a-7,b-7)):null; const x=k&&wxBy(k);
       return `<td class="c" title="${x?x.n:'-'}" style="font-size:18px">${x?x.i:'<span style="color:var(--muted);font-size:13px">–</span>'}</td>`;}).join('')+'</tr>';
@@ -1355,10 +1372,10 @@ function renderWxDash(){
 function renderManpower(){
   const w=+$('#mp-week').value; const days=manpower.slice((w-1)*7,w*7); const off=(w-1)*7;
   const cum=(key,fn)=>days.map((_,i)=>{let s=0;for(let j=0;j<=off+i;j++){const r=manpower[j];if(r.normal!=null)s+=fn(r);}return manpower[off+i].normal==null?null:s;});
-  $('#mp-head').innerHTML=`<tr><th colspan="2"></th><th colspan="7" class="c">W${w}</th><th class="num">Total W${w}</th></tr><tr><th></th><th></th>`+
-    days.map((r,i)=>`<th class="c${r.date>CFG.projectEnd?' off':''}${r.date<=CFG.today&&r.date<=CFG.projectEnd?' mp-click':''}"${r.date<=CFG.today&&r.date<=CFG.projectEnd?` data-date="${r.date}"`:''}>${dayName(r.date)}<br><small>${fmtID(new Date(r.date))}</small></th>`).join('')+'<th></th></tr>';
-  const sum=a=>a.reduce((x,y)=>x+(y||0),0);
   const can=i=>days[i].date<=CFG.today&&days[i].date<=CFG.projectEnd&&days[i].date>=CFG.projectStart;
+  $('#mp-head').innerHTML=`<tr><th colspan="2"></th><th colspan="7" class="c">W${w}</th><th class="num">Total W${w}</th></tr><tr><th></th><th></th>`+
+    days.map((r,i)=>`<th class="c${r.date>CFG.projectEnd||r.date<CFG.projectStart?' off':''}${can(i)?' mp-click':''}"${can(i)?` data-date="${r.date}"`:''}>${dayName(r.date)}<br><small>${fmtID(new Date(r.date))}</small></th>`).join('')+'<th></th></tr>';
+  const sum=a=>a.reduce((x,y)=>x+(y||0),0);
   const row=(grp,lbl,vals,editKey,cls='',showSum=true)=>`<tr class="${cls}"><td>${grp}</td><td>${lbl}</td>`+vals.map((v,i)=>editKey&&can(i)?
     `<td class="num mp-click" data-date="${days[i].date}" title="Klik untuk isi rincian per jabatan">${v==null?'<span class="mp-empty">isi</span>':nf(v)}</td>`:`<td class="num">${nf(v)}</td>`).join('')+`<td class="num"><b>${showSum?nf(sum(vals)):''}</b></td></tr>`;
   const col=k=>days.map(r=>r[k]), n=col('normal'), l=col('lembur');
@@ -1377,8 +1394,8 @@ function renderManpower(){
 
 /* ================= CUACA ================= */
 function renderCuaca(){
-  const w=+$('#wx-week').value; const dates=DAYS.map((_,i)=>fmt(addDays(CFG.projectStart,(w-1)*7+i)));
-  $('#wx-head').innerHTML=`<tr><th>Jam</th>`+dates.map((d,i)=>`<th class="day${d>CFG.projectEnd?' off':''}">${dayName(d)}<br><small>${fmtID(new Date(d))}</small></th>`).join('')+'</tr>';
+  const w=+$('#wx-week').value; const dates=DAYS.map((_,i)=>fmt(addDays(CFG.weekBase,(w-1)*7+i)));
+  $('#wx-head').innerHTML=`<tr><th>Jam</th>`+dates.map((d,i)=>`<th class="day${d>CFG.projectEnd||d<CFG.projectStart?' off':''}">${dayName(d)}<br><small>${fmtID(new Date(d))}</small></th>`).join('')+'</tr>';
   $('#wx-body').innerHTML=HOURS.map((h,hi)=>`<tr><td>${String(h).padStart(2,'0')}:00 – ${String(h+1).padStart(2,'0')}:00</td>`+
     dates.map(d=>{const k=weather[d]?.[hi];const x=k&&wxBy(k);return `<td class="cell" data-d="${d}" data-h="${hi}" title="${x?x.n:'Klik untuk isi'}">${x?x.i:'<span style="color:var(--muted)">·</span>'}</td>`;}).join('')+'</tr>').join('');
   $('#wx-body').querySelectorAll('td.cell').forEach(td=>td.onclick=()=>{
@@ -1397,7 +1414,16 @@ function summarize(total,shown,noun,parts){
   const p=parts.filter(([,v])=>v).map(([l,v])=>`${l}: <b>${esc(v)}</b>`);
   return `Menampilkan <b>${shown}</b> dari ${total} ${noun} · ${p.length?'Filter → '+p.join(' · '):'Tanpa filter (semua data)'}`;
 }
-const periodTxt=(a,b)=>a||b?`${a?fmtID(new Date(a)):'awal'} – ${b?fmtID(new Date(b)):'sekarang'}`:'';
+const weekOfRange=(a,b)=>{if(!a||!b)return 0;const w=weekOf(a);return w>=1&&w<=CFG.weeks&&wkStart(w)===a&&wkEnd(w)===b?w:0;};
+const periodTxt=(a,b)=>{if(!a&&!b)return '';const w=weekOfRange(a,b);return (w?`Week ${w} · `:'')+`${a?fmtID(new Date(a)):'awal'} – ${b?fmtID(new Date(b)):'sekarang'}`;};
+/* pilihan Week pada filter: mengisi Dari/Sampai = Senin–Minggu week tsb; tanggal diubah manual → pilihan menyesuaikan */
+function fillWeekFilter(sel){const v=sel.value;sel.innerHTML='<option value="">Semua</option>'+Array.from({length:CFG.weeks},(_,i)=>`<option value="${i+1}">${wkLabel(i+1)}</option>`).join('');sel.value=v;}
+function bindWeekFilter(sel,from,to,render){
+  const sync=()=>{const w=weekOfRange($(from).value,$(to).value);$(sel).value=w?String(w):'';};
+  $(sel).onchange=()=>{const w=+$(sel).value;$(from).value=w?wkStart(w):'';$(to).value=w?wkEnd(w):'';render();};
+  [from,to].forEach(x=>$(x).addEventListener('change',sync));
+  return sync;
+}
 function renderObs(){
   const F={from:$('#f-from').value,to:$('#f-to').value,risk:$('#f-risk').value,area:$('#f-area').value,cat:$('#f-cat').value,st:$('#f-status').value};
   const list=observations.map((o,i)=>({...o,no:i+1})).filter(o=>(!F.from||o.date>=F.from)&&(!F.to||o.date<=F.to)&&(!F.risk||o.risk===F.risk)&&
@@ -1502,7 +1528,7 @@ function renderGuide(){
     <li><b>Akhir minggu</b> – cek Dashboard, export PDF Dashboard + Observation (filter <i>Minggu ini</i>) untuk laporan mingguan.</li></ol>`],
   ['Daily Monitoring (Manpower & Manhour)',`<p>Isi jumlah orang per hari untuk <b>Staff</b> (engineer, supervisor, HSE, admin) dan <b>Pekerja</b> (tukang, helper, operator, subkon), masing-masing <b>normal</b> dan <b>lembur</b>. Baris Total, Kumulatif dan Man Hour dihitung otomatis.</p>
     <ul><li>Man hour normal = man power normal × <code>${CFG.jamNormal} jam</code></li><li>Man hour lembur = man power lembur × jam lembur. Jam lembur = <b>jam pulang lembur</b> (dipilih per hari di popup, default <code>${leTxt(CFG.lemburPulang)}</code>) − jam mulai lembur <code>${leTxt(CFG.lemburMulai)}</code>. Bisa sampai pagi (mis. 02:00 +1 = 8 jam).</li>
-    <li><b>Total Safe Manhours</b> = jumlah seluruh man hour sejak Week 1.</li><li>Gunakan tombol ‹ › untuk pindah minggu (Week 1 – ${CFG.weeks}).</li></ul>`],
+    <li><b>Total Safe Manhours</b> = jumlah seluruh man hour sejak Week 1.</li><li>Week dihitung <b>Senin – Minggu</b>. Week 1 = minggu yang memuat tanggal mulai proyek (bisa kurang dari 7 hari). Pilih week dari dropdown (Week 1 – ${CFG.weeks}).</li></ul>`],
   ['Monitoring Cuaca',`<p>Klik sel pada jam & hari yang sesuai sampai ikon cuaca yang benar muncul.</p>
     <table><tbody>${WX.map(w=>`<tr><td style="font-size:18px">${w.i}</td><td><b>${w.n}</b></td><td><code>${w.k}</code></td></tr>`).join('')}</tbody></table>
     <p>Di Dashboard cuaca diringkas menjadi 3 shift (07–12, 12–17, 17–22) memakai kondisi <b>terburuk</b> di shift tersebut.</p>`],
@@ -1604,9 +1630,10 @@ const DEFAULT_PROGRAMS=[
 ];
 let programs=DEFAULT_PROGRAMS.map(x=>({...x})), activities=[], PG_SERVER=!LIVE;
 const pgById=id=>programs.find(p=>p.id===String(id));
-const wkStart=w=>fmt(addDays(CFG.projectStart,(w-1)*7));
-const wkEnd=w=>{const e=fmt(addDays(CFG.projectStart,w*7-1));return e<CFG.projectEnd?e:CFG.projectEnd;};
-const wkDates=w=>{const out=[];for(let i=0;i<7;i++){const d=fmt(addDays(CFG.projectStart,(w-1)*7+i));if(d<=CFG.projectEnd)out.push(d);}return out;};
+// week w: Senin–Minggu, dibatasi tanggal mulai & selesai proyek
+const wkStart=w=>{const s=fmt(addDays(CFG.weekBase,(w-1)*7));return s>CFG.projectStart?s:CFG.projectStart;};
+const wkEnd=w=>{const e=fmt(addDays(CFG.weekBase,w*7-1));return e<CFG.projectEnd?e:CFG.projectEnd;};
+const wkDates=w=>{const out=[];for(let i=0;i<7;i++){const d=fmt(addDays(CFG.weekBase,(w-1)*7+i));if(d>=CFG.projectStart&&d<=CFG.projectEnd)out.push(d);}return out;};
 // rencana (jumlah kegiatan) sebuah program pada week w
 function planFor(p,w){
   const ds=wkDates(w);
@@ -1733,8 +1760,9 @@ $('#pg-add').onsubmit=async e=>{
 };
 ['#pg-cat','#pg-range'].forEach(x=>$(x).onchange=renderProgram);
 ['#a-from','#a-to','#a-cat'].forEach(x=>$(x).onchange=renderActivities);
-$('#a-month').onclick=()=>{const m=CFG.today.slice(0,7);$('#a-from').value=m+'-01';$('#a-to').value=CFG.today;renderActivities();};
-$('#a-reset').onclick=()=>{['#a-from','#a-to','#a-cat'].forEach(x=>$(x).value='');renderActivities();};
+$('#a-month').onclick=()=>{const m=CFG.today.slice(0,7);$('#a-from').value=m+'-01';$('#a-to').value=CFG.today;$('#a-wk').value='';renderActivities();};
+$('#a-reset').onclick=()=>{['#a-wk','#a-from','#a-to','#a-cat'].forEach(x=>$(x).value='');renderActivities();};
+bindWeekFilter('#a-wk','#a-from','#a-to',()=>renderActivities());
 function fillProgSelect(){
   $('#af-prog').innerHTML=PG_CATS.filter(c=>programs.some(p=>p.category===c)).map(c=>`<optgroup label="${c}">${programs.filter(p=>p.category===c).map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('')}</optgroup>`).join('');
   fillSelect($('#a-cat'),PG_CATS,'<option value="">Semua</option>'); fillSelect($('#pa-cat'),PG_CATS); fillSelect($('#pa-freq'),Object.keys(PG_FREQ));
@@ -1915,11 +1943,13 @@ $('#perf-card').onclick=e=>{
 $('#dlg-fx').onclick=e=>{if(e.target===$('#dlg-fx'))$('#dlg-fx').close();};
 // filter observation
 ['#f-from','#f-to','#f-risk','#f-area','#f-cat','#f-status'].forEach(s=>$(s).onchange=renderObs);
-$('#f-week').onclick=()=>{$('#f-from').value=fmt(addDays(CFG.projectStart,(curWeek-1)*7));$('#f-to').value=fmt(addDays(CFG.projectStart,curWeek*7-1));renderObs();};
-$('#f-reset').onclick=()=>{['#f-from','#f-to','#f-risk','#f-area','#f-cat','#f-status'].forEach(s=>$(s).value='');renderObs();};
+$('#f-week').onclick=()=>{$('#f-wk').value=curWeek;$('#f-wk').onchange();};
+$('#f-reset').onclick=()=>{['#f-wk','#f-from','#f-to','#f-risk','#f-area','#f-cat','#f-status'].forEach(s=>$(s).value='');renderObs();};
+bindWeekFilter('#f-wk','#f-from','#f-to',()=>renderObs());
 // filter incident
 ['#i-from','#i-to','#i-cls','#i-area'].forEach(s=>$(s).onchange=renderIncident);
-$('#i-reset').onclick=()=>{['#i-from','#i-to','#i-cls','#i-area'].forEach(s=>$(s).value='');renderIncident();};
+$('#i-reset').onclick=()=>{['#i-wk','#i-from','#i-to','#i-cls','#i-area'].forEach(s=>$(s).value='');renderIncident();};
+bindWeekFilter('#i-wk','#i-from','#i-to',()=>renderIncident());
 
 // form observation (tambah / edit / hapus)
 $('#add-obs').onclick=()=>openObs(null);
@@ -1971,8 +2001,10 @@ function showMasterTab(m){
 function weeksInfo(a,b){
   if(!isDate(a)||!isDate(b))return 'Isi tanggal mulai dan selesai.';
   if(b<a)return '⚠ Tanggal selesai harus setelah tanggal mulai.';
-  const d=Math.round((new Date(b)-new Date(a))/864e5)+1, w=Math.ceil(d/7), sisa=d%7;
-  return `Durasi <b>${d} hari</b> = <b>${w} week</b>${sisa?` (week terakhir ${sisa} hari)`:''} · Week 1 mulai hari <b>${new Date(a+'T00:00:00').toLocaleDateString(LOCALE,{weekday:'long'})}</b> ${fmtID(new Date(a))}, berakhir ${fmtID(new Date(b))}.`;
+  const d=Math.round((new Date(b)-new Date(a))/864e5)+1, base=mondayOf(a), w=Math.ceil((Math.round((new Date(b)-new Date(base))/864e5)+1)/7);
+  const w1=7-Math.round((new Date(a)-new Date(base))/864e5), sh=x=>new Date(x+'T00:00:00').toLocaleDateString(LOCALE,{weekday:'short',day:'2-digit',month:'short'});
+  if(LANG==='en')return `Duration <b>${d} days</b> = <b>${w} weeks</b> (Monday–Sunday) · Week 1: ${sh(a)} – ${sh(fmt(addDays(base,6)))}${w1<7?` (<b>${w1} day${w1>1?'s':''}</b>)`:''}, ends ${fmtID(new Date(b))}.`;
+  return `Durasi <b>${d} hari</b> = <b>${w} week</b> (Senin–Minggu) · Week 1: ${sh(a)} – ${sh(fmt(addDays(base,6)))}${w1<7?` (<b>${w1} hari</b>)`:''}, berakhir ${fmtID(new Date(b))}.`;
 }
 function renderSetting(){
   const f=$('#set-form'), el=k=>f.elements.namedItem(k), canEdit=ROLE==='admin';
@@ -2075,6 +2107,8 @@ function renderAll(){
   const keep=s=>+$(s).value||curWeek;
   const mw=keep('#mp-week'), ww=keep('#wx-week'), dw=keep('#wx-dash-week');
   weekOptions($('#mp-week'),Math.min(mw,CFG.weeks)); weekOptions($('#wx-week'),Math.min(ww,CFG.weeks)); weekOptions($('#wx-dash-week'),Math.min(dw,CFG.weeks));
+  ['#f-wk','#i-wk','#a-wk'].forEach(x=>fillWeekFilter($(x)));
+  if(!dashWeek||dashWeek>CFG.weeks)dashWeek=curWeek; document.querySelectorAll('.dash-wk').forEach(x=>weekOptions(x,dashWeek));
   $('#jn').textContent=CFG.jamNormal; $('#jl').textContent=leTxt(CFG.lemburMulai); $('#jlp').textContent=leTxt(CFG.lemburPulang);
   document.querySelectorAll('.wk-total').forEach(e=>e.textContent=CFG.weeks);
   $('#proj-name').textContent=`${CFG.projectName} · ${LIVE?'Online':'Demo'}`;

@@ -293,6 +293,10 @@ I18N.add({
   '· per': '· as of', 'Isi klinik terdekat untuk cedera ringan': 'Fill in the nearest clinic for minor injuries', 'Pencarian & pertolongan': 'Search & rescue',
   'Isi nomor BPBD kabupaten/kota': 'Fill in the district/city BPBD number', 'Isi lokasi titik kumpul, mis. lapangan depan Gate': 'Fill in the assembly point location, e.g. the field in front of the Gate', 'Gangguan listrik': 'Power outage',
 
+  'Tanggal mulai proyek': 'Project start date', 'Week': 'Week', 'Tidak ada observasi pada week ini': 'No observations in this week',
+  'Belum ada observasi minggu ini': 'No observations this week yet', 'Aktivitas pencegahan ·': 'Preventive activity ·', '· PTD s/d week tsb.': '· PTD up to that week',
+  'Week dihitung': 'Weeks run', 'Aktivitas pencegahan pada week terpilih. Angka PTD dihitung sejak awal proyek s/d akhir week tersebut.': 'Preventive activity in the selected week. PTD figures are counted from project start up to the end of that week.', 'Senin – Minggu': 'Monday – Sunday',
+
   /* ---------- risiko ---------- */
   'Potensi kecelakaan fatal atau cedera berat yang menghentikan operasional': 'Potential fatal accident or serious injury that stops operations',
   'Potensi cedera yang memerlukan pertolongan medis': 'Potential injury requiring medical treatment', 'Potensi cedera ringan / P3K': 'Potential minor injury / first aid'
@@ -383,7 +387,12 @@ I18N.ok([]);
     [/^Masa berlaku (\d+) hari kerja \(maks\. (\d+)\)$/, 'Validity $1 working day(s) (max. $2)'],
     [/^jam (.+) WIB$/, '$1 WIB'],
     [/^per (\d.*)$/, 'as of $1'],
-    [/^(\d+) week$/, (m, n) => n + (n === '1' ? ' week' : ' weeks')]
+    [/^(\d+) week$/, (m, n) => n + (n === '1' ? ' week' : ' weeks')],
+    [/^Observasi Week (\d+)$/, 'Observations Week $1'],
+    [/^week sebelumnya (\d+)$/, 'previous week $1'],
+    [/^HIGH Open akhir Week (\d+)$/, 'HIGH Open at end of Week $1'],
+    [/^(\d+) di Week (\d+)$/, '$1 in Week $2'],
+    [/^Status per akhir Week (\d+) \((.+)\)\.$/, 'Status as of the end of Week $1 ($2).']
   ]);
 })();
 
@@ -402,7 +411,7 @@ window.GUIDE_EN = () => [
     <li><b>End of week</b> – check the Dashboard, export the Dashboard + Observation PDF (filter <i>This week</i>) for the weekly report.</li></ol>`],
   ['Daily Monitoring (Manpower & Manhours)', `<p>Enter the daily headcount for <b>Staff</b> (engineers, supervisors, HSE, admin) and <b>Workers</b> (tradespeople, helpers, operators, subcontractors), each as <b>normal</b> and <b>overtime</b>. The Total, Cumulative and Man Hour rows are calculated automatically.</p>
     <ul><li>Normal man hours = normal man power × <code>${CFG.jamNormal} h</code></li><li>Overtime man hours = overtime man power × overtime hours. Overtime hours = <b>overtime end time</b> (chosen per day in the popup, default <code>${leTxt(CFG.lemburPulang)}</code>) − overtime start time <code>${leTxt(CFG.lemburMulai)}</code>. It can run until the morning (e.g. 02:00 +1 = 8 h).</li>
-    <li><b>Total Safe Manhours</b> = sum of all man hours since Week 1.</li><li>Use the ‹ › buttons to move between weeks (Week 1 – ${CFG.weeks}).</li></ul>`],
+    <li><b>Total Safe Manhours</b> = sum of all man hours since Week 1.</li><li>Weeks run <b>Monday – Sunday</b>. Week 1 = the week containing the project start date (it may be shorter than 7 days). Choose a week from the dropdown (Week 1 – ${CFG.weeks}).</li></ul>`],
   ['Weather Monitoring', `<p>Click the cell for the right hour & day until the correct weather icon appears.</p>
     <table><tbody>${WX.map(w => `<tr><td style="font-size:18px">${w.i}</td><td><b>${t(w.n)}</b></td><td><code>${w.k}</code></td></tr>`).join('')}</tbody></table>
     <p>On the Dashboard, weather is summarised into 3 shifts (07–12, 12–17, 17–22) using the <b>worst</b> condition in that shift.</p>`],
