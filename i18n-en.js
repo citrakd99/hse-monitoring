@@ -295,7 +295,7 @@ I18N.add({
 
   'Tanggal mulai proyek': 'Project start date', 'Week': 'Week', 'Tidak ada observasi pada week ini': 'No observations in this week',
   'Belum ada observasi minggu ini': 'No observations this week yet', 'Aktivitas pencegahan ·': 'Preventive activity ·', '· PTD s/d week tsb.': '· PTD up to that week',
-  'Week dihitung': 'Weeks run', 'Aktivitas pencegahan pada week terpilih. Angka PTD dihitung sejak awal proyek s/d akhir week tersebut.': 'Preventive activity in the selected week. PTD figures are counted from project start up to the end of that week.', 'Senin – Minggu': 'Monday – Sunday',
+  'Week dihitung': 'Weeks run', 'Kamera': 'Camera', 'Galeri': 'Gallery', 'Hapus foto': 'Remove photo', 'Aktivitas pencegahan pada week terpilih. Angka PTD dihitung sejak awal proyek s/d akhir week tersebut.': 'Preventive activity in the selected week. PTD figures are counted from project start up to the end of that week.', 'Senin – Minggu': 'Monday – Sunday',
 
   /* ---------- risiko ---------- */
   'Potensi kecelakaan fatal atau cedera berat yang menghentikan operasional': 'Potential fatal accident or serious injury that stops operations',
