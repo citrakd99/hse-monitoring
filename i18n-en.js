@@ -191,7 +191,8 @@ I18N.add({
   '1× / minggu': '1× / week', '1× / 2 minggu': '1× / 2 weeks', '1× / bulan': '1× / month', 'Peserta': 'Participants', 'Jumlah peserta': 'Number of participants',
   'Topik / Materi': 'Topic / Material', 'Topik / materi': 'Topic / material', 'PIC / pemateri': 'PIC / presenter', 'Total peserta': 'Total participants',
   'mis. Bekerja di ketinggian, Rewarding Safety Champion Oktober': 'e.g. Working at height, October Safety Champion reward',
-  'Kegiatan tersimpan': 'Activity saved', 'Kegiatan dihapus': 'Activity deleted', 'Hapus catatan kegiatan ini?': 'Delete this activity record?', 'Program dihapus': 'Program deleted',
+  'Kegiatan tersimpan': 'Activity saved', 'Kegiatan diperbarui': 'Activity updated', 'Edit Kegiatan HSE': 'Edit HSE Activity', 'Edit kegiatan': 'Edit activity',
+  'Kegiatan tidak ditemukan': 'Activity not found', 'Apps Script belum diperbarui: edit kegiatan belum bisa disimpan. Admin perlu menempel Code.gs terbaru lalu Deploy → New version.': 'Apps Script not updated: activity edits cannot be saved yet. An admin must paste the latest Code.gs and then Deploy → New version.', 'Kegiatan dihapus': 'Activity deleted', 'Hapus catatan kegiatan ini?': 'Delete this activity record?', 'Program dihapus': 'Program deleted',
   'Nama program wajib diisi': 'Program name is required', 'Program tidak ditemukan': 'Program not found', 'Program tidak valid': 'Invalid program', '(program dihapus)': '(program deleted)',
   'Daftar bawaan. Perbarui Apps Script (lihat DEPLOY.md) agar daftar program bisa diubah dan kegiatan tersimpan.': 'Default list. Update Apps Script (see DEPLOY.md) so the program list can be edited and activities are saved.',
   'program selesai · realisasi': 'programs completed · actual', 'Tidak ada training terjadwal': 'No training scheduled',
@@ -489,7 +490,7 @@ window.GUIDE_EN = () => [
     <p>Targets can be adjusted to the project / client agreement.</p>`],
   ['HSE Program', `<p>The <b>Program</b> page contains the HSE activity matrix: the <i>plan</i> is calculated automatically from each program's frequency, the <i>actual</i> from recorded activities.</p>
     <ul><li><b>Frequency:</b> Daily = Monday–Saturday, Weekly = 1× per week, Bi-weekly = odd weeks, Monthly = the 1st / 2nd / 3rd / 4th / last week of the month as chosen for the program (1st week = the week containing the 1st), As needed = no target (e.g. new worker induction).</li>
-    <li>Click a matrix cell or the <b>+ Record Activity</b> button (also in the quick + button) to record training, induction, safety moments, patrols, etc. Enter the number of participants and a photo.</li>
+    <li>Click a matrix cell or the <b>+ Record Activity</b> button (also in the quick + button) to record training, induction, safety moments, patrols, etc. Enter the number of participants and a photo. Records in the <b>Activity Log</b> can be corrected with the <b>✎</b> button.</li>
     <li>Cell colours: <span class="pill st-closed">green</span> as planned, <span class="pill MEDIUM">yellow</span> partial / current week, <span class="pill st-open">red</span> not completed, blue = unplanned activity.</li>
     <li><b>Compliance</b> = actual (capped at the plan) ÷ plan, only for weeks that have started.</li>
     <li>Admins can add, <b>edit (✎)</b> and delete (×) programs in the <b>HSE Program List</b> card. Changing the frequency updates the plan in the matrix immediately.</li>

@@ -978,7 +978,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 </dialog>
 <dialog id="dlg-act">
   <form method="dialog" id="act-form">
-    <div class="dlg-h">Catat Kegiatan HSE</div>
+    <div class="dlg-h" id="act-title">Catat Kegiatan HSE</div>
     <div class="dlg-b">
       <label>Tanggal<input type="date" name="date" required></label>
       <label>Program<select name="programId" id="af-prog" required></select></label>
@@ -986,7 +986,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <label>Jumlah peserta<input type="number" name="participants" min="0" inputmode="numeric" value="0"></label>
       <label>PIC / pemateri<input name="pic" maxlength="60"></label>
       <label>Lokasi<select name="location" id="af-loc"></select></label>
-      <label>Foto<input type="file" accept="image/*" capture="environment" id="af-photo"></label>
+      <label>Foto<input type="file" accept="image/*" capture="environment" id="af-photo"><a id="af-photo-cur" target="_blank" rel="noopener" hidden>Lihat foto tersimpan</a></label>
       <label class="full">Catatan<textarea name="notes" rows="2" placeholder="Hadiah, hasil patrol, temuan, dll"></textarea></label>
     </div>
     <div class="dlg-f"><button class="btn" value="cancel" formnovalidate>Batal</button><button class="btn primary" value="ok">Simpan</button></div>
@@ -1061,13 +1061,13 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 <div id="toast">Membuat PDF…</div>
 <div id="snack"></div>
 
-<script src="i18n.js?v=1.17"></script>
-<script src="i18n-en.js?v=1.17"></script>
-<script src="config.js?v=1.17"></script>
-<script src="ptw.js?v=1.17"></script>
-<script src="pekerja.js?v=1.17"></script>
-<script src="darurat.js?v=1.17"></script>
-<script src="rca.js?v=1.17"></script>
+<script src="i18n.js?v=1.18"></script>
+<script src="i18n-en.js?v=1.18"></script>
+<script src="config.js?v=1.18"></script>
+<script src="ptw.js?v=1.18"></script>
+<script src="pekerja.js?v=1.18"></script>
+<script src="darurat.js?v=1.18"></script>
+<script src="rca.js?v=1.18"></script>
 <script>
 /* ================= CONFIG ================= */
 const API=((window.HSE_CONFIG&&window.HSE_CONFIG.apiUrl)||'').trim();
@@ -1636,7 +1636,7 @@ function renderGuide(){
     <p>Target dapat disesuaikan dengan kesepakatan proyek/klien.</p>`],
   ['HSE Program',`<p>Halaman <b>Program</b> berisi matriks kegiatan HSE: <i>rencana</i> dihitung otomatis dari frekuensi tiap program, <i>realisasi</i> dari kegiatan yang dicatat.</p>
     <ul><li><b>Frekuensi:</b> Harian = Senin–Sabtu, Mingguan = 1× tiap week, 2 Mingguan = week ganjil, Bulanan = minggu ke-1 / ke-2 / ke-3 / ke-4 / terakhir dalam bulan sesuai pilihan di program (minggu ke-1 = week yang memuat tanggal 1), Sesuai kebutuhan = tanpa target (mis. induction pekerja baru).</li>
-    <li>Klik sel matriks atau tombol <b>+ Catat Kegiatan</b> (juga di tombol cepat +) untuk mencatat training, induction, safety moment, patrol, dll. Isi jumlah peserta dan foto.</li>
+    <li>Klik sel matriks atau tombol <b>+ Catat Kegiatan</b> (juga di tombol cepat +) untuk mencatat training, induction, safety moment, patrol, dll. Isi jumlah peserta dan foto. Catatan di <b>Log Kegiatan</b> bisa diperbaiki lewat tombol <b>✎</b>.</li>
     <li>Warna sel: <span class="pill st-closed">hijau</span> sesuai rencana, <span class="pill MEDIUM">kuning</span> sebagian / week berjalan, <span class="pill st-open">merah</span> tidak terlaksana, biru = kegiatan di luar rencana.</li>
     <li><b>Kepatuhan</b> = realisasi (maksimal sebanyak rencana) ÷ rencana, hanya untuk week yang sudah berjalan.</li>
     <li>Admin dapat menambah, <b>mengedit (✎)</b> dan menghapus (×) program di kartu <b>Daftar Program HSE</b>. Mengubah frekuensi langsung mengubah rencana di matriks.</li>
@@ -1802,8 +1802,9 @@ function renderActivities(){
     <td>${a.p?`<span class="cat-pill" style="--c:${PG_COLOR[a.p.category]||'#64748b'}">${esc(a.p.category)}</span>`:'–'}</td><td style="white-space:normal;min-width:180px">${a.p?esc(a.p.name):'<i>(program dihapus)</i>'}</td>
     <td style="white-space:normal;min-width:200px">${esc(a.topic)}${a.notes?`<br><small style="color:var(--muted)">${esc(a.notes)}</small>`:''}</td>
     <td class="num">${a.participants||'–'}</td><td>${esc(a.pic)||'–'}</td><td>${esc(a.location)||'–'}</td><td class="c">${photoCell(a.photo)}</td>
-    <td class="no-pdf">${ROLE==='admin'?`<button class="del" data-id="${esc(a.id)}" title="Hapus">×</button>`:''}</td></tr>`).join('')
+    <td class="no-pdf" style="white-space:nowrap"><button class="edit" data-id="${esc(a.id)}" title="Edit kegiatan">✎</button>${ROLE==='admin'?`<button class="del" data-id="${esc(a.id)}" title="Hapus">×</button>`:''}</td></tr>`).join('')
     ||'<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">Belum ada kegiatan pada filter ini</td></tr>';
+  $('#act-body').querySelectorAll('.edit').forEach(b=>b.onclick=()=>openAct(null,null,activities.find(a=>String(a.id)===b.dataset.id)));
   $('#act-body').querySelectorAll('.del').forEach(b=>b.onclick=async()=>{
     if(!confirm('Hapus catatan kegiatan ini?'))return;
     try{await save('deleteRow',{sheet:'Activity',id:b.dataset.id},'Kegiatan dihapus');}catch{return;}
@@ -1858,11 +1859,22 @@ function fillProgSelect(){
   fillSelect($('#a-cat'),PG_CATS,'<option value="">Semua</option>'); fillSelect($('#pa-cat'),PG_CATS); fillSelect($('#pa-freq'),Object.keys(PG_FREQ));
   fillSelect($('#af-loc'),['',...MASTER.area]);
 }
-function openAct(progId,date){
-  const f=$('#act-form'); f.reset(); fillProgSelect();
-  f.elements.namedItem('date').value=date||CFG.today; f.elements.namedItem('date').max=CFG.today;
-  if(progId)f.elements.namedItem('programId').value=progId;
-  const p=pgById(f.elements.namedItem('programId').value); f.elements.namedItem('pic').value=SESSION?.user||p?.pic||'';
+let editingAct=null; // kegiatan yang sedang diedit (null = catat baru)
+function openAct(progId,date,act){
+  editingAct=act||null;
+  const f=$('#act-form'), el=k=>f.elements.namedItem(k); f.reset(); fillProgSelect();
+  $('#act-title').textContent=act?'Edit Kegiatan HSE':'Catat Kegiatan HSE';
+  el('date').value=act?act.date:(date||CFG.today); el('date').max=CFG.today;
+  if(act){
+    // program yang sudah dihapus tetap bisa dipilih agar riwayat tidak hilang
+    if(!pgById(act.programId))el('programId').insertAdjacentHTML('beforeend',`<option value="${esc(act.programId)}">(program dihapus)</option>`);
+    ['programId','topic','pic','location','notes'].forEach(k=>el(k).value=act[k]??'');
+    el('participants').value=act.participants||0;
+  }else{
+    if(progId)el('programId').value=progId;
+    const p=pgById(el('programId').value); el('pic').value=SESSION?.user||p?.pic||'';
+  }
+  const a=$('#af-photo-cur'), u=safeUrl(act?.photo); a.hidden=!u; if(u)a.href=u;
   $('#dlg-act').showModal();
 }
 $('#add-act').onclick=()=>openAct(null,CFG.today);
@@ -1871,8 +1883,17 @@ $('#dlg-act').addEventListener('close',async()=>{
   if(f.date>CFG.today){snack('Tanggal tidak boleh di masa depan',true);return;}
   const row={date:f.date,programId:f.programId,topic:f.topic.trim(),participants:Math.max(0,Math.round(+f.participants||0)),pic:f.pic.trim(),location:f.location,notes:f.notes.trim()};
   let photo; try{photo=await readPhoto($('#af-photo'));}catch{}
-  let r; try{r=await save('addActivity',{row,photo:photo?{name:photo.name,mime:photo.mime,data:photo.data}:undefined},'Kegiatan tersimpan');}catch{return;}
-  activities.push({...row,id:r.id||('L'+Date.now()),photo:r.photo_url||photo?.preview||''}); activities.sort((a,b)=>a.date.localeCompare(b.date));
+  const ph=photo?{name:photo.name,mime:photo.mime,data:photo.data}:undefined, ed=editingAct;
+  let r;
+  if(ed){
+    try{r=await save('updateActivity',{id:ed.id,row,photo:ph},'Kegiatan diperbarui');}
+    catch(e){if(/tidak dikenal/i.test(e.message||''))snack('Apps Script belum diperbarui: edit kegiatan belum bisa disimpan. Admin perlu menempel Code.gs terbaru lalu Deploy → New version.',true);return;}
+    Object.assign(ed,row,{photo:r.photo_url||photo?.preview||ed.photo||''});
+  }else{
+    try{r=await save('addActivity',{row,photo:ph},'Kegiatan tersimpan');}catch{return;}
+    activities.push({...row,id:r.id||('L'+Date.now()),photo:r.photo_url||photo?.preview||''});
+  }
+  activities.sort((a,b)=>a.date.localeCompare(b.date));
   renderProgram(); renderDashboard();
 });
 /* data contoh program */

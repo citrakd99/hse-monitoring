@@ -22,7 +22,7 @@ const SCHEMA = {
   Worker: ['id', 'name', 'ktp', 'gender', 'category', 'company', 'induction', 'induction_date', 'violation', 'work_status', 'trainings', 'certifications', 'notes', 'created_by', 'created_at', 'updated_by', 'updated_at', 'violation_date', 'position'],
   Permit: ['id', 'no', 'type', 'parent_no', 'status', 'description', 'location', 'date_from', 'date_to', 'applicant', 'data', 'created_by', 'created_at', 'updated_by', 'updated_at'],
   Program: ['id', 'category', 'name', 'frequency', 'pic', 'month_week'],
-  Activity: ['id', 'date', 'program_id', 'topic', 'participants', 'pic', 'location', 'notes', 'photo_url', 'created_by', 'created_at'],
+  Activity: ['id', 'date', 'program_id', 'topic', 'participants', 'pic', 'location', 'notes', 'photo_url', 'created_by', 'created_at', 'updated_by', 'updated_at'],
   Log: ['timestamp', 'user', 'role', 'action', 'sheet', 'ref']
 };
 
@@ -342,6 +342,18 @@ function write_(a, req, user, role) {
       if (req.photo) v.photo_url = savePhoto_(req.photo, 'ACT');
       append_('Activity', id, v);
       return { sheet: 'Activity', ref: id, id, photo_url: v.photo_url };
+    }
+    case 'updateActivity': {
+      checkDate_(r.date);
+      if (!findRow_('Activity', req.id)) throw new Error('Kegiatan tidak ditemukan');
+      const v = {
+        date: r.date, program_id: r.programId, topic: String(r.topic || '').slice(0, 120), participants: num_(r.participants),
+        pic: String(r.pic || '').slice(0, 60), location: r.location || '', notes: String(r.notes || '').slice(0, 300), updated_by: user, updated_at: now
+      };
+      if (req.photo) v.photo_url = savePhoto_(req.photo, 'ACT');
+      ensureHeader_('Activity');
+      update_('Activity', req.id, v);
+      return { sheet: 'Activity', ref: req.id, id: req.id, photo_url: v.photo_url };
     }
     case 'addProgram': {
       adminOnly();
