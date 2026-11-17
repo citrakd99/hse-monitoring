@@ -144,7 +144,9 @@ function setup() {
   photoFolder_();
   const def = ss.getSheetByName('Sheet1');
   if (def && ss.getSheets().length > 1 && def.getLastRow() === 0) ss.deleteSheet(def);
-  SpreadsheetApp.getUi().alert('Setup selesai. Ganti PIN di sheet Config, lalu Deploy sebagai Web App.');
+  // popup hanya bisa tampil bila Spreadsheet terbuka; dari editor Apps Script cukup dicatat di Log eksekusi
+  const msg = 'Setup selesai. Ganti PIN di sheet Config, lalu Deploy sebagai Web App (New version).';
+  try { SpreadsheetApp.getUi().alert(msg); } catch (e) { Logger.log(msg); }
 }
 
 /* ======================= HTTP ======================= */
