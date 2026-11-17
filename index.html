@@ -822,6 +822,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <select name="category" id="pa-cat" required></select>
       <input name="name" placeholder="Nama program, mis. Training Hot Work" required maxlength="80">
       <select name="frequency" id="pa-freq" required></select>
+      <select name="mw" id="pa-mw" title="Minggu pelaksanaan (program Bulanan)" hidden></select>
       <input name="pic" placeholder="PIC" maxlength="40">
       <button class="btn primary">+ Tambah</button>
     </form>
@@ -997,6 +998,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <div class="dlg-b">
       <label>Kategori<select name="category" id="pe-cat" required></select></label>
       <label>Frekuensi<select name="frequency" id="pe-freq" required></select></label>
+      <label id="pe-mw-l" hidden>Dilaksanakan pada<select name="mw" id="pe-mw"></select></label>
       <label class="full">Nama program<input name="name" required maxlength="80"></label>
       <label class="full">PIC<input name="pic" maxlength="40"></label>
       <div class="full fx-note" id="pe-info"></div>
@@ -1059,13 +1061,13 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 <div id="toast">Membuat PDF…</div>
 <div id="snack"></div>
 
-<script src="i18n.js?v=1.16"></script>
-<script src="i18n-en.js?v=1.16"></script>
-<script src="config.js?v=1.16"></script>
-<script src="ptw.js?v=1.16"></script>
-<script src="pekerja.js?v=1.16"></script>
-<script src="darurat.js?v=1.16"></script>
-<script src="rca.js?v=1.16"></script>
+<script src="i18n.js?v=1.17"></script>
+<script src="i18n-en.js?v=1.17"></script>
+<script src="config.js?v=1.17"></script>
+<script src="ptw.js?v=1.17"></script>
+<script src="pekerja.js?v=1.17"></script>
+<script src="darurat.js?v=1.17"></script>
+<script src="rca.js?v=1.17"></script>
 <script>
 /* ================= CONFIG ================= */
 const API=((window.HSE_CONFIG&&window.HSE_CONFIG.apiUrl)||'').trim();
@@ -1175,7 +1177,7 @@ function applyData(d){
   PTW_SERVER=Array.isArray(d.permit); permits=(d.permit||[]).map(ptwFromRow); CFG.permitPrefix=c.permit_prefix||'BTK';
   // HSE Program: jika server lama belum punya sheet Program, pakai daftar bawaan (hanya tampil)
   PG_SERVER=Array.isArray(d.program);
-  programs=(PG_SERVER&&d.program.length?d.program:DEFAULT_PROGRAMS).map(r=>({id:String(r.id),category:r.category,name:r.name,frequency:r.frequency||'Sesuai kebutuhan',pic:r.pic||''}));
+  programs=(PG_SERVER&&d.program.length?d.program:DEFAULT_PROGRAMS).map(r=>({id:String(r.id),category:r.category,name:r.name,frequency:r.frequency||'Sesuai kebutuhan',pic:r.pic||'',mw:pgMw(r.month_week??r.mw)}));
   activities=(d.activity||[]).map(r=>({id:r.id,date:r.date,programId:String(r.program_id),topic:r.topic,participants:+r.participants||0,pic:r.pic||'',location:r.location||'',notes:r.notes||'',photo:r.photo_url||''}))
     .sort((a,b)=>a.date.localeCompare(b.date));
 }
@@ -1633,7 +1635,7 @@ function renderGuide(){
     <tr><td><b>Laporan Near Miss</b></td><td>Makin banyak near miss dilaporkan menandakan budaya lapor yang baik, bukan kondisi yang buruk.</td></tr></tbody></table>
     <p>Target dapat disesuaikan dengan kesepakatan proyek/klien.</p>`],
   ['HSE Program',`<p>Halaman <b>Program</b> berisi matriks kegiatan HSE: <i>rencana</i> dihitung otomatis dari frekuensi tiap program, <i>realisasi</i> dari kegiatan yang dicatat.</p>
-    <ul><li><b>Frekuensi:</b> Harian = Senin–Sabtu, Mingguan = 1× tiap week, 2 Mingguan = week ganjil, Bulanan = week yang memuat awal bulan, Sesuai kebutuhan = tanpa target (mis. induction pekerja baru).</li>
+    <ul><li><b>Frekuensi:</b> Harian = Senin–Sabtu, Mingguan = 1× tiap week, 2 Mingguan = week ganjil, Bulanan = minggu ke-1 / ke-2 / ke-3 / ke-4 / terakhir dalam bulan sesuai pilihan di program (minggu ke-1 = week yang memuat tanggal 1), Sesuai kebutuhan = tanpa target (mis. induction pekerja baru).</li>
     <li>Klik sel matriks atau tombol <b>+ Catat Kegiatan</b> (juga di tombol cepat +) untuk mencatat training, induction, safety moment, patrol, dll. Isi jumlah peserta dan foto.</li>
     <li>Warna sel: <span class="pill st-closed">hijau</span> sesuai rencana, <span class="pill MEDIUM">kuning</span> sebagian / week berjalan, <span class="pill st-open">merah</span> tidak terlaksana, biru = kegiatan di luar rencana.</li>
     <li><b>Kepatuhan</b> = realisasi (maksimal sebanyak rencana) ÷ rencana, hanya untuk week yang sudah berjalan.</li>
@@ -1679,6 +1681,14 @@ function renderGuide(){
 const PG_CATS=['Training','Induction','Safety Moment','Gemba / Safety Patrol','Inspeksi','Lainnya'];
 const PG_COLOR={'Training':'#2f7fd8','Induction':'#7a4fd1','Safety Moment':'#d98b0b','Gemba / Safety Patrol':'#0f7a57','Inspeksi':'#c2410c','Lainnya':'#64748b'};
 const PG_FREQ={'Harian':'Senin–Sabtu','Mingguan':'1× / minggu','2 Mingguan':'1× / 2 minggu','Bulanan':'1× / bulan','Sesuai kebutuhan':'tanpa target'};
+/* program Bulanan: dijadwalkan pada minggu ke-n bulan berjalan (minggu ke-1 = week yang memuat tanggal 1) */
+const PG_MW=[['1','Minggu ke-1'],['2','Minggu ke-2'],['3','Minggu ke-3'],['4','Minggu ke-4'],['last','Minggu terakhir']];
+const pgMw=v=>{v=String(v??'').trim();return PG_MW.some(([k])=>k===v)?v:'1';};
+const pgMwLabel=v=>(PG_MW.find(([k])=>k===pgMw(v))||PG_MW[0])[1];
+const pgPlanTxt=p=>(PG_FREQ[p.frequency]||'')+(p.frequency==='Bulanan'?' · '+pgMwLabel(p.mw).toLowerCase():'');
+/* week-week proyek yang memuat hari di bulan m (yyyy-mm), berurutan */
+function monthWeeks(m){const out=[];for(let d=new Date(m+'-01T00:00:00');fmt(d).slice(0,7)===m;d.setDate(d.getDate()+1)){const x=fmt(d);if(x<CFG.projectStart||x>CFG.projectEnd)continue;const w=weekOf(x);if(!out.includes(w))out.push(w);}return out;}
+function pgMonthWeek(m,mw){const l=monthWeeks(m);if(!l.length)return 0;return mw==='last'?l[l.length-1]:l[Math.min(+mw||1,l.length)-1];}
 const DEFAULT_PROGRAMS=[
   {id:'P01',category:'Training',name:'Training K3 umum (APD, kerja di ketinggian, listrik)',frequency:'Bulanan',pic:'HSE'},
   {id:'P02',category:'Training',name:'Training khusus (hot work, lifting, confined space)',frequency:'Sesuai kebutuhan',pic:'HSE'},
@@ -1701,7 +1711,7 @@ const DEFAULT_PROGRAMS=[
   {id:'P19',category:'Lainnya',name:'Housekeeping 5R / gotong royong',frequency:'Mingguan',pic:'Supervisor'},
   {id:'P20',category:'Lainnya',name:'Cek kesehatan pekerja (tensi, dll)',frequency:'Bulanan',pic:'HSE'},
   {id:'P21',category:'Lainnya',name:'Emergency drill (kebakaran / evakuasi)',frequency:'Sesuai kebutuhan',pic:'HSE'},
-  {id:'P22',category:'Lainnya',name:'Laporan HSE bulanan ke owner',frequency:'Bulanan',pic:'HSE'},
+  {id:'P22',category:'Lainnya',name:'Laporan HSE bulanan ke owner',frequency:'Bulanan',pic:'HSE',mw:'last'},
 ];
 let programs=DEFAULT_PROGRAMS.map(x=>({...x})), activities=[], PG_SERVER=!LIVE;
 const pgById=id=>programs.find(p=>p.id===String(id));
@@ -1716,7 +1726,7 @@ function planFor(p,w){
     case 'Harian': return ds.filter(d=>new Date(d+'T00:00:00').getDay()!==0).length;
     case 'Mingguan': return ds.length?1:0;
     case '2 Mingguan': return w%2===1&&ds.length?1:0;
-    case 'Bulanan': return ds.some(d=>d===firstDayInPeriod(d.slice(0,7)))?1:0;
+    case 'Bulanan': return [...new Set(ds.map(d=>d.slice(0,7)))].some(m=>pgMonthWeek(m,pgMw(p.mw))===w)?1:0;
     default: return 0;
   }
 }
@@ -1770,7 +1780,7 @@ function renderProgram(){
       const cells=weeks.map(w=>{const pl=planFor(p,w), a=actualFor(p,w); if(wkStart(w)<=CFG.today){P+=pl;A+=Math.min(pl,a)||(!pl?0:0);} const [k,t]=pgStatus(pl,a,w);
         return `<td class="cell ${k}" data-p="${p.id}" data-w="${w}" title="${esc(p.name)} · W${w}: rencana ${pl}, realisasi ${a}">${t}</td>`;}).join('');
       const tot=weeks.reduce((x,w)=>x+actualFor(p,w),0);
-      body+=`<tr><td class="pname">${esc(p.name)}<small>${esc(p.frequency)} · ${PG_FREQ[p.frequency]||''}</small></td><td>${esc(p.pic)||'–'}</td>${cells}<td class="num"><b>${tot}</b></td><td class="num">${P?Math.round(A/P*100)+'%':'–'}</td></tr>`;
+      body+=`<tr><td class="pname">${esc(p.name)}<small>${esc(p.frequency)} · ${pgPlanTxt(p)}</small></td><td>${esc(p.pic)||'–'}</td>${cells}<td class="num"><b>${tot}</b></td><td class="num">${P?Math.round(A/P*100)+'%':'–'}</td></tr>`;
     });
   });
   $('#pg-body').innerHTML=body||`<tr><td colspan="${weeks.length+4}" style="text-align:center;color:var(--muted);padding:20px">Belum ada program</td></tr>`;
@@ -1803,7 +1813,7 @@ function renderProgramList(){
   const admin=ROLE==='admin'&&PG_SERVER;
   $('#pg-count').textContent=`${programs.length} program`;
   $('#pg-list').innerHTML=PG_CATS.flatMap(c=>programs.filter(p=>p.category===c)).map(p=>`<tr><td><span class="cat-pill" style="--c:${PG_COLOR[p.category]}">${esc(p.category)}</span></td>
-    <td style="white-space:normal">${esc(p.name)}</td><td>${esc(p.frequency)}</td><td>${PG_FREQ[p.frequency]||''}</td><td>${esc(p.pic)||'–'}</td>
+    <td style="white-space:normal">${esc(p.name)}</td><td>${esc(p.frequency)}</td><td>${pgPlanTxt(p)}</td><td>${esc(p.pic)||'–'}</td>
     <td class="no-pdf" style="white-space:nowrap">${admin?`<button class="edit" data-id="${esc(p.id)}" title="Edit program">✎</button><button class="del" data-id="${esc(p.id)}" title="Hapus program">×</button>`:''}</td></tr>`).join('');
   $('#pg-list').querySelectorAll('.edit').forEach(b=>b.onclick=()=>openProg(pgById(b.dataset.id)));
   $('#pg-add').hidden=!admin;
@@ -1817,22 +1827,27 @@ let editingProg=null;
 function openProg(p){
   editingProg=p; const f=$('#prog-form'); fillSelect($('#pe-cat'),PG_CATS); fillSelect($('#pe-freq'),Object.keys(PG_FREQ));
   ['category','name','frequency','pic'].forEach(k=>f.elements.namedItem(k).value=p[k]||'');
+  f.elements.namedItem('mw').value=pgMw(p.mw); pgMwToggle();
   $('#pe-info').textContent=`${activities.filter(a=>a.programId===p.id).length} kegiatan tercatat untuk program ini; riwayat tetap terhubung setelah diedit.`;
   $('#dlg-prog').showModal();
 }
 $('#dlg-prog').addEventListener('close',async()=>{
   const p=editingProg; if($('#dlg-prog').returnValue!=='ok'||!p)return;
   const f=Object.fromEntries(new FormData($('#prog-form')));
-  const row={category:f.category,name:f.name.trim(),frequency:f.frequency,pic:f.pic.trim()};
+  const row={category:f.category,name:f.name.trim(),frequency:f.frequency,pic:f.pic.trim(),mw:pgMw(f.mw)};
   if(!row.name){snack('Nama program wajib diisi',true);return;}
   try{await save('updateProgram',{id:p.id,row},`Program "${row.name}" diperbarui`);}catch{return;}
   Object.assign(p,row); renderProgram(); renderDashboard(); fillProgSelect();
 });
 $('#pg-add').onsubmit=async e=>{
-  e.preventDefault(); const f=Object.fromEntries(new FormData(e.target)); const row={category:f.category,name:f.name.trim(),frequency:f.frequency,pic:f.pic.trim()};
+  e.preventDefault(); const f=Object.fromEntries(new FormData(e.target)); const row={category:f.category,name:f.name.trim(),frequency:f.frequency,pic:f.pic.trim(),mw:pgMw(f.mw)};
   let r; try{r=await save('addProgram',{row},`Program "${row.name}" ditambahkan`);}catch{return;}
-  programs.push({...row,id:String(r.id||('L'+Date.now()))}); e.target.reset(); renderProgram(); refreshSelects();
+  programs.push({...row,id:String(r.id||('L'+Date.now()))}); e.target.reset(); pgMwToggle(); renderProgram(); refreshSelects();
 };
+/* pilihan minggu hanya tampil untuk frekuensi Bulanan */
+['#pa-mw','#pe-mw'].forEach(s=>$(s).innerHTML=PG_MW.map(([k,l])=>`<option value="${k}">${l}</option>`).join(''));
+function pgMwToggle(){$('#pa-mw').hidden=$('#pa-freq').value!=='Bulanan';$('#pe-mw-l').hidden=$('#pe-freq').value!=='Bulanan';}
+['#pa-freq','#pe-freq'].forEach(s=>$(s).addEventListener('change',pgMwToggle));
 ['#pg-cat','#pg-range'].forEach(x=>$(x).onchange=renderProgram);
 ['#a-from','#a-to','#a-cat'].forEach(x=>$(x).onchange=renderActivities);
 $('#a-month').onclick=()=>{const m=CFG.today.slice(0,7);$('#a-from').value=m+'-01';$('#a-to').value=CFG.today;$('#a-wk').value='';renderActivities();};

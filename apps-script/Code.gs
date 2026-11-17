@@ -21,7 +21,7 @@ const SCHEMA = {
   ERT: ['id', 'kind', 'role', 'name', 'worker_id', 'phone', 'info', 'updated_by', 'updated_at'],
   Worker: ['id', 'name', 'ktp', 'gender', 'category', 'company', 'induction', 'induction_date', 'violation', 'work_status', 'trainings', 'certifications', 'notes', 'created_by', 'created_at', 'updated_by', 'updated_at', 'violation_date', 'position'],
   Permit: ['id', 'no', 'type', 'parent_no', 'status', 'description', 'location', 'date_from', 'date_to', 'applicant', 'data', 'created_by', 'created_at', 'updated_by', 'updated_at'],
-  Program: ['id', 'category', 'name', 'frequency', 'pic'],
+  Program: ['id', 'category', 'name', 'frequency', 'pic', 'month_week'],
   Activity: ['id', 'date', 'program_id', 'topic', 'participants', 'pic', 'location', 'notes', 'photo_url', 'created_by', 'created_at'],
   Log: ['timestamp', 'user', 'role', 'action', 'sheet', 'ref']
 };
@@ -345,7 +345,8 @@ function write_(a, req, user, role) {
       adminOnly();
       if (PG_CATS.indexOf(r.category) < 0 || PG_FREQ.indexOf(r.frequency) < 0 || !String(r.name || '').trim()) throw new Error('Program tidak valid');
       const id = newId_('PRG');
-      append_('Program', id, { category: r.category, name: String(r.name).trim().slice(0, 80), frequency: r.frequency, pic: String(r.pic || '').slice(0, 40) });
+      ensureHeader_('Program');
+      append_('Program', id, { category: r.category, name: String(r.name).trim().slice(0, 80), frequency: r.frequency, pic: String(r.pic || '').slice(0, 40), month_week: mw_(r.mw) });
       return { sheet: 'Program', ref: id, id };
     }
     case 'saveWorker': {
@@ -422,7 +423,8 @@ function write_(a, req, user, role) {
     case 'updateProgram': {
       adminOnly();
       if (PG_CATS.indexOf(r.category) < 0 || PG_FREQ.indexOf(r.frequency) < 0 || !String(r.name || '').trim()) throw new Error('Program tidak valid');
-      if (!update_('Program', req.id, { category: r.category, name: String(r.name).trim().slice(0, 80), frequency: r.frequency, pic: String(r.pic || '').slice(0, 40) }))
+      ensureHeader_('Program');
+      if (!update_('Program', req.id, { category: r.category, name: String(r.name).trim().slice(0, 80), frequency: r.frequency, pic: String(r.pic || '').slice(0, 40), month_week: mw_(r.mw) }))
         throw new Error('Program tidak ditemukan');
       return { sheet: 'Program', ref: req.id };
     }
@@ -538,6 +540,9 @@ function update_(name, key, v) {
   sh.getRange(row, 1, 1, head.length).setValues([cur]);
   return true;
 }
+
+/* program Bulanan: minggu ke-1..4 atau 'last' (default 1) */
+function mw_(v) { v = String(v || '').trim(); return ['1', '2', '3', '4', 'last'].indexOf(v) >= 0 ? v : '1'; }
 
 /* RCA temuan MEDIUM/HIGH: '' bila boleh Closed */
 function rcaCloseError_(txt) {

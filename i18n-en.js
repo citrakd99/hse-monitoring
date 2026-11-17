@@ -320,7 +320,9 @@ I18N.add({
   'Apps Script belum diperbarui: RCA belum bisa disimpan ke Google Sheet. Admin perlu menempel Code.gs terbaru lalu Deploy → New version.': 'Apps Script not updated: the RCA cannot be saved to Google Sheet yet. An admin must paste the latest Code.gs and then Deploy → New version.',
   'Temuan MEDIUM/HIGH: selesaikan investigasi RCA dulu (akar masalah & action plan) sebelum Closed': 'MEDIUM/HIGH finding: complete the RCA investigation (root cause & action plan) before Closing',
   'Temuan MEDIUM/HIGH: masih ada action plan RCA yang belum selesai': 'MEDIUM/HIGH finding: some RCA action plans are not completed yet',
-  'RCA MEDIUM/HIGH tuntas': 'MEDIUM/HIGH RCAs completed', 'Investigasi RCA untuk temuan MEDIUM / HIGH': 'RCA investigation for MEDIUM / HIGH findings',
+  'RCA MEDIUM/HIGH tuntas': 'MEDIUM/HIGH RCAs completed', 'Minggu ke-1': '1st week', 'Minggu ke-2': '2nd week', 'Minggu ke-3': '3rd week', 'Minggu ke-4': '4th week',
+  'Minggu terakhir': 'Last week', 'minggu ke-1': '1st week of the month', 'minggu ke-2': '2nd week of the month', 'minggu ke-3': '3rd week of the month',
+  'minggu ke-4': '4th week of the month', 'minggu terakhir': 'last week of the month', 'Dilaksanakan pada': 'Scheduled in', 'Minggu pelaksanaan (program Bulanan)': 'Scheduled week (Monthly programs)', 'Investigasi RCA untuk temuan MEDIUM / HIGH': 'RCA investigation for MEDIUM / HIGH findings',
   'Pakai RCA — wajib RCA & action plan selesai sebelum Closed': 'Use RCA — RCA & action plans must be completed before Closing',
   'Tanpa RCA — alur saat ini (Closed cukup Action & Action Date)': 'No RCA — current flow (Closing only needs Action & Action Date)', 'Tidak ada action plan lewat target': 'No action plans past target',
   'Data RCA tidak valid': 'Invalid RCA data', 'Data RCA terlalu panjang': 'RCA data is too long',
@@ -486,7 +488,7 @@ window.GUIDE_EN = () => [
     <tr><td><b>Near Miss reports</b></td><td>More near misses reported indicates a good reporting culture, not a bad condition.</td></tr></tbody></table>
     <p>Targets can be adjusted to the project / client agreement.</p>`],
   ['HSE Program', `<p>The <b>Program</b> page contains the HSE activity matrix: the <i>plan</i> is calculated automatically from each program's frequency, the <i>actual</i> from recorded activities.</p>
-    <ul><li><b>Frequency:</b> Daily = Monday–Saturday, Weekly = 1× per week, Bi-weekly = odd weeks, Monthly = the week containing the start of the month, As needed = no target (e.g. new worker induction).</li>
+    <ul><li><b>Frequency:</b> Daily = Monday–Saturday, Weekly = 1× per week, Bi-weekly = odd weeks, Monthly = the 1st / 2nd / 3rd / 4th / last week of the month as chosen for the program (1st week = the week containing the 1st), As needed = no target (e.g. new worker induction).</li>
     <li>Click a matrix cell or the <b>+ Record Activity</b> button (also in the quick + button) to record training, induction, safety moments, patrols, etc. Enter the number of participants and a photo.</li>
     <li>Cell colours: <span class="pill st-closed">green</span> as planned, <span class="pill MEDIUM">yellow</span> partial / current week, <span class="pill st-open">red</span> not completed, blue = unplanned activity.</li>
     <li><b>Compliance</b> = actual (capped at the plan) ÷ plan, only for weeks that have started.</li>
