@@ -48,7 +48,7 @@
   window.t = t;
   window.I18N = {
     add(obj) { Object.keys(obj).forEach(k => D.set(norm(k), obj[k])); },
-    rx(list) { RX.push(...list); },
+    rx(list) { RX.push(...list.filter(x => Array.isArray(x) && x[0] instanceof RegExp)); }, // pola rusak diabaikan
     ok(list) { list.forEach(k => D.set('=' + norm(k), 1)); }, // sudah bahasa Inggris / nama: tidak perlu diterjemahkan
     setLang(l) { try { localStorage.setItem('hse-lang', l === 'en' ? 'en' : 'id'); } catch (e) { /* abaikan */ } location.reload(); },
     missing: null
@@ -82,15 +82,17 @@
   window.prompt = (m, d) => np(t(m), d);
 
   function start() {
-    document.title = t(document.title);
-    walk(document.body);
+    // pasang pengamat dulu, lalu terjemahkan isi yang sudah ada (error tidak boleh menghentikan semuanya)
     new MutationObserver(ms => {
       for (const m of ms) {
-        if (m.type === 'characterData') trText(m.target);
-        else if (m.type === 'attributes') trEl(m.target);
-        else m.addedNodes.forEach(walk);
+        try {
+          if (m.type === 'characterData') trText(m.target);
+          else if (m.type === 'attributes') trEl(m.target);
+          else m.addedNodes.forEach(walk);
+        } catch (e) { console.error('i18n', e); }
       }
     }).observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+    try { document.title = t(document.title); walk(document.body); } catch (e) { console.error('i18n', e); }
   }
   // mulai setelah semua script (termasuk kamus i18n-en.js) selesai dimuat
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else setTimeout(start, 0);

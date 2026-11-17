@@ -15,7 +15,7 @@ const SCHEMA = {
   // kolom rincian ditambahkan di akhir supaya data lama tetap terbaca
   Manpower: ['date', 'normal', 'lembur', 'updated_by', 'updated_at', 'staff_normal', 'staff_lembur', 'pekerja_normal', 'pekerja_lembur', 'detail', 'lembur_end'],
   Cuaca: ['date', 'h07', 'h08', 'h09', 'h10', 'h11', 'h12', 'h13', 'h14', 'h15', 'h16', 'h17', 'h18', 'h19', 'h20', 'h21', 'updated_by', 'updated_at'],
-  Observation: ['id', 'date', 'observer', 'area', 'finding', 'type', 'category', 'risk', 'photo_url', 'action', 'action_date', 'action_photo_url', 'status', 'created_by', 'created_at', 'updated_by', 'updated_at'],
+  Observation: ['id', 'date', 'observer', 'area', 'finding', 'type', 'category', 'risk', 'photo_url', 'action', 'action_date', 'action_photo_url', 'status', 'created_by', 'created_at', 'updated_by', 'updated_at', 'rca'],
   Incident: ['id', 'date', 'time', 'cls', 'area', 'desc', 'involved', 'action', 'lost_days', 'reporter', 'photo_url', 'created_by', 'created_at'],
   Master: ['list', 'value'],
   ERT: ['id', 'kind', 'role', 'name', 'worker_id', 'phone', 'info', 'updated_by', 'updated_at'],
@@ -35,6 +35,7 @@ const DEFAULT_CONFIG = [
   ['lembur_mulai', 18, 'Jam mulai lembur (angka jam 0-23, mis. 18 = 18:00)'],
   ['lembur_pulang', 22, 'Default jam pulang lembur (angka jam; 24 ke atas = besok pagi, mis. 26 = 02:00). Per hari dipilih di popup manpower'],
   ['target_obs_week', 20, 'Target observasi per minggu'],
+  ['rca_mode', 'wajib', 'Investigasi RCA temuan MEDIUM/HIGH: wajib = harus RCA & action plan selesai sebelum Closed; off = tanpa RCA'],
   ['target_close_rate', 90, 'Target close-out rate (%)'],
   ['target_close_days', 3, 'Target rata-rata hari penyelesaian'],
   ['pin', 'ganti-pin-user', 'PIN untuk petugas input (WAJIB diganti)'],
@@ -273,6 +274,12 @@ function write_(a, req, user, role) {
         throw new Error('Status Closed wajib mengisi Action dan Action Date');
       if (v.action_date) checkDate_(v.action_date);
       if (v.action_date && v.action_date < v.date) throw new Error('Action date tidak boleh sebelum tanggal temuan');
+      // MEDIUM/HIGH baru boleh Closed bila RCA Selesai & semua action plan Selesai
+      // (temuan yang sebelumnya sudah Closed tidak diblok)
+      if (v.status === 'Closed' && ['MEDIUM', 'HIGH'].indexOf(v.risk) >= 0 && String(readConfig_().rca_mode) !== 'off') {
+        const cur = a === 'updateObservation' ? rows_('Observation').find(x => String(x.id) === String(req.id)) : null;
+        if (!cur || cur.status !== 'Closed') { const err = rcaCloseError_(cur && cur.rca); if (err) throw new Error(err); }
+      }
       if (req.photo) v.photo_url = savePhoto_(req.photo, 'OBS');
       if (req.actionPhoto) v.action_photo_url = savePhoto_(req.actionPhoto, 'ACT');
       let id = req.id;
@@ -285,6 +292,15 @@ function write_(a, req, user, role) {
       }
       // status dikembalikan agar aplikasi tahu server sudah mendukung status manual
       return { sheet: 'Observation', ref: id, id, status: v.status, photo_url: v.photo_url, action_photo_url: v.action_photo_url };
+    }
+    case 'saveRca': {
+      const txt = String(req.rca || '');
+      if (txt.length > 45000) throw new Error('Data RCA terlalu panjang');
+      let rca; try { rca = JSON.parse(txt); } catch (e) { throw new Error('Data RCA tidak valid'); }
+      if (!rca || typeof rca !== 'object') throw new Error('Data RCA tidak valid');
+      ensureHeader_('Observation');
+      if (!update_('Observation', req.id, { rca: txt, updated_by: user, updated_at: now })) throw new Error('Observasi tidak ditemukan: ' + req.id);
+      return { sheet: 'Observation', ref: req.id, ok: true };
     }
     case 'addIncident': {
       checkDate_(r.date);
@@ -300,7 +316,7 @@ function write_(a, req, user, role) {
     }
     case 'updateConfig': {
       adminOnly();
-      const allowed = ['project_name', 'project_start', 'project_end', 'jam_normal', 'lembur_mulai', 'lembur_pulang', 'target_obs_week', 'target_close_rate', 'target_close_days'];
+      const allowed = ['project_name', 'project_start', 'project_end', 'jam_normal', 'lembur_mulai', 'lembur_pulang', 'target_obs_week', 'target_close_rate', 'target_close_days', 'rca_mode'];
       const c = req.config || {};
       if (c.project_start !== undefined) checkDate_(c.project_start);
       if (c.project_end !== undefined) checkDate_(c.project_end);
@@ -521,6 +537,20 @@ function update_(name, key, v) {
   cur[0] = txt_(key);
   sh.getRange(row, 1, 1, head.length).setValues([cur]);
   return true;
+}
+
+/* RCA temuan MEDIUM/HIGH: '' bila boleh Closed */
+function rcaCloseError_(txt) {
+  let r = null; try { r = txt ? JSON.parse(txt) : null; } catch (e) { r = null; }
+  if (!r || r.status !== 'Selesai') return 'Temuan MEDIUM/HIGH: selesaikan investigasi RCA dulu (akar masalah & action plan) sebelum Closed';
+  if ((r.actions || []).some(x => x.st !== 'Selesai')) return 'Temuan MEDIUM/HIGH: masih ada action plan RCA yang belum selesai';
+  return '';
+}
+
+/* pastikan baris judul memuat semua kolom SCHEMA (kolom baru tanpa perlu menjalankan setup) */
+function ensureHeader_(name) {
+  const sh = sheet_(name), head = SCHEMA[name];
+  if (sh.getLastColumn() < head.length) sh.getRange(1, 1, 1, head.length).setValues([head]).setFontWeight('bold').setBackground('#0b5a41').setFontColor('#ffffff');
 }
 
 function upsert_(name, key, v) {

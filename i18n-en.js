@@ -297,6 +297,40 @@ I18N.add({
   'Belum ada observasi minggu ini': 'No observations this week yet', 'Aktivitas pencegahan ·': 'Preventive activity ·', '· PTD s/d week tsb.': '· PTD up to that week',
   'Week dihitung': 'Weeks run', 'Kamera': 'Camera', 'Galeri': 'Gallery', 'Hapus foto': 'Remove photo', 'Aktivitas pencegahan pada week terpilih. Angka PTD dihitung sejak awal proyek s/d akhir week tersebut.': 'Preventive activity in the selected week. PTD figures are counted from project start up to the end of that week.', 'Senin – Minggu': 'Monday – Sunday',
 
+  /* ---------- investigasi RCA ---------- */
+  'RCA': 'RCA', 'Perlu RCA': 'RCA needed', 'RCA draft': 'RCA draft', 'Action plan lewat target': 'Action plan past target',
+  'Investigasi RCA': 'RCA Investigation', 'Investigasi RCA belum dibuat.': 'RCA investigation not created yet.', 'Investigasi RCA masih draft.': 'RCA investigation is still a draft.',
+  'RCA & semua action plan selesai — temuan boleh Closed.': 'RCA & all action plans completed — the finding can be Closed.', '🔍 Buka investigasi RCA': '🔍 Open RCA investigation',
+  'Temuan': 'Finding', 'wajib investigasi RCA (5 Why & action plan) sebelum bisa Closed. Simpan temuan dulu, lalu buka RCA dari kolom': 'requires an RCA investigation (5 Why & action plan) before it can be Closed. Save the finding first, then open the RCA from the',
+  'di tabel.': 'column in the table.', 'Tanggal investigasi': 'Investigation date', 'Status RCA': 'RCA status', 'Tim investigasi': 'Investigation team',
+  'Nama & jabatan, pisahkan dengan koma': 'Name & position, separated by commas', 'Kronologi / uraian kejadian': 'Chronology / description of the event',
+  'Penyebab langsung (unsafe act / unsafe condition)': 'Immediate cause (unsafe act / unsafe condition)', 'Analisis 5 Why': '5 Why Analysis',
+  'tanyakan "mengapa?" berulang sampai ditemukan akar masalah': 'keep asking "why?" until the root cause is found', 'Mengapa…?': 'Why…?', '+ Why': '+ Why',
+  'Kategori akar masalah': 'Root cause category', 'bisa pilih beberapa': 'several can be selected', 'Akar masalah (root cause)': 'Root cause',
+  'Kesimpulan dari analisis 5 Why': 'Conclusion of the 5 Why analysis', 'Action plan': 'Action plan',
+  'tindakan untuk menghilangkan akar masalah · utamakan hierarki pengendalian tertinggi': 'actions to eliminate the root cause · prioritise the highest level of the hierarchy of controls',
+  'Tindakan': 'Action', 'Hierarki pengendalian': 'Hierarchy of controls', 'Target selesai': 'Target date', 'Tanggal selesai aktual': 'Actual completion date', '+ Action plan': '+ Action plan',
+  'Verifikasi efektivitas': 'Effectiveness verification', 'diisi setelah action plan selesai': 'filled in after the action plans are completed', 'Diverifikasi oleh': 'Verified by',
+  'Tanggal verifikasi': 'Verification date', 'Hasil verifikasi': 'Verification result', 'Apakah tindakan efektif mencegah kejadian berulang?': 'Were the actions effective in preventing recurrence?',
+  'Manusia': 'People', 'Metode / Prosedur': 'Method / Procedure', 'Peralatan / Mesin': 'Equipment / Machine', 'Material': 'Material', 'Lingkungan': 'Environment',
+  'Manajemen / Pengawasan': 'Management / Supervision', 'Koreksi': 'Correction', 'Korektif': 'Corrective', 'Preventif': 'Preventive', 'Eliminasi': 'Elimination',
+  'Substitusi': 'Substitution', 'Rekayasa': 'Engineering', 'Administratif': 'Administrative', 'APD': 'PPE', 'Proses': 'In progress',
+  'RCA tersimpan': 'RCA saved', 'Simpan RCA dulu sebelum dicetak': 'Save the RCA before printing', 'RCA belum dibuat': 'RCA not created yet', 'Membuat PDF RCA…': 'Creating RCA PDF…',
+  'RCA & semua action plan selesai: temuan sekarang boleh di-Closed': 'RCA & all action plans completed: the finding can now be Closed',
+  'Apps Script belum diperbarui: RCA belum bisa disimpan ke Google Sheet. Admin perlu menempel Code.gs terbaru lalu Deploy → New version.': 'Apps Script not updated: the RCA cannot be saved to Google Sheet yet. An admin must paste the latest Code.gs and then Deploy → New version.',
+  'Temuan MEDIUM/HIGH: selesaikan investigasi RCA dulu (akar masalah & action plan) sebelum Closed': 'MEDIUM/HIGH finding: complete the RCA investigation (root cause & action plan) before Closing',
+  'Temuan MEDIUM/HIGH: masih ada action plan RCA yang belum selesai': 'MEDIUM/HIGH finding: some RCA action plans are not completed yet',
+  'RCA MEDIUM/HIGH tuntas': 'MEDIUM/HIGH RCAs completed', 'Investigasi RCA untuk temuan MEDIUM / HIGH': 'RCA investigation for MEDIUM / HIGH findings',
+  'Pakai RCA — wajib RCA & action plan selesai sebelum Closed': 'Use RCA — RCA & action plans must be completed before Closing',
+  'Tanpa RCA — alur saat ini (Closed cukup Action & Action Date)': 'No RCA — current flow (Closing only needs Action & Action Date)', 'Tidak ada action plan lewat target': 'No action plans past target',
+  'Data RCA tidak valid': 'Invalid RCA data', 'Data RCA terlalu panjang': 'RCA data is too long',
+  // laporan PDF RCA
+  'LAPORAN INVESTIGASI RCA': 'RCA INVESTIGATION REPORT', 'Tanggal temuan': 'Finding date', 'Status temuan': 'Finding status',
+  '1. Kronologi / uraian kejadian': '1. Chronology / description of the event', '2. Penyebab langsung': '2. Immediate cause', '3. Analisis 5 Why': '3. 5 Why analysis',
+  '4. Kategori & akar masalah': '4. Category & root cause', 'Kategori:': 'Category:', 'Akar masalah:': 'Root cause:', '5. Action plan': '5. Action plan',
+  'Hierarki': 'Hierarchy', '6. Verifikasi efektivitas': '6. Effectiveness verification', 'Oleh:': 'By:', 'Tanggal:': 'Date:',
+  'Dibuat oleh': 'Prepared by', 'Diperiksa oleh': 'Reviewed by', 'Disetujui oleh': 'Approved by',
+
   /* ---------- risiko ---------- */
   'Potensi kecelakaan fatal atau cedera berat yang menghentikan operasional': 'Potential fatal accident or serious injury that stops operations',
   'Potensi cedera yang memerlukan pertolongan medis': 'Potential injury requiring medical treatment', 'Potensi cedera ringan / P3K': 'Potential minor injury / first aid'
@@ -393,6 +427,15 @@ I18N.ok([]);
     [/^HIGH Open akhir Week (\d+)$/, 'HIGH Open at end of Week $1'],
     [/^(\d+) di Week (\d+)$/, '$1 in Week $2'],
     [/^Status per akhir Week (\d+) \((.+)\)\.$/, 'Status as of the end of Week $1 ($2).'],
+    [/^Investigasi RCA · (\w+)$/, 'RCA Investigation · $1'],
+    [/^Action (\d+)\/(\d+)$/, 'Action $1/$2'],
+    [/^RCA selesai, action plan (\d+)\/(\d+) selesai\.$/, 'RCA completed, action plans $1/$2 completed.'],
+    [/^(\d+) lewat target$/, '$1 past target'],
+    [/^(\d+) action plan lewat target$/, (m, n) => n + (n === '1' ? ' action plan past target' : ' action plans past target')],
+    [/^Temuan MEDIUM\/HIGH: masih ada action plan RCA yang belum selesai \((\d+)\/(\d+)\)$/, 'MEDIUM/HIGH finding: some RCA action plans are not completed yet ($1/$2)'],
+    [/^Status RCA Selesai wajib: (.+)$/, (m, a) => 'Completed RCA status requires: ' + a.replace('minimal 1 Why', 'at least 1 Why').replace('akar masalah', 'root cause').replace('minimal 1 action plan', 'at least 1 action plan').replace('tindakan, PIC & target tiap action plan', 'action, PIC & target for each action plan')],
+    [/^Terakhir disimpan: (.+)$/, 'Last saved: $1'],
+    [/^Root Cause Analysis · Temuan Observasi (\w+)$/, 'Root Cause Analysis · $1 Observation Finding'],
     [/^Status tersimpan sebagai (\w+): Apps Script di Google belum diperbarui\. Admin perlu menempel Code\.gs terbaru lalu Deploy → New version\.$/, 'Status saved as $1: the Apps Script on Google has not been updated. An admin must paste the latest Code.gs and then Deploy → New version.']
   ]);
 })();
@@ -418,7 +461,8 @@ window.GUIDE_EN = () => [
     <p>On the Dashboard, weather is summarised into 3 shifts (07–12, 12–17, 17–22) using the <b>worst</b> condition in that shift.</p>`],
   ['Daily Observation', `<ol><li>Click <b>+ Add Observation</b>, fill in the date, observer name, area, type, category, risk and finding description + photo.</li>
     <li>Once the fix is done, <b>click the finding row</b> in the table and fill in <b>Action</b>, <b>Action Date</b> and the after photo. The status <b>does not change automatically</b>: press <span class="pill st-closed">Closed</span> only when the fix is truly complete &amp; checked. While still in progress, leave it <span class="pill st-open">Open</span> (Action may be filled in as progress).</li>
-    <li>Photos from the phone camera are automatically resized before upload and stored in the project Google Drive folder.</li></ol>
+    <li>Photos from the phone camera are automatically resized before upload and stored in the project Google Drive folder.</li>
+    <li><span class="pill MEDIUM">MEDIUM</span> / <span class="pill HIGH">HIGH</span> findings require an <b>RCA investigation</b>: click the button in the <b>RCA</b> column (or <i>Open RCA investigation</i> in the form). Fill in the chronology, immediate cause, <b>5 Why</b>, category &amp; root cause, then the <b>action plan</b> (type, hierarchy of controls, PIC, target). The finding can only be <b>Closed</b> when the RCA status is <b>Completed</b> and all action plans are <b>Completed</b>. The RCA report can be printed as PDF (A4). Admins can turn this rule off in <b>Master → Project Settings → RCA investigation</b> (choose <i>No RCA</i>).</li></ol>
     <p><b>Risk levels:</b></p><ul>${MASTER.risk.map(([k, d]) => `<li><span class="pill ${k}">${k}</span> ${t(d)}</li>`).join('')}</ul>
     <p><b>Type:</b> <i>Unsafe Action</i> = unsafe behaviour of a person; <i>Unsafe Condition</i> = unsafe environment / equipment condition.</p>`],
   ['Incident & Safety Pyramid', `<p>Every incident is reported via <b>+ Report Incident</b> and is automatically added to the Safety Pyramid.</p>
