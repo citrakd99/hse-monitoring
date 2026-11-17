@@ -395,6 +395,9 @@ tr.mpd-oth td{color:var(--muted);font-style:italic}
 .filters label{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--muted);font-weight:500}
 .filters input,.filters select{padding:6px 8px;min-width:130px}
 .f-btns{display:flex;gap:6px;margin-left:auto}
+.pager{display:flex;align-items:center;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--muted)}
+.pager select{padding:3px 6px;font-size:12px}.pager button{min-width:32px;padding:4px 10px}.pager button:disabled{opacity:.4;cursor:default}
+.pgx-opts{display:grid;gap:10px;padding:16px 18px}.pgx-opts button{text-align:left;padding:12px 14px;display:flex;flex-direction:column;gap:2px}.pgx-opts small{color:var(--muted);font-weight:400}
 .filter-info{font-size:12px;color:var(--muted);margin:0 2px 10px}
 .filter-info b{color:var(--text)}
 .exporting .filter-info{font-size:12px;background:#f1f5f3;border:1px solid #d6e3dc;border-radius:8px;padding:8px 10px;color:#33414d}
@@ -594,8 +597,8 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   <div class="grid kpis">
     <div class="card kpi"><div class="lbl">Update date</div><div class="val" id="k-date"></div><div class="hint" id="k-week"></div></div>
     <div class="card kpi safe"><div class="lbl">Total Safe Manhours</div><div class="val" id="k-mh"></div><div class="hint">Normal + lembur, tanpa LTI</div></div>
-    <div class="card kpi"><div class="lbl">Working Days</div><div class="val" id="k-days"></div><div class="hint">Auto dari Daily Monitoring</div></div>
-    <div class="card kpi"><div class="lbl">Man Days</div><div class="val" id="k-mp"></div><div class="hint" id="k-mp-h"></div></div>
+    <div class="card kpi"><div class="lbl">Total Working Days</div><div class="val" id="k-days"></div><div class="hint">Auto dari Daily Monitoring</div></div>
+    <div class="card kpi"><div class="lbl">Total Man Days</div><div class="val" id="k-mp"></div><div class="hint" id="k-mp-h"></div></div>
   </div>
 
   <div class="grid two" style="margin-top:16px">
@@ -731,6 +734,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <thead><tr><th>No</th><th>Date</th><th>Observer</th><th>Area</th><th>Finding</th><th>Type</th><th>Category</th><th>Risk</th><th class="c">Photo</th><th>Action</th><th>Action Date</th><th class="c">Photo</th><th>Status</th><th>RCA</th></tr></thead>
       <tbody id="obs-body"></tbody>
     </table></div>
+    <div class="pager no-pdf" id="obs-pager" hidden></div>
   </div>
 </section>
 
@@ -780,7 +784,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 <!-- HSE PROGRAM -->
 <section class="view" id="v-program">
   <div class="grid kpis" id="pg-kpi"></div>
-  <div class="card" style="margin-top:16px">
+  <div class="card" style="margin-top:16px" id="pg-mx-card">
     <div class="toolbar">
       <b>Matriks Program HSE · Rencana vs Realisasi</b><span class="spacer"></span>
       <label class="tb-l no-pdf">Kategori<select id="pg-cat"></select></label>
@@ -811,13 +815,15 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <thead><tr><th>No</th><th>Date</th><th>Kategori</th><th>Program</th><th>Topik / Materi</th><th class="num">Peserta</th><th>PIC</th><th>Lokasi</th><th class="c">Foto</th><th class="no-pdf"></th></tr></thead>
       <tbody id="act-body"></tbody>
     </table></div>
+    <div class="pager no-pdf" id="act-pager" hidden></div>
   </div>
-  <div class="card" style="margin-top:16px">
+  <div class="card" style="margin-top:16px" id="pg-list-card">
     <h3>Daftar Program HSE <span class="sub" id="pg-count"></span></h3>
     <div class="tbl-wrap"><table>
       <thead><tr><th>Kategori</th><th>Program</th><th>Frekuensi</th><th>Rencana</th><th>PIC</th><th class="no-pdf"></th></tr></thead>
       <tbody id="pg-list"></tbody>
     </table></div>
+    <div class="pager no-pdf" id="pg-pager" hidden></div>
     <form class="pg-add no-pdf" id="pg-add">
       <select name="category" id="pa-cat" required></select>
       <input name="name" placeholder="Nama program, mis. Training Hot Work" required maxlength="80">
@@ -992,6 +998,14 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     <div class="dlg-f"><button class="btn" value="cancel" formnovalidate>Batal</button><button class="btn primary" value="ok">Simpan</button></div>
   </form>
 </dialog>
+<dialog id="dlg-pgx">
+  <div class="dlg-h">Export PDF HSE Program</div>
+  <div class="pgx-opts">
+    <button class="btn" type="button" data-o="log"><b>Log Kegiatan saja</b><small>Hanya tabel log kegiatan sesuai filter</small></button>
+    <button class="btn" type="button" data-o="all"><b>Semua</b><small>KPI, matriks rencana vs realisasi, log kegiatan, dan daftar program</small></button>
+  </div>
+  <div class="dlg-f"><span class="spacer"></span><button class="btn" type="button" id="pgx-cancel">Batal</button></div>
+</dialog>
 <dialog id="dlg-prog">
   <form method="dialog" id="prog-form">
     <div class="dlg-h">Edit Program HSE</div>
@@ -1061,13 +1075,13 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 <div id="toast">Membuat PDF…</div>
 <div id="snack"></div>
 
-<script src="i18n.js?v=1.18"></script>
-<script src="i18n-en.js?v=1.18"></script>
-<script src="config.js?v=1.18"></script>
-<script src="ptw.js?v=1.18"></script>
-<script src="pekerja.js?v=1.18"></script>
-<script src="darurat.js?v=1.18"></script>
-<script src="rca.js?v=1.18"></script>
+<script src="i18n.js?v=1.19"></script>
+<script src="i18n-en.js?v=1.19"></script>
+<script src="config.js?v=1.19"></script>
+<script src="ptw.js?v=1.19"></script>
+<script src="pekerja.js?v=1.19"></script>
+<script src="darurat.js?v=1.19"></script>
+<script src="rca.js?v=1.19"></script>
 <script>
 /* ================= CONFIG ================= */
 const API=((window.HSE_CONFIG&&window.HSE_CONFIG.apiUrl)||'').trim();
@@ -1494,17 +1508,23 @@ function bindWeekFilter(sel,from,to,render){
   [from,to].forEach(x=>$(x).addEventListener('change',sync));
   return sync;
 }
+/* state paginasi (Observation, Log Kegiatan, Daftar Program) */
+const PAGER={obs:{p:1,n:10,k:''},act:{p:1,n:10,k:''},pg:{p:1,n:10,k:''}};
+let PAGE_ALL=false;
+try{const n=+store.get('hse-page-n');if([10,25,50].includes(n))Object.values(PAGER).forEach(s=>s.n=n);}catch{}
 function renderObs(){
   const F={from:$('#f-from').value,to:$('#f-to').value,risk:$('#f-risk').value,area:$('#f-area').value,cat:$('#f-cat').value,st:$('#f-status').value};
   const list=observations.map((o,i)=>({...o,no:i+1})).filter(o=>(!F.from||o.date>=F.from)&&(!F.to||o.date<=F.to)&&(!F.risk||o.risk===F.risk)&&
     (!F.area||o.area===F.area)&&(!F.cat||o.category===F.cat)&&(!F.st||o.status===F.st)).reverse();
   $('#obs-info').innerHTML=summarize(observations.length,list.length,'observasi',[['Periode',periodTxt(F.from,F.to)],['Risk',F.risk],['Area',F.area],['Category',F.cat],['Status',F.st]])+
     ` · Open <b>${list.filter(o=>o.status==='Open').length}</b> / Closed <b>${list.filter(o=>o.status==='Closed').length}</b>`;
-  $('#obs-body').innerHTML=list.map(o=>`<tr data-id="${esc(o.id)}" title="Klik untuk edit / tutup temuan"><td>${o.no}</td><td>${fmtID(new Date(o.date))}</td><td>${esc(o.observer)}</td><td>${esc(o.area)}</td>
+  const page=paginate('obs',list,JSON.stringify(F)+observations.length);
+  $('#obs-body').innerHTML=page.map(o=>`<tr data-id="${esc(o.id)}" title="Klik untuk edit / tutup temuan"><td>${o.no}</td><td>${fmtID(new Date(o.date))}</td><td>${esc(o.observer)}</td><td>${esc(o.area)}</td>
     <td style="white-space:normal;min-width:220px">${esc(o.finding)}</td><td>${esc(o.type)}</td><td>${esc(o.category)}</td><td><span class="pill ${o.risk}">${o.risk}</span></td>
     <td class="c">${photoCell(o.photo)}</td><td style="white-space:normal;min-width:200px">${esc(o.action)||'–'}</td><td>${o.actionDate?fmtID(new Date(o.actionDate)):'–'}</td>
     <td class="c">${photoCell(o.actionPhoto)}</td><td><span class="pill st-${o.status.toLowerCase()}">${o.status}</span></td><td>${rcaBadge(o)}</td></tr>`).join('')
     ||'<tr><td colspan="14" style="text-align:center;color:var(--muted);padding:20px">Tidak ada data sesuai filter</td></tr>';
+  pagerBar('obs',list.length,renderObs);
   $('#obs-body').querySelectorAll('tr[data-id]').forEach(tr=>tr.onclick=e=>{if(e.target.closest('a,.rca-b'))return;openObs(observations.find(o=>String(o.id)===tr.dataset.id));});
   $('#obs-body').querySelectorAll('.rca-b').forEach(b=>b.onclick=()=>openRca(observations.find(o=>String(o.id)===b.dataset.rca)));
   $('#obs-body').closest('table').classList.toggle('no-rca',CFG.rcaMode==='off');
@@ -1794,16 +1814,34 @@ function renderProgram(){
 
   renderActivities(); renderProgramList();
 }
+/* paginasi tabel panjang (saat export PDF semua baris ditampilkan) */
+function paginate(id,list,key){
+  const s=PAGER[id]; if(s.k!==key){s.k=key;s.p=1;}
+  const pages=Math.max(1,Math.ceil(list.length/s.n)); s.p=Math.min(Math.max(1,s.p),pages);
+  return PAGE_ALL?list:list.slice((s.p-1)*s.n,s.p*s.n);
+}
+function pagerBar(id,total,render){
+  const s=PAGER[id], el=$('#'+id+'-pager'), pages=Math.max(1,Math.ceil(total/s.n));
+  if(total<=10){el.hidden=true;el.innerHTML='';return;}
+  el.hidden=false;
+  el.innerHTML=`<span>${(s.p-1)*s.n+1}–${Math.min(total,s.p*s.n)}</span><span>dari</span><span>${total}</span>
+    <select title="Baris per halaman">${[10,25,50].map(n=>`<option${n===s.n?' selected':''}>${n}</option>`).join('')}</select><span>per halaman</span>
+    <button class="btn" data-d="-1"${s.p<=1?' disabled':''} aria-label="Sebelumnya">‹</button><span>Hal.</span><span>${s.p} / ${pages}</span><button class="btn" data-d="1"${s.p>=pages?' disabled':''} aria-label="Berikutnya">›</button>`;
+  el.querySelector('select').onchange=e=>{Object.values(PAGER).forEach(x=>{x.n=+e.target.value;x.p=1;});try{store.set('hse-page-n',e.target.value);}catch{}renderObs();renderActivities();renderProgramList();};
+  el.querySelectorAll('button').forEach(b=>b.onclick=()=>{s.p+=+b.dataset.d;render();});
+}
 function renderActivities(){
   const F={from:$('#a-from').value,to:$('#a-to').value,cat:$('#a-cat').value};
   const list=activities.map((a,i)=>({...a,no:i+1,p:pgById(a.programId)})).filter(a=>(!F.from||a.date>=F.from)&&(!F.to||a.date<=F.to)&&(!F.cat||a.p?.category===F.cat)).reverse();
   $('#act-info').innerHTML=summarize(activities.length,list.length,'kegiatan',[['Periode',periodTxt(F.from,F.to)],['Kategori',F.cat]])+` · Total peserta <b>${nf(list.reduce((x,a)=>x+a.participants,0))}</b>`;
-  $('#act-body').innerHTML=list.map(a=>`<tr><td>${a.no}</td><td>${fmtID(new Date(a.date))}</td>
+  const page=paginate('act',list,JSON.stringify(F)+activities.length);
+  $('#act-body').innerHTML=page.map(a=>`<tr><td>${a.no}</td><td>${fmtID(new Date(a.date))}</td>
     <td>${a.p?`<span class="cat-pill" style="--c:${PG_COLOR[a.p.category]||'#64748b'}">${esc(a.p.category)}</span>`:'–'}</td><td style="white-space:normal;min-width:180px">${a.p?esc(a.p.name):'<i>(program dihapus)</i>'}</td>
     <td style="white-space:normal;min-width:200px">${esc(a.topic)}${a.notes?`<br><small style="color:var(--muted)">${esc(a.notes)}</small>`:''}</td>
     <td class="num">${a.participants||'–'}</td><td>${esc(a.pic)||'–'}</td><td>${esc(a.location)||'–'}</td><td class="c">${photoCell(a.photo)}</td>
     <td class="no-pdf" style="white-space:nowrap"><button class="edit" data-id="${esc(a.id)}" title="Edit kegiatan">✎</button>${ROLE==='admin'?`<button class="del" data-id="${esc(a.id)}" title="Hapus">×</button>`:''}</td></tr>`).join('')
     ||'<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">Belum ada kegiatan pada filter ini</td></tr>';
+  pagerBar('act',list.length,renderActivities);
   $('#act-body').querySelectorAll('.edit').forEach(b=>b.onclick=()=>openAct(null,null,activities.find(a=>String(a.id)===b.dataset.id)));
   $('#act-body').querySelectorAll('.del').forEach(b=>b.onclick=async()=>{
     if(!confirm('Hapus catatan kegiatan ini?'))return;
@@ -1813,9 +1851,11 @@ function renderActivities(){
 function renderProgramList(){
   const admin=ROLE==='admin'&&PG_SERVER;
   $('#pg-count').textContent=`${programs.length} program`;
-  $('#pg-list').innerHTML=PG_CATS.flatMap(c=>programs.filter(p=>p.category===c)).map(p=>`<tr><td><span class="cat-pill" style="--c:${PG_COLOR[p.category]}">${esc(p.category)}</span></td>
+  const all=PG_CATS.flatMap(c=>programs.filter(p=>p.category===c)), page=paginate('pg',all,'');
+  $('#pg-list').innerHTML=page.map(p=>`<tr><td><span class="cat-pill" style="--c:${PG_COLOR[p.category]}">${esc(p.category)}</span></td>
     <td style="white-space:normal">${esc(p.name)}</td><td>${esc(p.frequency)}</td><td>${pgPlanTxt(p)}</td><td>${esc(p.pic)||'–'}</td>
     <td class="no-pdf" style="white-space:nowrap">${admin?`<button class="edit" data-id="${esc(p.id)}" title="Edit program">✎</button><button class="del" data-id="${esc(p.id)}" title="Hapus program">×</button>`:''}</td></tr>`).join('');
+  pagerBar('pg',all.length,renderProgramList);
   $('#pg-list').querySelectorAll('.edit').forEach(b=>b.onclick=()=>openProg(pgById(b.dataset.id)));
   $('#pg-add').hidden=!admin;
   $('#pg-note').textContent=!PG_SERVER?'Daftar bawaan. Perbarui Apps Script (lihat DEPLOY.md) agar daftar program bisa diubah dan kegiatan tersimpan.':admin?'Program baru langsung muncul di matriks sesuai frekuensinya. Menghapus program tidak menghapus catatan kegiatannya.':'Hanya admin yang dapat menambah / menghapus program.';
@@ -1970,8 +2010,12 @@ const PDF_LAYOUT={dashboard:{o:'p',w:900},master:{o:'p',w:860},manpower:{o:'l',w
 // elemen yang tidak boleh terbelah di antara dua halaman
 const PDF_ATOMIC='tr, .fl-step, .fl-dec, .fl-start, .fl-note, .ert-m, .ert-c, .ert-rh, .proc-hd, .proc-obj, .wp-item, .wp-top, .wp-extra, .kpi, .li, .ic-card, .pyr, .chart-box, .fx, .page-head, .note, .filter-info, .legend, .perf-foot, .mlist li, .guide summary, .guide .gb > *, h3, .set-grid > *, .set-calc, .set-f';
 let pdfBusy=false;
-async function exportPDF(k){
+async function exportPDF(k,opt){
   if(pdfBusy)return; pdfBusy=true;
+  // HSE Program: tampilkan semua baris; opsi 'log' = hanya Log Kegiatan
+  const pgHide=k==='program'&&opt==='log'?['#pg-kpi','#pg-mx-card','#pg-list-card'].map(s=>$(s)):[];
+  if(k==='program'){PAGE_ALL=true;renderActivities();renderProgramList();pgHide.forEach(el=>el.classList.add('no-pdf'));}
+  if(k==='obs'){PAGE_ALL=true;renderObs();}
   const sec=$('#v-'+k), root=document.documentElement, prevTheme=root.dataset.theme, L=PDF_LAYOUT[k];
   $('#toast').classList.add('show');
   root.dataset.theme='light'; document.body.classList.add('exporting'); sec.style.width=L.w+'px';
@@ -1982,7 +2026,7 @@ async function exportPDF(k){
   await new Promise(r=>setTimeout(r,300));
   const filtered=k==='obs'?['#f-from','#f-to','#f-risk','#f-area','#f-cat','#f-status'].some(s=>$(s).value):k==='incident'?['#i-from','#i-to','#i-cls','#i-area'].some(s=>$(s).value):false;
   const sub=k==='master'?($('#m-seg button.active')?.dataset.m||'data'):'';
-  const extra=k==='incident'?({log:'',ert:'-ERT',proc:'-Prosedur-'+procCur}[$('#inc-seg button.active')?.dataset.m||'log']):k==='manpower'?(!$('#mp-wk').hidden?'-Pekerja':`-W${$('#mp-week').value}`):k==='cuaca'?`-W${$('#wx-week').value}`:sub==='guide'?'-Panduan':sub==='setting'?'-Pengaturan':filtered?'-filtered':'';
+  const extra=k==='incident'?({log:'',ert:'-ERT',proc:'-Prosedur-'+procCur}[$('#inc-seg button.active')?.dataset.m||'log']):k==='manpower'?(!$('#mp-wk').hidden?'-Pekerja':`-W${$('#mp-week').value}`):k==='cuaca'?`-W${$('#wx-week').value}`:sub==='guide'?'-Panduan':sub==='setting'?'-Pengaturan':k==='program'?(opt==='log'?'-Log':'-Semua'):filtered?'-filtered':'';
   try{
     const base=sec.getBoundingClientRect(), W=Math.ceil(sec.scrollWidth), H=Math.ceil(sec.scrollHeight);
     // 1) cari titik potong yang aman
@@ -2006,7 +2050,7 @@ async function exportPDF(k){
     // 3) render sekali, lalu potong per halaman
     const scale=Math.max(0.8,Math.min(2,Math.sqrt(14e6/(W*H))));
     const canvas=await html2canvas(sec,{scale,backgroundColor:'#ffffff',logging:false,useCORS:true,width:W,height:H,scrollX:-window.scrollX,scrollY:-window.scrollY});
-    const sx=canvas.width/W, title=`HSE Monitoring · ${CFG.projectName} · ${t(PAGES[k])}`, printed=`${t('Dicetak')} ${new Date().toLocaleString(LOCALE,{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}`;
+    const sx=canvas.width/W, title=`HSE Monitoring · ${CFG.projectName} · ${t(PAGES[k])}${pgHide.length?' · '+t('Log Kegiatan'):''}`, printed=`${t('Dicetak')} ${new Date().toLocaleString(LOCALE,{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}`;
     slices.forEach(([a,b],i)=>{
       const hPx=Math.max(1,Math.round((b-a)*sx)), c=document.createElement('canvas'); c.width=canvas.width; c.height=hPx;
       const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(canvas,0,Math.round(a*sx),canvas.width,hPx,0,0,canvas.width,hPx);
@@ -2021,6 +2065,8 @@ async function exportPDF(k){
   }catch(e){snack('Gagal membuat PDF: '+e.message,true);}
   finally{
     closed.forEach(d=>d.open=false);
+    if(k==='program'){pgHide.forEach(el=>el.classList.remove('no-pdf'));PAGE_ALL=false;renderActivities();renderProgramList();}
+    if(k==='obs'){PAGE_ALL=false;renderObs();}
     sec.style.width='';
     if(prevTheme)root.dataset.theme=prevTheme; else delete root.dataset.theme;
     document.body.classList.remove('exporting');
@@ -2028,7 +2074,9 @@ async function exportPDF(k){
     $('#toast').classList.remove('show'); pdfBusy=false;
   }
 }
-document.querySelectorAll('[data-export]').forEach(b=>b.onclick=()=>exportPDF(b.dataset.export));
+document.querySelectorAll('[data-export]').forEach(b=>b.onclick=()=>b.dataset.export==='program'?$('#dlg-pgx').showModal():exportPDF(b.dataset.export));
+$('#dlg-pgx').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{$('#dlg-pgx').close();exportPDF('program',b.dataset.o);});
+$('#pgx-cancel').onclick=()=>$('#dlg-pgx').close();
 
 /* ================= PWA ================= */
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js');
