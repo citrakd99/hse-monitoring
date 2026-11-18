@@ -46,6 +46,10 @@ header{background:linear-gradient(120deg,#0b5a41 0%,#0f7a57 55%,#14946a 100%);co
 .title h1{font-size:17px;margin:0;letter-spacing:.01em}
 .title small{color:rgba(255,255,255,.75)}
 .sync{margin-left:auto;font-size:12px;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:6px}
+.gw{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.85)}.gw~.sync{margin-left:0}
+.gw select{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:8px;padding:6px 8px;font:600 13px Inter,sans-serif;max-width:230px;cursor:pointer}
+.gw select option{color:#1b2530;background:#fff}.gw select.on{background:#f5b800;color:#1b2530}
+@media (max-width:700px){.gw>span{display:none}.gw select{max-width:170px}}
 .dot{width:8px;height:8px;border-radius:50%;background:#ffc94d;box-shadow:0 0 0 3px rgba(255,201,77,.25)}
 #install{display:none;background:#fff;color:#0b5a41;border:0}
 nav{max-width:1280px;margin:0 auto;padding:0 16px;display:flex;gap:4px;overflow-x:auto}
@@ -574,6 +578,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
   <div class="bar">
     <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg></div>
     <div class="title"><h1>HSE Monitoring</h1><small id="proj-name">Nama Proyek · v1.0</small></div>
+    <label class="gw" title="Periode cut-off untuk semua halaman, termasuk Dashboard"><span>Periode</span><select id="gw" aria-label="Periode cut-off"></select></label>
     <div class="sync" id="sync"><span class="dot" id="sync-dot"></span><span id="sync-txt">Memuat…</span></div>
     <button class="hbtn" id="refresh" title="Muat ulang data">⟳</button>
     <button class="hbtn" id="who" title="Ganti pengguna" hidden></button>
@@ -1075,13 +1080,13 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 <div id="toast">Membuat PDF…</div>
 <div id="snack"></div>
 
-<script src="i18n.js?v=1.19"></script>
-<script src="i18n-en.js?v=1.19"></script>
-<script src="config.js?v=1.19"></script>
-<script src="ptw.js?v=1.19"></script>
-<script src="pekerja.js?v=1.19"></script>
-<script src="darurat.js?v=1.19"></script>
-<script src="rca.js?v=1.19"></script>
+<script src="i18n.js?v=1.20"></script>
+<script src="i18n-en.js?v=1.20"></script>
+<script src="config.js?v=1.20"></script>
+<script src="ptw.js?v=1.20"></script>
+<script src="pekerja.js?v=1.20"></script>
+<script src="darurat.js?v=1.20"></script>
+<script src="rca.js?v=1.20"></script>
 <script>
 /* ================= CONFIG ================= */
 const API=((window.HSE_CONFIG&&window.HSE_CONFIG.apiUrl)||'').trim();
@@ -1331,12 +1336,12 @@ function legend(el){el.innerHTML=WX.map(w=>`<span>${w.i} ${w.n}</span>`).join(''
 /* ================= DASHBOARD ================= */
 let charts={};
 function renderDashboard(){
-  const filled=manpower.filter(r=>r.normal!=null);
+  const cut=CUT(), filled=manpower.filter(r=>r.normal!=null&&r.date<=cut);
   const totalMH=filled.reduce((a,r)=>a+mh(r),0);
   const totalMP=filled.reduce((a,r)=>a+r.normal,0);
   const last=filled[filled.length-1];
-  $('#k-date').textContent=fmtID(new Date(CFG.today));
-  $('#k-week').textContent=`Week ${curWeek} dari ${CFG.weeks}`;
+  $('#k-date').textContent=fmtID(new Date(cut));
+  $('#k-week').textContent=GW?`Cut-off · ${wkLabel(GW)}`:`Week ${curWeek} dari ${CFG.weeks}`;
   $('#k-mh').textContent=nf(totalMH);
   $('#k-days').textContent=nf(filled.length);
   $('#k-mp').textContent=nf(totalMP);
@@ -1368,17 +1373,17 @@ function renderDashboard(){
   const cats=MASTER.category;
   charts.obs?.destroy();
   charts.obs=new Chart($('#ch-obs'),{type:'bar',data:{labels:cats,datasets:['LOW','MEDIUM','HIGH'].map(r=>({label:r,stack:'a',
-    backgroundColor:c(r==='LOW'?'--low':r==='MEDIUM'?'--med':'--high'),data:cats.map(k=>observations.filter(o=>o.category===k&&o.risk===r).length)}))},
+    backgroundColor:c(r==='LOW'?'--low':r==='MEDIUM'?'--med':'--high'),data:cats.map(k=>observations.filter(o=>o.date<=cut&&o.category===k&&o.risk===r).length)}))},
     options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true,ticks:{precision:0}},y:{stacked:true,grid:{display:false}}}}});
 }
 function renderPyramid(totalMH,totalDays){
   const L=[['Fatality',['Fatality'],'#a30d0d','#fff'],['LWC',['Lost Workday Case (LWC)'],'#e31b1b','#fff'],
     ['RWC/MTC',['Restricted Work Case (RWC) &','Medical Treatment Case (MTC)'],'#f5b800','#1b2530'],
     ['First Aid Case',['First Aid Case'],'#f5b800','#1b2530'],['Near Miss',['Near Miss'],'#14a356','#fff']];
-  const H=50,T=6,cx=165,W=158,half=y=>(y-T)/(L.length*H)*W;
+  const H=50,T=6,cx=165,W=158,half=y=>(y-T)/(L.length*H)*W, cut=CUT(), inc=incidents.filter(x=>x.date<=cut);
   let s=`<svg width="540" height="${T+L.length*H+6}" viewBox="0 0 540 ${T+L.length*H+6}" role="img" aria-label="Safety pyramid">`;
   L.forEach(([k,lbl,col,tc],i)=>{
-    const y0=T+i*H+(i?2:0), y1=T+(i+1)*H-2, n=incidents.filter(x=>x.cls===k).length;
+    const y0=T+i*H+(i?2:0), y1=T+(i+1)*H-2, n=inc.filter(x=>x.cls===k).length;
     const pts=i===0?`${cx},${y0} ${cx+half(y1)},${y1} ${cx-half(y1)},${y1}`:`${cx-half(y0)},${y0} ${cx+half(y0)},${y0} ${cx+half(y1)},${y1} ${cx-half(y1)},${y1}`;
     const bx=cx+half((y0+y1)/2)+12, my=(y0+y1)/2;
     s+=`<rect x="${bx-14}" y="${y0}" width="${534-bx+14}" height="${y1-y0}" rx="6" fill="var(--surface-2)" stroke="${col}" stroke-width="1.5"/>`;
@@ -1388,10 +1393,10 @@ function renderPyramid(totalMH,totalDays){
     lbl.forEach((t,j)=>s+=`<text x="${bx+18}" y="${my+5+(j-(lbl.length-1)/2)*17}" font-size="14" fill="var(--text)">${t}</text>`);
   });
   $('#pyramid').innerHTML=s+'</svg>';
-  const lti=incidents.filter(x=>x.cls==='Fatality'||x.cls==='LWC').sort((a,b)=>b.date.localeCompare(a.date))[0];
-  $('#p-lti').textContent=nf(lti?Math.round((new Date(CFG.today)-new Date(lti.date))/864e5):totalDays);
-  $('#p-total').textContent=nf(incidents.length);
-  $('#p-ltifr').textContent=nf(incidents.filter(x=>RECORDABLE.includes(x.cls)).length);
+  const lti=inc.filter(x=>x.cls==='Fatality'||x.cls==='LWC').sort((a,b)=>b.date.localeCompare(a.date))[0];
+  $('#p-lti').textContent=nf(lti?Math.round((new Date(cut)-new Date(lti.date))/864e5):totalDays);
+  $('#p-total').textContent=nf(inc.length);
+  $('#p-ltifr').textContent=nf(inc.filter(x=>RECORDABLE.includes(x.cls)).length);
 }
 /* Safety performance: TRIR & LWCIR (basis 200.000 jam) */
 const RECORDABLE=['Fatality','LWC','RWC/MTC'], LWC_CASES=['Fatality','LWC'], BASE=200000;
@@ -1414,6 +1419,26 @@ const LI_TARGET={obsPerWeek:20, closeRate:90, closeDays:3};
 // status temuan pada akhir tanggal 'end': Closed hanya bila sudah Closed dan action date <= end
 const obsStatusAt=(o,end)=>o.status==='Closed'&&o.actionDate&&o.actionDate<=end?'Closed':'Open';
 let dashWeek=0; // week yang dipilih di Dashboard (Top 5 & Leading Indicators)
+/* Periode cut-off global (header): 0 = semua (PTD s/d hari ini); n = data dipotong s/d akhir Week n */
+let GW=0;
+const CUT=()=>GW&&wkEnd(GW)<CFG.today?wkEnd(GW):CFG.today;
+function fillGw(){
+  const sel=$('#gw'), last=Math.max(1,Math.min(curWeek,CFG.weeks)); if(GW>last)GW=0;
+  sel.innerHTML='<option value="">Semua (PTD)</option>'+Array.from({length:last},(_,i)=>last-i).map(w=>`<option value="${w}">${wkLabel(w)}</option>`).join('');
+  sel.value=GW?String(GW):''; sel.classList.toggle('on',!!GW);
+}
+function setWeekFilter(sel,from,to,w){$(sel).value=w?String(w):'';$(from).value=w?wkStart(w):'';$(to).value=w?wkEnd(w):'';}
+const setIf=(s,v)=>{const el=$(s);if(el&&el.querySelector(`option[value="${v}"]`))el.value=v;};
+function applyGw(){
+  GW=+$('#gw').value||0; const w=GW||curWeek, m=CUT().slice(0,7);
+  $('#gw').classList.toggle('on',!!GW);
+  dashWeek=w; document.querySelectorAll('.dash-wk').forEach(x=>x.value=w);
+  ['#mp-week','#wx-week','#wx-dash-week','#wp-week'].forEach(s=>setIf(s,w));
+  setWeekFilter('#f-wk','#f-from','#f-to',GW); setWeekFilter('#i-wk','#i-from','#i-to',GW); setWeekFilter('#a-wk','#a-from','#a-to',GW);
+  setIf('#pg-range',m); setIf('#perf-month',m);
+  renderDashboard(); renderManpower(); renderCuaca(); renderObs(); renderIncident(); renderProgram();
+}
+$('#gw').onchange=applyGw;
 function renderLeading(){
   // week terpilih; angka PTD dihitung s/d akhir week tsb (week berjalan = kondisi saat ini)
   const W=dashWeek||curWeek, cur=W===curWeek, end=cur?CFG.today:wkEnd(W);
@@ -2272,6 +2297,7 @@ function renderAll(){
   const mw=keep('#mp-week'), ww=keep('#wx-week'), dw=keep('#wx-dash-week');
   weekOptions($('#mp-week'),Math.min(mw,CFG.weeks)); weekOptions($('#wx-week'),Math.min(ww,CFG.weeks)); weekOptions($('#wx-dash-week'),Math.min(dw,CFG.weeks));
   ['#f-wk','#i-wk','#a-wk'].forEach(x=>fillWeekFilter($(x)));
+  fillGw(); if(GW)setIf('#wx-dash-week',GW);
   if(!dashWeek||dashWeek>CFG.weeks)dashWeek=curWeek; document.querySelectorAll('.dash-wk').forEach(x=>weekOptions(x,dashWeek));
   $('#jn').textContent=CFG.jamNormal; $('#jl').textContent=leTxt(CFG.lemburMulai); $('#jlp').textContent=leTxt(CFG.lemburPulang);
   document.querySelectorAll('.wk-total').forEach(e=>e.textContent=CFG.weeks);
@@ -2280,7 +2306,7 @@ function renderAll(){
   document.querySelectorAll('.ph-date').forEach(e=>e.textContent=fmtID(new Date(CFG.today)));
   $('#m-note-mode').textContent=LIVE?(ROLE==='admin'?'Anda login sebagai admin: perubahan langsung tersimpan ke Google Sheet.':'Hanya admin yang dapat mengubah daftar ini.'):'Mode demo: perubahan disimpan di browser ini saja.';
   $('#m-reset').hidden=LIVE;
-  refreshSelects(); perfMonths();
+  refreshSelects(); perfMonths(); if(GW)setIf('#perf-month',CUT().slice(0,7));
   renderDashboard(); renderManpower(); renderCuaca(); renderObs(); renderIncident(); renderMaster(); renderGuide(); renderSetting(); renderProgram(); fillProgSelect(); renderPermit(); renderWorkers(); renderErt(); renderProc();
   showMasterTab($('#m-seg button.active')?.dataset.m||'data');
 }
