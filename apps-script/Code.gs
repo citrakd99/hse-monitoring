@@ -16,7 +16,7 @@ const SCHEMA = {
   Manpower: ['date', 'normal', 'lembur', 'updated_by', 'updated_at', 'staff_normal', 'staff_lembur', 'pekerja_normal', 'pekerja_lembur', 'detail', 'lembur_end'],
   Cuaca: ['date', 'h07', 'h08', 'h09', 'h10', 'h11', 'h12', 'h13', 'h14', 'h15', 'h16', 'h17', 'h18', 'h19', 'h20', 'h21', 'updated_by', 'updated_at'],
   Observation: ['id', 'date', 'observer', 'area', 'finding', 'type', 'category', 'risk', 'photo_url', 'action', 'action_date', 'action_photo_url', 'status', 'created_by', 'created_at', 'updated_by', 'updated_at', 'rca'],
-  Incident: ['id', 'date', 'time', 'cls', 'area', 'desc', 'involved', 'action', 'lost_days', 'reporter', 'photo_url', 'created_by', 'created_at'],
+  Incident: ['id', 'date', 'time', 'cls', 'area', 'desc', 'involved', 'action', 'lost_days', 'reporter', 'photo_url', 'created_by', 'created_at', 'updated_by', 'updated_at'],
   Master: ['list', 'value'],
   ERT: ['id', 'kind', 'role', 'name', 'worker_id', 'phone', 'info', 'updated_by', 'updated_at'],
   Worker: ['id', 'name', 'ktp', 'gender', 'category', 'company', 'induction', 'induction_date', 'violation', 'work_status', 'trainings', 'certifications', 'notes', 'created_by', 'created_at', 'updated_by', 'updated_at', 'violation_date', 'position'],
@@ -315,6 +315,19 @@ function write_(a, req, user, role) {
       if (req.photo) v.photo_url = savePhoto_(req.photo, 'INC');
       append_('Incident', id, v);
       return { sheet: 'Incident', ref: id, id, photo_url: v.photo_url };
+    }
+    case 'updateIncident': {
+      checkDate_(r.date);
+      if (INCIDENT_CLASS.indexOf(r.cls) < 0) throw new Error('Klasifikasi tidak valid');
+      if (!findRow_('Incident', req.id)) throw new Error('Insiden tidak ditemukan');
+      const v = {
+        date: r.date, time: r.time, cls: r.cls, area: r.area, desc: r.desc, involved: r.involved || '', action: r.action || '',
+        lost_days: num_(r.lostDays), reporter: r.reporter || user, updated_by: user, updated_at: now
+      };
+      if (req.photo) v.photo_url = savePhoto_(req.photo, 'INC');
+      ensureHeader_('Incident');
+      update_('Incident', req.id, v);
+      return { sheet: 'Incident', ref: req.id, id: req.id, photo_url: v.photo_url };
     }
     case 'updateConfig': {
       adminOnly();

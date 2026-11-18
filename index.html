@@ -763,7 +763,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
     </div>
     <div class="filter-info" id="inc-info"></div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>No</th><th>Date</th><th>Time</th><th>Klasifikasi</th><th>Area</th><th>Kronologi</th><th>Pihak terlibat</th><th>Tindakan segera</th><th class="num">Hari hilang</th><th>Pelapor</th></tr></thead>
+      <thead><tr><th>No</th><th>Date</th><th>Time</th><th>Klasifikasi</th><th>Area</th><th>Kronologi</th><th>Pihak terlibat</th><th>Tindakan segera</th><th class="num">Hari hilang</th><th>Pelapor</th><th class="no-pdf"></th></tr></thead>
       <tbody id="inc-body"></tbody>
     </table></div>
   </div>
@@ -921,7 +921,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 </dialog>
 <dialog id="dlg-inc">
   <form method="dialog" id="inc-form">
-    <div class="dlg-h">Lapor Insiden</div>
+    <div class="dlg-h" id="inc-title">Lapor Insiden</div>
     <div class="dlg-b">
       <label>Date<input type="date" name="date" required></label>
       <label>Time<input type="time" name="time" required></label>
@@ -932,7 +932,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <label>Hari kerja hilang<input type="number" name="lostDays" min="0" value="0"></label>
       <label class="full">Tindakan segera<textarea name="action" rows="2" placeholder="P3K, isolasi area, dll"></textarea></label>
       <label>Pelapor<input name="reporter" required placeholder="Nama pelapor"></label>
-      <label>Foto<input type="file" accept="image/*" capture="environment" id="if-photo"></label>
+      <label>Foto<input type="file" accept="image/*" capture="environment" id="if-photo"><a id="if-photo-cur" target="_blank" rel="noopener" hidden>Lihat foto tersimpan</a></label>
     </div>
     <div class="dlg-f"><button class="btn" value="cancel" formnovalidate>Batal</button><button class="btn primary" value="ok">Simpan</button></div>
   </form>
@@ -1080,13 +1080,13 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 <div id="toast">Membuat PDF…</div>
 <div id="snack"></div>
 
-<script src="i18n.js?v=1.20"></script>
-<script src="i18n-en.js?v=1.20"></script>
-<script src="config.js?v=1.20"></script>
-<script src="ptw.js?v=1.20"></script>
-<script src="pekerja.js?v=1.20"></script>
-<script src="darurat.js?v=1.20"></script>
-<script src="rca.js?v=1.20"></script>
+<script src="i18n.js?v=1.21"></script>
+<script src="i18n-en.js?v=1.21"></script>
+<script src="config.js?v=1.21"></script>
+<script src="ptw.js?v=1.21"></script>
+<script src="pekerja.js?v=1.21"></script>
+<script src="darurat.js?v=1.21"></script>
+<script src="rca.js?v=1.21"></script>
 <script>
 /* ================= CONFIG ================= */
 const API=((window.HSE_CONFIG&&window.HSE_CONFIG.apiUrl)||'').trim();
@@ -1600,8 +1600,15 @@ function renderIncident(){
   $('#inc-info').innerHTML=summarize(incidents.length,list.length,'insiden',[['Periode',periodTxt(F.from,F.to)],['Klasifikasi',F.cls],['Area',F.area]]);
   $('#inc-body').innerHTML=list.map(x=>`<tr><td>${x.no}</td><td>${fmtID(new Date(x.date))}</td><td>${esc(x.time)}</td><td><span class="icp" style="--c:${IC_COLOR[x.cls]}">${x.cls}</span></td>
     <td>${esc(x.area)}</td><td style="white-space:normal;min-width:220px">${esc(x.desc)}${safeUrl(x.photo)?` <a href="${esc(x.photo)}" target="_blank" rel="noopener">📷</a>`:''}</td><td>${esc(x.involved)||'–'}</td><td style="white-space:normal;min-width:180px">${esc(x.action)||'–'}</td>
-    <td class="num">${x.lostDays||0}</td><td>${esc(x.reporter)}</td></tr>`).join('')
-    ||'<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">Tidak ada data sesuai filter</td></tr>';
+    <td class="num">${x.lostDays||0}</td><td>${esc(x.reporter)}</td>
+    <td class="no-pdf" style="white-space:nowrap"><button class="edit" data-id="${esc(x.id)}" title="Edit insiden">✎</button>${ROLE==='admin'?`<button class="del" data-id="${esc(x.id)}" title="Hapus insiden">×</button>`:''}</td></tr>`).join('')
+    ||'<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:20px">Tidak ada data sesuai filter</td></tr>';
+  $('#inc-body').querySelectorAll('.edit').forEach(b=>b.onclick=()=>openInc(incidents.find(x=>String(x.id)===b.dataset.id)));
+  $('#inc-body').querySelectorAll('.del').forEach(b=>b.onclick=async()=>{
+    const x=incidents.find(i=>String(i.id)===b.dataset.id); if(!x)return;
+    if(!confirm(`Hapus laporan insiden ${x.cls} tanggal ${fmtID(new Date(x.date))}?\nData yang dihapus tidak bisa dikembalikan.`))return;
+    try{await save('deleteRow',{sheet:'Incident',id:x.id},'Insiden dihapus');}catch{return;}
+    incidents=incidents.filter(i=>i!==x); renderIncident(); renderDashboard();});
 }
 
 /* ================= MASTER (editable) ================= */
@@ -2163,13 +2170,35 @@ $('#dlg').addEventListener('close',async()=>{
   observations.sort((a,b)=>a.date.localeCompare(b.date)); renderObs(); renderDashboard();});
 
 // form incident
-$('#add-inc').onclick=()=>{const f=$('#inc-form');f.reset();f.date.value=CFG.today;f.time.value=new Date().toTimeString().slice(0,5);f.reporter.value=SESSION?.user||'';$('#dlg-inc').showModal();};
+let editingInc=null; // insiden yang sedang diedit (null = lapor baru)
+function openInc(x){
+  editingInc=x||null; const f=$('#inc-form'); f.reset();
+  $('#inc-title').textContent=x?'Edit Laporan Insiden':'Lapor Insiden';
+  if(x){
+    ['date','time','cls','area','desc','involved','action','reporter'].forEach(k=>{const el=f.elements.namedItem(k);
+      if(el.tagName==='SELECT'&&x[k]&&!el.querySelector(`option[value="${CSS.escape(x[k])}"]`))el.insertAdjacentHTML('beforeend',`<option>${esc(x[k])}</option>`);
+      el.value=x[k]??'';});
+    f.elements.namedItem('lostDays').value=x.lostDays||0;
+  }else{f.date.value=CFG.today;f.time.value=new Date().toTimeString().slice(0,5);f.reporter.value=SESSION?.user||'';}
+  f.date.max=CFG.today;
+  const a=$('#if-photo-cur'), u=safeUrl(x?.photo); a.hidden=!u; if(u)a.href=u;
+  $('#dlg-inc').showModal();
+}
+$('#add-inc').onclick=()=>openInc(null);
 $('#dlg-inc').addEventListener('close',async()=>{
   if($('#dlg-inc').returnValue!=='ok')return; const f=Object.fromEntries(new FormData($('#inc-form')));
   const row={...f,lostDays:Math.max(0,+f.lostDays||0)};
   let photo; try{photo=await readPhoto($('#if-photo'));}catch{}
-  let r; try{r=await save('addIncident',{row,photo:photo?{name:photo.name,mime:photo.mime,data:photo.data}:undefined},'Insiden tersimpan');}catch{return;}
-  incidents.push({...row,id:r.id||('L'+Date.now()),photo:r.photo_url||photo?.preview||''});
+  const ph=photo?{name:photo.name,mime:photo.mime,data:photo.data}:undefined, ed=editingInc;
+  let r;
+  if(ed){
+    try{r=await save('updateIncident',{id:ed.id,row,photo:ph},'Insiden diperbarui');}
+    catch(e){if(/tidak dikenal/i.test(e.message||''))snack('Apps Script belum diperbarui: edit insiden belum bisa disimpan. Admin perlu menempel Code.gs terbaru lalu Deploy → New version.',true);return;}
+    Object.assign(ed,row,{photo:r.photo_url||photo?.preview||ed.photo||''});
+  }else{
+    try{r=await save('addIncident',{row,photo:ph},'Insiden tersimpan');}catch{return;}
+    incidents.push({...row,id:r.id||('L'+Date.now()),photo:r.photo_url||photo?.preview||''});
+  }
   incidents.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)); renderIncident(); renderDashboard();});
 
 // pyramid -> buka halaman incident
