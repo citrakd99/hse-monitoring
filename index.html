@@ -909,7 +909,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       <label>Risk<select name="risk" id="ff-risk"></select></label>
       <label class="full">Finding<textarea name="finding" rows="2" required placeholder="Deskripsi temuan"></textarea></label>
       <label class="full">Photo temuan<input type="file" accept="image/*" capture="environment" id="ff-photo"><a id="ff-photo-cur" target="_blank" rel="noopener" hidden>Lihat foto tersimpan</a></label>
-      <label class="full">Action<textarea name="action" rows="2" placeholder="Tindakan perbaikan"></textarea></label>
+      <label class="full">Action<textarea name="action" rows="2" placeholder="Tindakan perbaikan"></textarea><small id="ff-action-note" class="fx-note" hidden>Terisi otomatis dari action plan RCA. Ubah lewat investigasi RCA.</small></label>
       <label>Action Date<input type="date" name="actionDate"></label>
       <label>Photo action<input type="file" accept="image/*" capture="environment" id="ff-aphoto"><a id="ff-aphoto-cur" target="_blank" rel="noopener" hidden>Lihat foto tersimpan</a></label>
       <div class="full st-box">Status temuan<div class="st-tog" role="radiogroup"><label><input type="radio" name="status" value="Open" checked><span>Open</span></label><label><input type="radio" name="status" value="Closed"><span>✓ Closed</span></label></div>
@@ -1080,13 +1080,13 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 <div id="toast">Membuat PDF…</div>
 <div id="snack"></div>
 
-<script src="i18n.js?v=1.21"></script>
-<script src="i18n-en.js?v=1.21"></script>
-<script src="config.js?v=1.21"></script>
-<script src="ptw.js?v=1.21"></script>
-<script src="pekerja.js?v=1.21"></script>
-<script src="darurat.js?v=1.21"></script>
-<script src="rca.js?v=1.21"></script>
+<script src="i18n.js?v=1.22"></script>
+<script src="i18n-en.js?v=1.22"></script>
+<script src="config.js?v=1.22"></script>
+<script src="ptw.js?v=1.22"></script>
+<script src="pekerja.js?v=1.22"></script>
+<script src="darurat.js?v=1.22"></script>
+<script src="rca.js?v=1.22"></script>
 <script>
 /* ================= CONFIG ================= */
 const API=((window.HSE_CONFIG&&window.HSE_CONFIG.apiUrl)||'').trim();
@@ -1351,7 +1351,7 @@ function renderDashboard(){
   const W=dashWeek||curWeek, stAt=o=>obsStatusAt(o,wkEnd(W));
   const wk=observations.filter(o=>weekOf(o.date)===W).map(o=>({...o,status:W===curWeek?o.status:stAt(o)}))
     .sort((a,b)=>riskRank[b.risk]-riskRank[a.risk]||(a.status==='Open'?-1:1)).slice(0,5);
-  $('#top5').innerHTML=wk.map((o,i)=>`<tr><td>${i+1}</td><td style="white-space:normal;min-width:180px">${o.finding}</td><td>${o.area}</td><td><span class="pill ${o.risk}">${o.risk}</span></td><td style="white-space:normal;min-width:160px">${o.action}</td><td><span class="pill st-${o.status.toLowerCase()}">${o.status}</span></td></tr>`).join('')||`<tr><td colspan="6">${W===curWeek?'Belum ada observasi minggu ini':'Tidak ada observasi pada week ini'}</td></tr>`;
+  $('#top5').innerHTML=wk.map((o,i)=>`<tr><td>${i+1}</td><td style="white-space:normal;min-width:180px">${esc(o.finding)}</td><td>${esc(o.area)}</td><td><span class="pill ${o.risk}">${o.risk}</span></td><td style="white-space:pre-line;min-width:160px">${esc(obsAction(o))}</td><td><span class="pill st-${o.status.toLowerCase()}">${o.status}</span></td></tr>`).join('')||`<tr><td colspan="6">${W===curWeek?'Belum ada observasi minggu ini':'Tidak ada observasi pada week ini'}</td></tr>`;
   $('#top5-note').textContent=W===curWeek?'':`Status per akhir Week ${W} (${fmtID(new Date(wkEnd(W)))}).`;
 
   renderWxDash();
@@ -1546,7 +1546,7 @@ function renderObs(){
   const page=paginate('obs',list,JSON.stringify(F)+observations.length);
   $('#obs-body').innerHTML=page.map(o=>`<tr data-id="${esc(o.id)}" title="Klik untuk edit / tutup temuan"><td>${o.no}</td><td>${fmtID(new Date(o.date))}</td><td>${esc(o.observer)}</td><td>${esc(o.area)}</td>
     <td style="white-space:normal;min-width:220px">${esc(o.finding)}</td><td>${esc(o.type)}</td><td>${esc(o.category)}</td><td><span class="pill ${o.risk}">${o.risk}</span></td>
-    <td class="c">${photoCell(o.photo)}</td><td style="white-space:normal;min-width:200px">${esc(o.action)||'–'}</td><td>${o.actionDate?fmtID(new Date(o.actionDate)):'–'}</td>
+    <td class="c">${photoCell(o.photo)}</td><td style="white-space:pre-line;min-width:200px">${esc(obsAction(o))||'–'}</td><td>${o.actionDate?fmtID(new Date(o.actionDate)):'–'}</td>
     <td class="c">${photoCell(o.actionPhoto)}</td><td><span class="pill st-${o.status.toLowerCase()}">${o.status}</span></td><td>${rcaBadge(o)}</td></tr>`).join('')
     ||'<tr><td colspan="14" style="text-align:center;color:var(--muted);padding:20px">Tidak ada data sesuai filter</td></tr>';
   pagerBar('obs',list.length,renderObs);

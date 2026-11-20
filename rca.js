@@ -23,6 +23,17 @@ const rcaParse = s => {
   try { const x = JSON.parse(s); return x && typeof x === 'object' ? x : null; } catch (e) { return null; }
 };
 
+/* Action observasi diisi otomatis dari action plan RCA (bila RCA aktif & temuan MEDIUM/HIGH) */
+const rcaHasActs = r => !!(r && (r.actions || []).some(a => (a.t || '').trim()));
+function rcaActionText(r) {
+  const acts = (r && r.actions || []).filter(a => (a.t || '').trim());
+  return acts.map((a, i) => {
+    const meta = [a.pic ? 'PIC ' + a.pic.trim() : '', a.due ? 'target ' + fmtID(new Date(a.due)) : ''].filter(Boolean).join(', ');
+    return `${acts.length > 1 ? (i + 1) + '. ' : ''}${a.t.trim()}${meta ? ' (' + meta + ')' : ''} [${a.st || 'Open'}]`;
+  }).join('\n').slice(0, 1000);
+}
+const obsAction = o => needsRca(o) && rcaHasActs(o.rca) ? rcaActionText(o.rca) : (o.action || '');
+
 /* status RCA sebuah temuan; `at` = tanggal acuan untuk menghitung action plan lewat target */
 function rcaInfo(o, at) {
   if (!needsRca(o)) return { st: 'none', acts: 0, done: 0, overdue: 0 };
@@ -54,6 +65,10 @@ function rcaCloseError(o) {
 
 /* kotak info RCA di form observasi */
 function rcaObsBox(o, risk) {
+  // kolom Action terkunci & terisi dari RCA bila action plan RCA sudah ada
+  const ta = $('#obs-form').elements.namedItem('action'), lock = rcaOn() && RCA_RISKS.includes(risk) && !!o && rcaHasActs(o.rca);
+  if (lock) ta.value = rcaActionText(o.rca); else if (ta.readOnly) ta.value = o ? (o.action || '') : '';
+  ta.readOnly = lock; $('#ff-action-note').hidden = !lock;
   const box = $('#ff-rca');
   if (!rcaOn() || !RCA_RISKS.includes(risk)) { box.hidden = true; box.innerHTML = ''; return; }
   box.hidden = false;
@@ -158,12 +173,14 @@ async function rcaSave(andPrint) {
   }
   r.v = 1; r.by = SESSION?.user || 'demo'; r.at = new Date().toISOString();
   const btns = ['#rca-save', '#rca-saveprint'].map(s => $(s)); btns.forEach(b => b.disabled = true);
-  try { await save('saveRca', { id: o.id, rca: JSON.stringify(r) }, 'RCA tersimpan'); }
+  const action = rcaHasActs(r) ? rcaActionText(r) : undefined; let res;
+  try { res = await save('saveRca', { id: o.id, rca: JSON.stringify(r), obs_action: action }, 'RCA tersimpan'); }
   catch (e) {
     if (/tidak dikenal/i.test(e.message || '')) snack('Apps Script belum diperbarui: RCA belum bisa disimpan ke Google Sheet. Admin perlu menempel Code.gs terbaru lalu Deploy → New version.', true);
     return;
   } finally { btns.forEach(b => b.disabled = false); }
-  o.rca = r;
+  o.rca = r; if (action !== undefined) o.action = action;
+  if (LIVE && action !== undefined && !res?.action_synced) setTimeout(() => snack('Action observasi belum ikut tersimpan ke Google Sheet: admin perlu menempel Code.gs terbaru lalu Deploy → New version.', true), 2600);
   $('#dlg-rca').close();
   renderObs(); renderDashboard();
   const i = rcaInfo(o);

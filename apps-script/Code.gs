@@ -301,8 +301,11 @@ function write_(a, req, user, role) {
       let rca; try { rca = JSON.parse(txt); } catch (e) { throw new Error('Data RCA tidak valid'); }
       if (!rca || typeof rca !== 'object') throw new Error('Data RCA tidak valid');
       ensureHeader_('Observation');
-      if (!update_('Observation', req.id, { rca: txt, updated_by: user, updated_at: now })) throw new Error('Observasi tidak ditemukan: ' + req.id);
-      return { sheet: 'Observation', ref: req.id, ok: true };
+      const v = { rca: txt, updated_by: user, updated_at: now };
+      // action observasi diisi otomatis dari action plan RCA
+      if (typeof req.obs_action === 'string' && req.obs_action.trim()) v.action = req.obs_action.slice(0, 1000);
+      if (!update_('Observation', req.id, v)) throw new Error('Observasi tidak ditemukan: ' + req.id);
+      return { sheet: 'Observation', ref: req.id, ok: true, action_synced: true };
     }
     case 'addIncident': {
       checkDate_(r.date);
