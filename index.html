@@ -1080,13 +1080,13 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 <div id="toast">Membuat PDF…</div>
 <div id="snack"></div>
 
-<script src="i18n.js?v=1.22"></script>
-<script src="i18n-en.js?v=1.22"></script>
-<script src="config.js?v=1.22"></script>
-<script src="ptw.js?v=1.22"></script>
-<script src="pekerja.js?v=1.22"></script>
-<script src="darurat.js?v=1.22"></script>
-<script src="rca.js?v=1.22"></script>
+<script src="i18n.js?v=1.23"></script>
+<script src="i18n-en.js?v=1.23"></script>
+<script src="config.js?v=1.23"></script>
+<script src="ptw.js?v=1.23"></script>
+<script src="pekerja.js?v=1.23"></script>
+<script src="darurat.js?v=1.23"></script>
+<script src="rca.js?v=1.23"></script>
 <script>
 /* ================= CONFIG ================= */
 const API=((window.HSE_CONFIG&&window.HSE_CONFIG.apiUrl)||'').trim();
@@ -1539,7 +1539,7 @@ let PAGE_ALL=false;
 try{const n=+store.get('hse-page-n');if([10,25,50].includes(n))Object.values(PAGER).forEach(s=>s.n=n);}catch{}
 function renderObs(){
   const F={from:$('#f-from').value,to:$('#f-to').value,risk:$('#f-risk').value,area:$('#f-area').value,cat:$('#f-cat').value,st:$('#f-status').value};
-  const list=observations.map((o,i)=>({...o,no:i+1})).filter(o=>(!F.from||o.date>=F.from)&&(!F.to||o.date<=F.to)&&(!F.risk||o.risk===F.risk)&&
+  const list=observations.map((o,i)=>({...o,no:i+1})).filter(o=>(!F.from||o.date>=F.from)&&(!F.to||o.date<=F.to)&&(!F.risk||(F.risk==='MEDIUM + HIGH'?['MEDIUM','HIGH'].includes(o.risk):o.risk===F.risk))&&
     (!F.area||o.area===F.area)&&(!F.cat||o.category===F.cat)&&(!F.st||o.status===F.st)).reverse();
   $('#obs-info').innerHTML=summarize(observations.length,list.length,'observasi',[['Periode',periodTxt(F.from,F.to)],['Risk',F.risk],['Area',F.area],['Category',F.cat],['Status',F.st]])+
     ` · Open <b>${list.filter(o=>o.status==='Open').length}</b> / Closed <b>${list.filter(o=>o.status==='Closed').length}</b>`;
@@ -1586,7 +1586,7 @@ $('#obs-form').addEventListener('submit',e=>{
 function fillSelect(el,items,keep){const v=el.value;el.innerHTML=(keep||'')+items.map(x=>`<option>${esc(x)}</option>`).join('');if([...el.options].some(o=>o.value===v))el.value=v;}
 function refreshSelects(){
   const all=t=>`<option value="">Semua${t?' '+t:''}</option>`;
-  fillSelect($('#f-risk'),['LOW','MEDIUM','HIGH'],all()); fillSelect($('#f-area'),MASTER.area,all()); fillSelect($('#f-cat'),MASTER.category,all());
+  fillSelect($('#f-risk'),['LOW','MEDIUM','HIGH','MEDIUM + HIGH'],all()); fillSelect($('#f-area'),MASTER.area,all()); fillSelect($('#f-cat'),MASTER.category,all());
   fillSelect($('#ff-area'),MASTER.area); fillSelect($('#ff-type'),MASTER.type); fillSelect($('#ff-cat'),MASTER.category); fillSelect($('#ff-risk'),['LOW','MEDIUM','HIGH']);
   fillSelect($('#i-cls'),INCIDENT_CLASS,all()); fillSelect($('#i-area'),MASTER.area,all());
   fillSelect($('#if-cls'),INCIDENT_CLASS); fillSelect($('#if-area'),MASTER.area);
